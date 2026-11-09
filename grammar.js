@@ -894,6 +894,7 @@ module.exports = grammar({
     for_in_statement: $ => seq(
       'for',
       '(',
+      optional('final'),
       optional(choice('def', field('type', $._type))),
       field('variable', $.identifier),
       choice('in', ':'),

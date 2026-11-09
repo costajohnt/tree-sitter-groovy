@@ -55,8 +55,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   the whole member section behind a required leading `;`.
 - `final` is now accepted on local variable declarations: `final String
   name = 'a'`, `final def n = 1`, and the modifier-only form `final x = 1`
-  (dynamically typed, as with `def`). Previously any local starting with
-  `final` inside a method body was an `ERROR` node.
+  (dynamically typed, as with `def`), plus a `final` loop variable in
+  `for (final x in xs)`. Previously any local starting with `final` inside
+  a method body was an `ERROR` node.
 - Parenthesis-free calls now accept named arguments, as §5.5 specifies:
   `exclude group: 'a', module: 'b'`, `archiveArtifacts artifacts: 'x'`,
   GORM's `name blank: false, size: 1..100`. After the first argument,
