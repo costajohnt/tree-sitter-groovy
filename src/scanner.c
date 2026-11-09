@@ -18,6 +18,7 @@ enum TokenType {
     BLOCK_COMMENT,
     GROOVYDOC_COMMENT,
     COMMAND_NAMED_KEY,
+    SUBSCRIPT_OPEN,
     ERROR_SENTINEL,
 };
 
@@ -113,6 +114,21 @@ bool tree_sitter_groovy_external_scanner_scan(
     const bool *valid_symbols
 ) {
     (void)payload;
+
+    // SPECIFICATION.md §5.10 — a `[` on the current line continues the
+    // expression (subscript or array type). Only spaces and tabs are
+    // skipped; at a newline we fall through, and the in-grammar `[` starts
+    // a list or map literal instead.
+    if (valid_symbols[SUBSCRIPT_OPEN] && !valid_symbols[ERROR_SENTINEL]) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, true);
+        }
+        if (lexer->lookahead == '[') {
+            lexer->advance(lexer, false);
+            lexer->result_symbol = SUBSCRIPT_OPEN;
+            return true;
+        }
+    }
 
     if (valid_symbols[COMMAND_NAMED_KEY] && !valid_symbols[ERROR_SENTINEL]) {
         if (lexer->lookahead == ' ' || lexer->lookahead == '\t'

@@ -74,6 +74,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   nested type was an `ERROR` node and broke the rest of the class body.
 - `final` is now accepted on method and constructor parameters (`def f(final String a)`).
 - Trait declarations accept an `implements` clause (`trait T implements A, B`).
+- A `[` that starts a new line now begins a list or map literal instead of subscripting the previous statement, so a Grails controller action ending in `[model: value]` parses. Subscripts and array types on the same line, with or without a space before the `[`, are unchanged. Implemented as an external scanner token, `_subscript_open`.
 
 ## [0.3.0] - 2026-08-30
 

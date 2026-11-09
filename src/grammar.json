@@ -3825,7 +3825,12 @@
             "name": "_type"
           },
           {
-            "type": "STRING",
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_subscript_open"
+            },
+            "named": false,
             "value": "["
           },
           {
@@ -4473,7 +4478,12 @@
             }
           },
           {
-            "type": "STRING",
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_subscript_open"
+            },
+            "named": false,
             "value": "["
           },
           {
@@ -7018,6 +7028,10 @@
     {
       "type": "SYMBOL",
       "name": "_command_named_key"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_subscript_open"
     },
     {
       "type": "SYMBOL",
