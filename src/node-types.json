@@ -2077,6 +2077,22 @@
             "named": true
           },
           {
+            "type": "field_access",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "method_invocation",
+            "named": true
+          },
+          {
+            "type": "named_argument",
+            "named": true
+          },
+          {
             "type": "null_literal",
             "named": true
           },
