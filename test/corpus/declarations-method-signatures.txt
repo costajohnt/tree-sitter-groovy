@@ -248,3 +248,22 @@ ResponseEntity get(@PathVariable("id") Long id, @RequestBody Map body) { }
         type: (type_identifier)
         name: (identifier)))
     body: (block)))
+
+==================
+Final parameters
+==================
+
+def f(final String a, final b) { }
+
+---
+
+(source_file
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters
+      (formal_parameter
+        type: (type_identifier)
+        name: (identifier))
+      (formal_parameter
+        name: (identifier)))
+    body: (block)))

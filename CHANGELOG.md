@@ -72,6 +72,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   a member `interface`, `trait`, `record` or `@interface`, at any depth.
   Previously `_class_member` had no type-declaration alternatives, so a
   nested type was an `ERROR` node and broke the rest of the class body.
+- `final` is now accepted on method and constructor parameters (`def f(final String a)`).
 
 ## [0.3.0] - 2026-08-30
 
