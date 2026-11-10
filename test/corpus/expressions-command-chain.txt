@@ -540,3 +540,22 @@ def f = new File
         arguments: (argument_list
           (string_literal
             (string_fragment)))))))
+
+==================
+Comment after a command chain's last argument
+==================
+
+assertEquals 'v', x
+// note
+assert y
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (string_literal)
+    argument: (identifier))
+  (line_comment)
+  (assert_statement
+    (identifier)))

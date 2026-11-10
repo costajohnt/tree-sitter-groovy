@@ -112,7 +112,7 @@ module.exports = grammar({
   // `if` returning `a.b`.
   reserved: {
     global: _ => [
-      'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'return',
+      'if', 'for', 'while', 'do', 'switch', 'case', 'return',
       'break', 'continue', 'throw', 'try', 'catch', 'finally', 'assert',
       'synchronized', 'new', 'class', 'interface', 'enum', 'import',
       'package',
@@ -1019,6 +1019,7 @@ module.exports = grammar({
     // §4 — package and import. Trailing `;` is optional in Groovy;
     // we accept both forms by not requiring it.
     package_declaration: $ => seq(
+      repeat($.annotation),
       'package',
       field('name', $.qualified_name),
     ),
@@ -1029,6 +1030,7 @@ module.exports = grammar({
     // imports only appear in this position, so the lexer-wide
     // longest-match is safe.
     import_declaration: $ => seq(
+      repeat($.annotation),
       'import',
       optional('static'),
       field('name', $.qualified_name),
