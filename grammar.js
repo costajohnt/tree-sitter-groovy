@@ -222,6 +222,7 @@ module.exports = grammar({
   conflicts: $ => [
     // `final def x` / `final x = 1` in a block vs. a modified member at top level.
     [$._modifier, $.local_variable_declaration],
+    [$._modifier, $.local_variable_declaration, $.multi_assignment_declaration],
     // §5.5 — a literal after a command chain's comma is a positional
     // argument, or the start of a trailing method_invocation's function
     // expression; only `(` would make it the latter.
@@ -1316,6 +1317,7 @@ module.exports = grammar({
     //
     // Each name may carry a type: `def (String foo, int bar) = ["foo", 42]`.
     multi_assignment_declaration: $ => seq(
+      optional('final'),
       'def',
       '(',
       $._multi_assignment_target,

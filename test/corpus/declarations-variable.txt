@@ -762,3 +762,31 @@ trait Named { }
   (trait_declaration
     name: (identifier)
     body: (class_body)))
+
+==================
+final multiple assignment
+==================
+
+final def (a, b) = foo()
+final def (String c, int d) = bar()
+---
+
+(source_file
+  (multi_assignment_declaration
+    (variable_declarator
+      name: (identifier))
+    (variable_declarator
+      name: (identifier))
+    value: (method_invocation
+      function: (identifier)
+      arguments: (argument_list)))
+  (multi_assignment_declaration
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier))
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier))
+    value: (method_invocation
+      function: (identifier)
+      arguments: (argument_list))))
