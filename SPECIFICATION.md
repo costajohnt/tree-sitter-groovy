@@ -985,11 +985,13 @@ also reads as a statement `String` followed by a call `f(`.
 
 Zero width, after a cast's `)`, never during error recovery. Skips spaces
 and tabs but not newlines, then emits when the next token starts with a
-quote, a digit or a name other than `in`, `as` and `instanceof`. The cast
-alternative that requires it carries a dynamic precedence, so `(T) x.y`
-followed by `bar = 1` stays a cast and an assignment; after a newline only
-the plain alternative remains and `x = (e.user)` followed by a statement
-on the next line keeps its meaning.
+quote, a digit or a name other than `in`, `as` and `instanceof`. A cast
+value that starts with a name, string or number needs it, so such a value
+is on the line of the `)`: `x = (e.user)` followed by a statement on the
+next line is a parenthesized expression and a statement, not a cast. That
+alternative carries a dynamic precedence, so `(T) x.y` followed by
+`bar = 1` stays a cast and an assignment. Values starting otherwise
+(`(int) -1`, `(T) [a]`, `(Callable) () -> x`) take a plain alternative.
 
 ---
 

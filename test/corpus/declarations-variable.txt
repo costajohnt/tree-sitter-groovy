@@ -266,3 +266,52 @@ def f() {
         (assignment_expression
           left: (identifier)
           right: (number_literal))))))
+
+==================
+Parenthesized value followed by a statement on the next line
+==================
+
+def f() {
+    user = (e.user)
+    started = [time: 1]
+    def n = (int) -1
+    def c = (Callable) () -> 1
+}
+
+---
+
+(source_file
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters)
+    body: (block
+      (expression_statement
+        (assignment_expression
+          left: (identifier)
+          right: (assignment_expression
+            left: (parenthesized_type_cast
+              type: (qualified_type
+                (type_identifier)
+                (type_identifier))
+              value: (identifier))
+            right: (map_literal
+              (map_entry
+                key: (identifier)
+                value: (number_literal))))))
+      (local_variable_declaration
+        (variable_declarator
+          name: (identifier)
+          value: (parenthesized_type_cast
+            type: (type_identifier)
+            value: (unary_expression
+              operand: (number_literal)))))
+      (local_variable_declaration
+        (variable_declarator
+          name: (identifier)
+          value: (binary_expression
+            left: (method_invocation
+              function: (parenthesized_expression
+                (identifier))
+              arguments: (argument_list))
+            (ERROR)
+            right: (number_literal)))))))
