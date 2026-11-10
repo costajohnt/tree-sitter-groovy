@@ -505,3 +505,30 @@ private static String typed() { 'x' }
     body: (block
       (expression_statement
         (string_literal)))))
+
+==================
+untyped varargs parameter
+==================
+
+def newParser(... args) { }
+def getValue(Integer inp, ... params) { }
+---
+
+(source_file
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters
+      (formal_parameter
+        type: (varargs_type)
+        name: (identifier)))
+    body: (block))
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters
+      (formal_parameter
+        type: (type_identifier)
+        name: (identifier))
+      (formal_parameter
+        type: (varargs_type)
+        name: (identifier)))
+    body: (block)))

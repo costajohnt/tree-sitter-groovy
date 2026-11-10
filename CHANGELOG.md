@@ -193,6 +193,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - A spread map entry may have spaces before its colon: `[*  : m, a: 1]`.
 - A member name may be a parenthesized expression: `map.(key) = v`,
   `this.('a' + 'b')(5)`.
+- A varargs parameter may omit its type: `static parser(... args) { }`.
 
 ## [0.3.0] - 2026-08-30
 
