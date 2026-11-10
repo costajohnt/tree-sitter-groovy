@@ -366,3 +366,25 @@ Annotation element with a default value
         name: (identifier)
         parameters: (formal_parameters)
         default: (list_literal)))))
+
+==================
+def with modifiers and a type
+==================
+
+class F {
+    def private StringBuilder buffer = new StringBuilder()
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (field_declaration
+        type: (type_identifier)
+        (variable_declarator
+          name: (identifier)
+          value: (object_creation_expression
+            type: (type_identifier)
+            arguments: (argument_list)))))))

@@ -228,6 +228,9 @@ module.exports = grammar({
     // expressions, casts and plain identifiers until the arrow decides.
     [$.formal_parameter, $._multi_assignment_names],
     [$.formal_parameter, $._expression, $._type],
+
+    // §4 — an annotation type element `String value() default 'x'`.
+    [$._annotation_type_element, $._property_name],
   ],
 
   rules: {
@@ -729,8 +732,32 @@ module.exports = grammar({
       '@',
       'interface',
       field('name', $.identifier),
-      field('body', $.class_body),
+      field('body', alias($._annotation_type_body, $.class_body)),
     ),
+
+    // An annotation type's body also takes elements with a default value:
+    // `String value() default 'x'`.
+    _annotation_type_body: $ => seq(
+      '{',
+      repeat(choice(
+        $._class_member,
+        alias($._annotation_type_element, $.method_declaration),
+        ';',
+      )),
+      '}',
+    ),
+
+    _annotation_type_element: $ => seq(
+      repeat($.annotation),
+      repeat($._modifier),
+      field('return_type', $._type),
+      field('name', $.identifier),
+      field('parameters', alias($._empty_parameters, $.formal_parameters)),
+      'default',
+      field('default', $._expression),
+    ),
+
+    _empty_parameters: $ => seq(choice('(', alias($._call_open, '(')), ')'),
 
     // §4 — class members: methods, fields, constructors, static
     // initialisers, and nested type declarations.
@@ -807,7 +834,11 @@ module.exports = grammar({
       seq(
         repeat($.annotation),
         repeat($._modifier),
-        choice(seq('def', repeat($._modifier)), field('type', $._type)),
+        choice(
+          seq('def', repeat($._modifier)),
+          seq('def', repeat1($._modifier), field('type', $._type)),
+          field('type', $._type),
+        ),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
@@ -834,9 +865,8 @@ module.exports = grammar({
     // method rather than a `def f` variable followed by `(…) { … }`.
     //
     // Groovy also takes modifiers or type parameters after `def`
-    // (`def static foo()`, `def <T> T foo()`), a bodiless method with
-    // modifiers but no return type (`abstract setVersion(v)`), and an
-    // annotation element's default value (`String value() default 'x'`).
+    // (`def static foo()`, `def <T> T foo()`) and a bodiless method with
+    // modifiers but no return type (`abstract setVersion(v)`).
     method_declaration: $ => prec.right(2, seq(
       repeat($.annotation),
       repeat($._modifier),
@@ -850,7 +880,6 @@ module.exports = grammar({
           field('name', $._property_name),
           field('parameters', $.formal_parameters),
           optional($.throws_clause),
-          optional(seq('default', field('default', $._expression))),
           optional(field('body', $.block)),
         ),
         seq(
