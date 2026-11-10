@@ -109,3 +109,36 @@ x as a.b.c.d.E
         (type_identifier)
         (type_identifier)))))
 
+
+==================
+Cast to a dotted generic type
+==================
+
+def p = x as A.B<C>
+p.q.any {
+    it
+}
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (cast_expression
+        value: (identifier)
+        type: (generic_type
+          base: (qualified_type
+            (type_identifier)
+            (type_identifier))
+          arguments: (type_arguments
+            (type_identifier))))))
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (field_access
+          object: (identifier)
+          field: (identifier))
+        field: (identifier))
+      closure: (closure
+        (expression_statement
+          (identifier))))))

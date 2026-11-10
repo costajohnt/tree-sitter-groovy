@@ -1484,11 +1484,13 @@ module.exports = grammar({
     // Same alternatives as `_type` except `qualified_type` is
     // replaced by `_dotted_type`, whose tail shifts each dot at a
     // precedence tighter than `field_access`.
+    // prec.dynamic: `x as A.B<C>` is a cast to a generic type, never the
+    // comparison chain `(x as A.B) < C > …` that `_dotted_type` would win.
     _cast_type: $ => choice(
       alias($.identifier, $.type_identifier),
       $.array_type,
       alias($._dotted_type, $.qualified_type),
-      $.generic_type,
+      prec.dynamic(2, $.generic_type),
     ),
 
     // prec.dynamic: with a dotted command receiver in the grammar, the
