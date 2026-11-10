@@ -1755,10 +1755,12 @@ module.exports = grammar({
     // `[` must be on the object's line (see `_subscript_open`): a Grails
     // controller action that ends in `[model: value]` on its own line returns
     // a map; it isn't a subscript of the statement before it.
+    // Several indexes select several elements: `list[1, 2]`, `map['a', 'b']`.
     subscript_expression: $ => prec.left(PREC.POSTFIX, seq(
       field('object', $._expression),
       alias($._subscript_open, '['),
       field('index', $._expression),
+      repeat(seq(',', field('index', $._expression))),
       ']',
     )),
 
