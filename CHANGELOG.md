@@ -131,6 +131,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - After a comma in a command chain, the named-key scan no longer turns
   the next identifier into a line comment when a newline and comment
   follow (`assertEquals 'v', x` then `// note`).
+- `//` and `/*` inside a double-quoted or triple-double-quoted string are text, not the start of a comment: `"// x"`.
 
 ## [0.3.0] - 2026-08-30
 

@@ -69,6 +69,7 @@ function gstringPart($, textRule) {
     $.gstring_dollar_interpolation,
     $.gstring_brace_interpolation,
     alias($._gstring_literal_dollar, $.string_fragment),
+    $._string_body,
   );
 }
 
@@ -164,6 +165,9 @@ module.exports = grammar({
     $._call_open,
     // §5.15 — zero-width: a cast's value starts on the line of its `)`.
     $._cast_value_start,
+    // §5.7 — never emitted. Valid only inside a string body, where it tells
+    // the scanner not to read `//` or `/*` as a comment: `"// x"`.
+    $._string_body,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,

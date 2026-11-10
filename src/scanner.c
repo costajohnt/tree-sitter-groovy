@@ -23,6 +23,7 @@ enum TokenType {
     COMMAND_CLOSURE_START,
     CALL_OPEN,
     CAST_VALUE_START,
+    STRING_BODY,
     ERROR_SENTINEL,
 };
 
@@ -118,6 +119,12 @@ bool tree_sitter_groovy_external_scanner_scan(
     const bool *valid_symbols
 ) {
     (void)payload;
+
+    // SPECIFICATION.md §5.7 — inside a string body `//` and `/*` are text,
+    // never a comment; the grammar's text tokens take them.
+    if (valid_symbols[STRING_BODY] && !valid_symbols[ERROR_SENTINEL]) {
+        return false;
+    }
 
     // SPECIFICATION.md §5.15 — zero-width, after a cast's `)`: the value
     // starts on the same line with a name (not `in`, `as` or `instanceof`,
