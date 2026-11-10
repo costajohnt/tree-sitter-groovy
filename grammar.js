@@ -2231,11 +2231,17 @@ module.exports = grammar({
       /\$[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*/,
     ),
 
-    // §5.7 / §6.3 — `${expression}` interpolation.
-    gstring_brace_interpolation: $ => seq(
-      token.immediate('${'),
-      field('value', $._expression),
-      '}',
+    // §5.7 / §6.3 — `${expression}` interpolation. The body is a closure
+    // body: statements (`${x.replace 'a', 'b'}`, `${if (k) { 'a' } else
+    // { 'b' }}`, `${n += 1; n}`) and the lazy form `${-> x}`.
+    gstring_brace_interpolation: $ => choice(
+      prec(1, seq(token.immediate('${'), field('value', $._expression), '}')),
+      seq(
+        token.immediate('${'),
+        optional($.closure_parameters),
+        repeat(choice($.expression_statement, $.command_chain, $.if_statement, ';')),
+        '}',
+      ),
     ),
 
     // §5.7 — `$/...$/` dollar-slashy strings. The body is parsed
