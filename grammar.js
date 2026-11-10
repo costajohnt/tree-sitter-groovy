@@ -746,6 +746,7 @@ module.exports = grammar({
     // cannot fire here.
     annotation_type_declaration: $ => seq(
       repeat($.annotation),
+      repeat($._modifier),
       '@',
       'interface',
       field('name', $.identifier),
