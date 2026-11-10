@@ -727,7 +727,7 @@ module.exports = grammar({
     // disallowed in v1. Multiple declarators per statement
     // (`def a = 1, b = 2`) are supported in all three forms.
     //
-    // A declaration led by annotations is the fourth form: `@Field String
+    // A declaration led by annotations is another form: `@Field String
     // NAME = 'x'`, `@Field final Map m = [:]`, `@Field def x`, the script
     // field idiom of every Jenkins shared library. The annotation already
     // marks it as a declaration, so modifiers, an uninitialized declarator
