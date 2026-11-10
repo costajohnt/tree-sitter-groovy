@@ -145,6 +145,12 @@ module.exports = grammar({
     // decides; the conflict keeps both alternatives alive until
     // then.
     [$.variable_declarator, $._property_name],
+
+    // §5.9 — inside annotation arguments, `name = …` and `[ … ]` may hold
+    // annotations; until one appears they read as ordinary expressions.
+    [$._annotation_element_pair, $._expression],
+    [$._annotation_list, $.list_literal],
+    [$._annotation_list_element, $.list_literal],
   ],
 
   rules: {
@@ -773,10 +779,53 @@ module.exports = grammar({
     // method / record / enum declarations gain an optional
     // leading `repeat($.annotation)` so a `@Foo @Bar class X { }`
     // attaches the annotations to the class node.
+    //
+    // Annotation arguments are an argument list whose values may also be
+    // annotations or lists of them, as Spring and Spock metadata use:
+    // `@ContextHierarchy(@ContextConfiguration(locations = "x"))`,
+    // `@FeatureMetadata(blocks = [@BlockMetadata(kind = SETUP)])`.
     annotation: $ => seq(
       '@',
       field('name', $.qualified_name),
-      optional(field('arguments', $.argument_list)),
+      optional(field('arguments', alias($._annotation_arguments, $.argument_list))),
+    ),
+
+    _annotation_arguments: $ => seq(
+      '(',
+      optional(seq(
+        $._annotation_argument,
+        repeat(seq(',', $._annotation_argument)),
+        optional(','),
+      )),
+      ')',
+    ),
+
+    _annotation_argument: $ => choice(
+      $._argument,
+      $.annotation,
+      alias($._annotation_list, $.list_literal),
+      alias($._annotation_element_pair, $.assignment_expression),
+    ),
+
+    _annotation_element_pair: $ => seq(
+      field('left', $.identifier),
+      field('operator', '='),
+      field('right', choice($.annotation, alias($._annotation_list, $.list_literal))),
+    ),
+
+    _annotation_list: $ => seq(
+      '[',
+      optional(seq(
+        $._annotation_list_element,
+        repeat(seq(',', $._annotation_list_element)),
+        optional(','),
+      )),
+      ']',
+    ),
+
+    _annotation_list_element: $ => choice(
+      $._expression,
+      $.annotation,
     ),
 
     // §4 — `for (x in xs)`. Untyped variable for v1. Typed

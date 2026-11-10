@@ -70,6 +70,10 @@
       "required": false,
       "types": [
         {
+          "type": "annotation",
+          "named": true
+        },
+        {
           "type": "assignment_expression",
           "named": true
         },
@@ -825,6 +829,10 @@
         "multiple": false,
         "required": true,
         "types": [
+          {
+            "type": "annotation",
+            "named": true
+          },
           {
             "type": "assignment_expression",
             "named": true
@@ -5998,6 +6006,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "annotation",
+          "named": true
+        },
         {
           "type": "assignment_expression",
           "named": true

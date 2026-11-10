@@ -112,3 +112,69 @@ class Foo {
           (formal_parameter name: (identifier)))
         body: (block
           (expression_statement (identifier)))))))
+
+==================
+Annotation as an annotation argument
+==================
+
+@ContextHierarchy(@ContextConfiguration(locations = "x.xml"))
+class A {}
+
+---
+
+(source_file
+  (class_declaration
+    (annotation
+      name: (qualified_name
+        (identifier))
+      arguments: (argument_list
+        (annotation
+          name: (qualified_name
+            (identifier))
+          arguments: (argument_list
+            (assignment_expression
+              left: (identifier)
+              right: (string_literal
+                (string_fragment)))))))
+    name: (identifier)
+    body: (class_body)))
+
+==================
+List of annotations as an annotation element value
+==================
+
+@FeatureMetadata(name = 'f', blocks = [@BlockMetadata(kind = SETUP, texts = [])], tags = [1, 2])
+def f() {}
+
+---
+
+(source_file
+  (method_declaration
+    (annotation
+      name: (qualified_name
+        (identifier))
+      arguments: (argument_list
+        (assignment_expression
+          left: (identifier)
+          right: (string_literal))
+        (assignment_expression
+          left: (identifier)
+          right: (list_literal
+            (annotation
+              name: (qualified_name
+                (identifier))
+              arguments: (argument_list
+                (assignment_expression
+                  left: (identifier)
+                  right: (identifier))
+                (assignment_expression
+                  left: (identifier)
+                  right: (list_literal))))))
+        (assignment_expression
+          left: (identifier)
+          right: (list_literal
+            (number_literal)
+            (number_literal)))))
+    name: (identifier)
+    parameters: (formal_parameters)
+    body: (block)))
