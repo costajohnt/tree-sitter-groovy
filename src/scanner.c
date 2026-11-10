@@ -28,6 +28,7 @@ enum TokenType {
     COMMAND_VALUE_START,
     LINE_BREAK,
     COMMAND_NAME_ARGUMENT,
+    TYPE_ARGUMENTS_OPEN,
     ERROR_SENTINEL,
 };
 
@@ -148,6 +149,79 @@ bool tree_sitter_groovy_external_scanner_scan(
     // never a comment; the grammar's text tokens take them.
     if (valid_symbols[STRING_BODY] && !valid_symbols[ERROR_SENTINEL]) {
         return false;
+    }
+
+    // SPECIFICATION.md §5.14 — the `<` of a generic type used as a value,
+    // right after its name: `Mock(Supplier<Long>)`, `List<X>.class`. Only
+    // when a balanced `<…>` of names, dots, commas, `?`, `[]` and nested
+    // `<…>` follows on the line, and after its `>` comes `)`, `,`, `]`,
+    // `::`, or `.` and a name (also on the next line). `i<n`, `a<b && c>d`
+    // and `f(a<b, c>d)` don't match, so their `<` stays an operator.
+    if (valid_symbols[TYPE_ARGUMENTS_OPEN] && !valid_symbols[ERROR_SENTINEL]
+        && lexer->lookahead == '<') {
+        advance(lexer);
+        lexer->mark_end(lexer);
+        unsigned depth = 1;
+        bool after_name = false;
+        for (unsigned steps = 0; depth > 0; steps++) {
+            int32_t c = lexer->lookahead;
+            if (steps > 400 || lexer->eof(lexer)) {
+                return false;
+            }
+            if (c == ' ' || c == '\t') {
+                advance(lexer);
+            } else if (is_ident_start(c)) {
+                while (is_ident_part(lexer->lookahead)) {
+                    advance(lexer);
+                }
+                after_name = true;
+                continue;
+            } else if (c == '.') {
+                advance(lexer);
+                if (!after_name || !is_ident_start(lexer->lookahead)) {
+                    return false;
+                }
+            } else if (c == ',' || c == '?') {
+                advance(lexer);
+            } else if (c == '[') {
+                advance(lexer);
+                if (lexer->lookahead != ']') {
+                    return false;
+                }
+                advance(lexer);
+            } else if (c == '<') {
+                advance(lexer);
+                depth++;
+            } else if (c == '>') {
+                advance(lexer);
+                depth--;
+            } else {
+                return false;
+            }
+            after_name = false;
+        }
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            advance(lexer);
+        }
+        int32_t c = lexer->lookahead;
+        bool ok = c == ')' || c == ',' || c == ']';
+        if (c == ':') {
+            advance(lexer);
+            ok = lexer->lookahead == ':';
+        } else if (c == '.' || c == '\n' || c == '\r') {
+            while (is_whitespace(lexer->lookahead)) {
+                advance(lexer);
+            }
+            if (lexer->lookahead == '.') {
+                advance(lexer);
+                ok = is_ident_start(lexer->lookahead);
+            }
+        }
+        if (!ok) {
+            return false;
+        }
+        lexer->result_symbol = TYPE_ARGUMENTS_OPEN;
+        return true;
     }
 
     // SPECIFICATION.md §5.15 — zero-width, after a cast's `)`: the value

@@ -350,3 +350,132 @@ class Util {
         body: (block
           (expression_statement
             (identifier)))))))
+
+==================
+generic types as values
+==================
+
+def a = Mock(Supplier<Long>)
+def b = typeOf(Map<String, List<Integer>>)
+def c = mapper.readValue(s, ArrayList<Job>.class)
+return Mono<String>.fromCallable { 1 }
+for (int i = 0; i<n; i++) { }
+if (a<b && c>d) { }
+f(i<MAX, j>0)
+x = x as java.util.concurrent.Callable<Thread>
+y = [] as CompareControl.SchemaComparison[]
+z = (List<String>) w
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (identifier)
+        arguments: (argument_list
+          (generic_type
+            base: (type_identifier)
+            arguments: (type_arguments
+              (type_identifier)))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (identifier)
+        arguments: (argument_list
+          (generic_type
+            base: (type_identifier)
+            arguments: (type_arguments
+              (type_identifier)
+              (generic_type
+                base: (type_identifier)
+                arguments: (type_arguments
+                  (type_identifier)))))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (field_access
+          object: (identifier)
+          field: (identifier))
+        arguments: (argument_list
+          (identifier)
+          (field_access
+            object: (generic_type
+              base: (type_identifier)
+              arguments: (type_arguments
+                (type_identifier)))
+            field: (identifier))))))
+  (return_statement
+    (method_invocation
+      function: (field_access
+        object: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (type_identifier)))
+        field: (identifier))
+      closure: (closure
+        (expression_statement
+          (number_literal)))))
+  (for_statement
+    init: (local_variable_declaration
+      type: (type_identifier)
+      name: (identifier)
+      value: (number_literal))
+    condition: (binary_expression
+      left: (identifier)
+      right: (identifier))
+    update: (update_expression
+      operand: (identifier))
+    body: (block))
+  (if_statement
+    condition: (binary_expression
+      left: (binary_expression
+        left: (identifier)
+        right: (identifier))
+      right: (binary_expression
+        left: (identifier)
+        right: (identifier)))
+    consequence: (block))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (binary_expression
+          left: (identifier)
+          right: (identifier))
+        (binary_expression
+          left: (identifier)
+          right: (number_literal)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (cast_expression
+        value: (identifier)
+        type: (generic_type
+          base: (qualified_type
+            (type_identifier)
+            (type_identifier)
+            (type_identifier)
+            (type_identifier))
+          arguments: (type_arguments
+            (type_identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (cast_expression
+        value: (list_literal)
+        type: (array_type
+          (qualified_type
+            (type_identifier)
+            (type_identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (parenthesized_type_cast
+        type: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (type_identifier)))
+        value: (identifier)))))

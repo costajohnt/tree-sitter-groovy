@@ -150,6 +150,11 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - `x as A.B<C>` is a cast to a generic type, never a comparison chain.
 - `a.b key` on its own is a command call when the statement ends after it, so an `else` on the next line attaches.
 - A named argument of a parenthesis-free call may start on the line after a comma: `sh returnStdout: true,` then `script: 'x'`.
+- A generic type is a value where a scanner lookahead finds a balanced
+  `<…>` followed by `)`, `,`, `]`, `::` or `.`: `Mock(Supplier<Long>)`,
+  `ArrayList<Job>.class`, `Mono<String>.fromCallable { }`; `i<n` stays a
+  comparison. A cast or `instanceof` type may also be a dotted generic or
+  array type: `x as java.util.concurrent.Callable<T>`, `[] as A.B[]`.
 
 ## [0.3.0] - 2026-08-30
 
