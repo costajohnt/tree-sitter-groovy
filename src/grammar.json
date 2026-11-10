@@ -4238,6 +4238,18 @@
       "type": "SEQ",
       "members": [
         {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "final"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
           "type": "STRING",
           "value": "def"
         },
@@ -9561,6 +9573,11 @@
     [
       "_modifier",
       "local_variable_declaration"
+    ],
+    [
+      "_modifier",
+      "local_variable_declaration",
+      "multi_assignment_declaration"
     ],
     [
       "_command_argument",
