@@ -59,3 +59,23 @@ obj.method(arg)
         object: (identifier)
         field: (identifier))
       arguments: (argument_list (identifier)))))
+
+==================
+Call with explicit type arguments
+==================
+
+def a = Collections.<String>emptyList()
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (field_access
+          object: (identifier)
+          type_arguments: (type_arguments
+            (type_identifier))
+          field: (identifier))
+        arguments: (argument_list)))))
