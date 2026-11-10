@@ -1190,8 +1190,11 @@ module.exports = grammar({
       ')',
     ),
 
+    // A generic type is a value here, `@Scaffold(Foo<User>)`; outside
+    // annotations `f(a<b)` keeps `<` an operator.
     _annotation_argument: $ => choice(
       $._argument,
+      $.generic_type,
       $.annotation,
       alias($._annotation_list, $.list_literal),
       alias($._annotation_element_pair, $.assignment_expression),

@@ -178,3 +178,24 @@ def f() {}
     name: (identifier)
     parameters: (formal_parameters)
     body: (block)))
+
+==================
+Generic type as an annotation argument
+==================
+
+@Scaffold(Foo<User>)
+class A {}
+---
+
+(source_file
+  (class_declaration
+    (annotation
+      name: (qualified_name
+        (identifier))
+      arguments: (argument_list
+        (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (type_identifier)))))
+    name: (identifier)
+    body: (class_body)))
