@@ -1077,7 +1077,7 @@ module.exports = grammar({
     object_creation_expression: $ => prec.right(PREC.PRIMARY, seq(
       'new',
       field('type', $._type),
-      field('arguments', $.argument_list),
+      field('arguments', alias($._new_argument_list, $.argument_list)),
     )),
 
     // §5.15 — C-style cast `(Foo) x`. Distinct from
@@ -1256,12 +1256,22 @@ module.exports = grammar({
     // next line is two statements, not a call on `'x'`.
     argument_list: $ => seq(
       alias($._call_open, '('),
-      optional(seq(
-        $._argument,
-        repeat(seq(',', $._argument)),
-        optional(','),
-      )),
+      optional($._argument_list_body),
       ')',
+    ),
+
+    // After `new Type` the parenthesis may follow a newline: `new File`
+    // then `("Foo")` on the next line is one expression.
+    _new_argument_list: $ => seq(
+      choice('(', alias($._call_open, '(')),
+      optional($._argument_list_body),
+      ')',
+    ),
+
+    _argument_list_body: $ => seq(
+      $._argument,
+      repeat(seq(',', $._argument)),
+      optional(','),
     ),
 
     _argument: $ => choice(

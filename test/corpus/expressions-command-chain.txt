@@ -521,3 +521,22 @@ if (ids) {
         (method_invocation
           function: (identifier)
           arguments: (argument_list))))))
+
+==================
+New expression with its arguments on the next line
+==================
+
+def f = new File
+    ("Foo")
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (object_creation_expression
+        type: (type_identifier)
+        arguments: (argument_list
+          (string_literal
+            (string_fragment)))))))
