@@ -97,6 +97,8 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - Multiple assignment accepts typed targets (`def (String a, int b) = l`)
   and, as the new `multi_assignment_expression`, the def-less form
   `(a, b) = l` that assigns existing variables.
+- Annotation arguments accept nested annotations, directly or in a list
+  element value: `@A(@B(x = 1))`, `@A(blocks = [@B(kind = SETUP)])`.
 
 ## [0.3.0] - 2026-08-30
 
