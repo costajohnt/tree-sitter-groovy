@@ -174,6 +174,8 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - `new Foo() { … }` has an anonymous class body (`class_body`, field
   `body`), not a closure argument; a class body takes instance
   initializer blocks (`new HashMap() {{ put('a', 1) }}`).
+- A backslash at the end of a line continues the statement on the next:
+  `return \`, `include \` then `'a',`.
 
 ## [0.3.0] - 2026-08-30
 
