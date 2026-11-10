@@ -267,3 +267,102 @@ def f(final String a, final b) { }
       (formal_parameter
         name: (identifier)))
     body: (block)))
+
+==================
+Modifiers after def
+==================
+
+class A {
+    def static SEPARATOR = '/'
+    def static foo() { }
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (field_declaration
+        (variable_declarator
+          name: (identifier)
+          value: (string_literal)))
+      (method_declaration
+        name: (identifier)
+        parameters: (formal_parameters)
+        body: (block)))))
+
+==================
+Generic method declared with def
+==================
+
+def <T> T withContext(Closure<T> block) { block() }
+
+---
+
+(source_file
+  (method_declaration
+    type_parameters: (method_type_parameters
+      (type_parameter
+        name: (type_identifier)))
+    return_type: (type_identifier)
+    name: (identifier)
+    parameters: (formal_parameters
+      (formal_parameter
+        type: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (type_identifier)))
+        name: (identifier)))
+    body: (block
+      (expression_statement
+        (method_invocation
+          function: (identifier)
+          arguments: (argument_list))))))
+
+==================
+Abstract method without a return type
+==================
+
+abstract class A {
+    abstract setVersion(version)
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (method_declaration
+        name: (identifier)
+        parameters: (formal_parameters
+          (formal_parameter
+            name: (identifier)))))))
+
+==================
+Annotation element with a default value
+==================
+
+@interface A {
+    String value() default 'x'
+    String[] names() default []
+}
+
+---
+
+(source_file
+  (annotation_type_declaration
+    name: (identifier)
+    body: (class_body
+      (method_declaration
+        return_type: (type_identifier)
+        name: (identifier)
+        parameters: (formal_parameters)
+        default: (string_literal))
+      (method_declaration
+        return_type: (array_type
+          (type_identifier))
+        name: (identifier)
+        parameters: (formal_parameters)
+        default: (list_literal)))))

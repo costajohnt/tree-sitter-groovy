@@ -105,6 +105,10 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - Java-style lambdas parse as the new `lambda_expression`: `x -> x + 1`,
   `() -> 42`, `(a, b) -> { a + b }`, `(String s) -> s.trim()`. A closure
   parameter may be declared with `def` (`{ def m -> }`).
+- More declaration forms parse: modifiers after `def` (`def static X = 1`,
+  `def static f()`), `def <T> T f()`, a bodiless untyped method with
+  modifiers (`abstract setVersion(v)`), and an annotation element default
+  (`String value() default 'x'`, in the new `default` field).
 
 ## [0.3.0] - 2026-08-30
 

@@ -700,6 +700,7 @@ module.exports = grammar({
     // modifiers, so the keyword decides.
     _class_member: $ => choice(
       $.method_declaration,
+      alias($._bodiless_untyped_method, $.method_declaration),
       $.field_declaration,
       $.constructor_declaration,
       $.static_initializer,
@@ -749,11 +750,13 @@ module.exports = grammar({
     //
     // An annotated field may omit the type, as Spock's `@Shared log = []`
     // does; the annotation marks it as a field declaration.
+    //
+    // `def static NAME = …` puts the modifiers after `def`.
     field_declaration: $ => choice(
       seq(
         repeat($.annotation),
         repeat($._modifier),
-        choice('def', field('type', $._type)),
+        choice(seq('def', repeat($._modifier)), field('type', $._type)),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
@@ -778,16 +781,48 @@ module.exports = grammar({
     // prec(1) wins over local_variable_declaration when `(` follows
     // the name, so `def f() { … }` at script-top-level parses as a
     // method rather than a `def f` variable followed by `(…) { … }`.
+    //
+    // Groovy also takes modifiers or type parameters after `def`
+    // (`def static foo()`, `def <T> T foo()`), a bodiless method with
+    // modifiers but no return type (`abstract setVersion(v)`), and an
+    // annotation element's default value (`String value() default 'x'`).
     method_declaration: $ => prec.right(2, seq(
       repeat($.annotation),
       repeat($._modifier),
-      optional(field('type_parameters', $.method_type_parameters)),
-      choice('def', field('return_type', $._type)),
-      field('name', $._property_name),
+      choice(
+        seq(
+          optional(field('type_parameters', $.method_type_parameters)),
+          choice(
+            seq('def', repeat($._modifier)),
+            field('return_type', $._type),
+          ),
+          field('name', $._property_name),
+          field('parameters', $.formal_parameters),
+          optional($.throws_clause),
+          optional(seq('default', field('default', $._expression))),
+          optional(field('body', $.block)),
+        ),
+        seq(
+          'def',
+          field('type_parameters', $.method_type_parameters),
+          field('return_type', $._type),
+          field('name', $._property_name),
+          field('parameters', $.formal_parameters),
+          optional($.throws_clause),
+          optional(field('body', $.block)),
+        ),
+      ),
+    )),
+
+    // `abstract setVersion(version)`: modifiers, no return type, no body.
+    // With a body the same shape is a constructor_declaration.
+    _bodiless_untyped_method: $ => seq(
+      repeat($.annotation),
+      repeat1($._modifier),
+      field('name', $.identifier),
       field('parameters', $.formal_parameters),
       optional($.throws_clause),
-      optional(field('body', $.block)),
-    )),
+    ),
 
     // §4 / §5.14 — method-level generic type parameters
     // (`<T> T identity(T x) { x }`). Distinct from `type_parameters`
