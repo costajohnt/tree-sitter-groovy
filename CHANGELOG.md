@@ -11,8 +11,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 
 - More declaration forms parse: modifiers after `def` (`def static X = 1`,
   `def static f()`), `def <T> T f()`, a bodiless untyped method with
-  modifiers (`abstract setVersion(v)`), and an annotation element default
-  (`String value() default 'x'`, in the new `default` field).
+  modifiers (`abstract setVersion(v)`), `def private Type x = …`, and in an
+  annotation type an element default (`String value() default 'x'`, in
+  the new `default` field).
 
 ## [0.3.0] - 2026-08-30
 
