@@ -139,6 +139,8 @@ module.exports = grammar({
 
   extras: $ => [
     /\s/,
+    // A backslash at the end of a line continues the statement on the next.
+    /\\\r?\n/,
     $.line_comment,
     $.block_comment,
     $.groovydoc_comment,

@@ -220,8 +220,22 @@ bool tree_sitter_groovy_external_scanner_scan(
     // current line, so `a.b` followed by `'x'` on the next line stays two
     // statements.
     if (valid_symbols[COMMAND_LITERAL_START] && !valid_symbols[ERROR_SENTINEL]) {
-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-            lexer->advance(lexer, true);
+        // A backslash at the end of the line continues it: `include \`.
+        for (;;) {
+            if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                lexer->advance(lexer, true);
+            } else if (lexer->lookahead == '\\') {
+                lexer->advance(lexer, true);
+                if (lexer->lookahead == '\r') {
+                    lexer->advance(lexer, true);
+                }
+                if (lexer->lookahead != '\n') {
+                    return false;
+                }
+                lexer->advance(lexer, true);
+            } else {
+                break;
+            }
         }
         int32_t c = lexer->lookahead;
         if (c == '\'' || c == '"' || (c >= '0' && c <= '9')) {

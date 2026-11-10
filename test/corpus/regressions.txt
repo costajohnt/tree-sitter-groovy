@@ -439,3 +439,43 @@ do a(); while (c)
         function: (identifier)
         arguments: (argument_list)))
     condition: (identifier)))
+
+==================
+backslash line continuation
+==================
+
+def x = foo(a) \
+    .bar()
+assert (slept >= sleeptime):   \
+    "msg"
+include \
+    'a', 'b'
+return \
+    1
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (field_access
+          object: (method_invocation
+            function: (identifier)
+            arguments: (argument_list
+              (identifier)))
+          field: (identifier))
+        arguments: (argument_list))))
+  (assert_statement
+    (parenthesized_expression
+      (binary_expression
+        left: (identifier)
+        right: (identifier)))
+    message: (string_literal
+      (string_fragment)))
+  (command_chain
+    receiver: (identifier)
+    argument: (string_literal)
+    argument: (string_literal))
+  (return_statement
+    (number_literal)))
