@@ -196,6 +196,11 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - A varargs parameter may omit its type: `static parser(... args) { }`.
 - Identifiers may use any Unicode letter: `def âøñè = 1`, `[név: 'x']`.
 - A decimal may start at its point: `.5`, `.05D`, `.123f`.
+- Annotations on type arguments, after `extends` and `new`, after
+  modifiers on an interface, and an annotation or a list of them as an
+  annotation element's default: `Map<String, @Nullable String>`,
+  `extends @Marked Object`, `new @A Foo<@B T>() { }`,
+  `static @Managed interface I { }`, `Tag[] tags() default [@Tag('a')]`.
 
 ## [0.3.0] - 2026-08-30
 

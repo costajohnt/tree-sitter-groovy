@@ -9288,6 +9288,10 @@
         "required": false,
         "types": [
           {
+            "type": "annotation",
+            "named": true
+          },
+          {
             "type": "array_creation_expression",
             "named": true
           },
@@ -11033,6 +11037,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "annotation",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -15898,9 +15912,13 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "annotation",
+          "named": true
+        },
         {
           "type": "array_type",
           "named": true
@@ -18073,6 +18091,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "annotation",
+          "named": true
+        },
         {
           "type": "array_type",
           "named": true

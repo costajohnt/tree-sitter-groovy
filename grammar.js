@@ -810,8 +810,7 @@ module.exports = grammar({
     ),
 
     interface_declaration: $ => seq(
-      repeat($.annotation),
-      repeat($._modifier),
+      ...memberModifiers($),
       optional(choice('sealed', token('non-sealed'))),
       'interface',
       field('name', $.identifier),
@@ -841,7 +840,7 @@ module.exports = grammar({
     ),
 
     // §4 — class has a single super and zero-or-more interfaces.
-    superclass: $ => seq('extends', $._type),
+    superclass: $ => seq('extends', repeat($.annotation), $._type),
 
     super_interfaces: $ => seq(
       'implements',
@@ -914,7 +913,11 @@ module.exports = grammar({
       field('name', $.identifier),
       field('parameters', alias($._empty_parameters, $.formal_parameters)),
       'default',
-      field('default', $._expression),
+      field('default', choice(
+        $._expression,
+        $.annotation,
+        alias($._annotation_list, $.list_literal),
+      )),
     ),
 
     _empty_parameters: $ => seq(choice('(', alias($._call_open, '(')), ')'),
@@ -1672,6 +1675,7 @@ module.exports = grammar({
     // argument of the new object.
     object_creation_expression: $ => prec.right(PREC.PRIMARY, seq(
       'new',
+      repeat($.annotation),
       field('type', $._type),
       field('arguments', alias($._new_argument_list, $.argument_list)),
       optional(field('body', $.class_body)),
@@ -1842,6 +1846,7 @@ module.exports = grammar({
     _type_argument: $ => choice(
       $._type,
       $.wildcard,
+      seq(repeat1($.annotation), $._type),
     ),
 
     wildcard: $ => seq(

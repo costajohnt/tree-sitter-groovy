@@ -199,3 +199,93 @@ class A {}
             (type_identifier)))))
     name: (identifier)
     body: (class_body)))
+
+==================
+annotations in more positions
+==================
+
+class Plugins {
+    private final Map<String, @Nullable String> plugins = [:]
+}
+class Subject extends @Marked Object { }
+Consumer<String> c = new @MyAnno Consumer<@Nullable String>() { }
+static @Managed interface ManagedSpec extends Spec { }
+@interface Tags {
+    Net net() default @Net
+    Tag[] tags() default [@Tag("one")]
+}
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (field_declaration
+        type: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (type_identifier)
+            (annotation
+              name: (qualified_name
+                (identifier)))
+            (type_identifier)))
+        (variable_declarator
+          name: (identifier)
+          value: (map_literal)))))
+  (class_declaration
+    name: (identifier)
+    (superclass
+      (annotation
+        name: (qualified_name
+          (identifier)))
+      (type_identifier))
+    body: (class_body))
+  (local_variable_declaration
+    type: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier)))
+    name: (identifier)
+    value: (object_creation_expression
+      (annotation
+        name: (qualified_name
+          (identifier)))
+      type: (generic_type
+        base: (type_identifier)
+        arguments: (type_arguments
+          (annotation
+            name: (qualified_name
+              (identifier)))
+          (type_identifier)))
+      arguments: (argument_list)
+      body: (class_body)))
+  (interface_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    name: (identifier)
+    (extends_interfaces
+      (type_identifier))
+    body: (class_body))
+  (annotation_type_declaration
+    name: (identifier)
+    body: (class_body
+      (method_declaration
+        return_type: (type_identifier)
+        name: (identifier)
+        parameters: (formal_parameters)
+        default: (annotation
+          name: (qualified_name
+            (identifier))))
+      (method_declaration
+        return_type: (array_type
+          (type_identifier))
+        name: (identifier)
+        parameters: (formal_parameters)
+        default: (list_literal
+          (annotation
+            name: (qualified_name
+              (identifier))
+            arguments: (argument_list
+              (string_literal
+                (string_fragment)))))))))
