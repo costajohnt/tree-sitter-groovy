@@ -153,6 +153,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - `var`, `pipeline` and `trait` are keywords only where a declaration
   follows (`var x`, `pipeline {`, `trait T`); elsewhere they are names:
   `var.set(1)`, `{ var -> }`, `Pipeline pipeline = p`, `trait.parentFile`.
+- `instanceof` binds a pattern variable: `if (x instanceof Foo f) { f.bar() }`.
 
 ## [0.3.0] - 2026-08-30
 
