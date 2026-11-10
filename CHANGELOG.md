@@ -142,6 +142,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - A generic type is an annotation argument: `@Scaffold(Foo<User>)`.
 - Annotations may follow modifiers on a field or method: `final @Delegate Map target`.
 - A modifier may stand in for `def` before a quoted method name: `private "a feature"() { }`.
+- A GString interpolation may hold statements: `${x.replace 'a', 'b'}`, `${-> x}`, `${n += 1; n}`.
 
 ## [0.3.0] - 2026-08-30
 
