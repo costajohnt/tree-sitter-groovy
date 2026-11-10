@@ -635,7 +635,7 @@ module.exports = grammar({
       optional(seq('=', field('default', $._expression))),
     ),
 
-    varargs_type: $ => seq($._type, '...'),
+    varargs_type: $ => choice(seq($._type, '...'), '...'),
 
     // §4 — enum. Closes murtaza64 #36 first half. Constants list
     // (optionally trailing-comma) optionally followed by `;` and
