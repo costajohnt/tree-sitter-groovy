@@ -5268,8 +5268,12 @@
           "value": "qualified_type"
         },
         {
-          "type": "SYMBOL",
-          "name": "generic_type"
+          "type": "PREC_DYNAMIC",
+          "value": 2,
+          "content": {
+            "type": "SYMBOL",
+            "name": "generic_type"
+          }
         }
       ]
     },
