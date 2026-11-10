@@ -157,6 +157,16 @@ bool tree_sitter_groovy_external_scanner_scan(
     // `<…>` follows on the line, and after its `>` comes `)`, `,`, `]`,
     // `::`, or `.` and a name (also on the next line). `i<n`, `a<b && c>d`
     // and `f(a<b, c>d)` don't match, so their `<` stays an operator.
+    // After a space the `<` must also be followed, past its `>`, by a name
+    // and `=`, `;`, `(` or the line's end, or by a `(`: a declaration,
+    // `Map <K, V> m = [:]`, or `new TreeSet <String>()`.
+    bool spaced = false;
+    if (valid_symbols[TYPE_ARGUMENTS_OPEN] && !valid_symbols[ERROR_SENTINEL]) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, true);
+            spaced = true;
+        }
+    }
     if (valid_symbols[TYPE_ARGUMENTS_OPEN] && !valid_symbols[ERROR_SENTINEL]
         && lexer->lookahead == '<') {
         advance(lexer);
@@ -205,7 +215,23 @@ bool tree_sitter_groovy_external_scanner_scan(
         }
         int32_t c = lexer->lookahead;
         bool ok = c == ')' || c == ',' || c == ']';
-        if (c == ':') {
+        if (spaced) {
+            ok = c == '(';
+            if (is_ident_start(c)) {
+                while (is_ident_part(lexer->lookahead)) {
+                    advance(lexer);
+                }
+                while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                    advance(lexer);
+                }
+                c = lexer->lookahead;
+                ok = c == ';' || c == '(' || c == '\n' || c == '\r' || lexer->eof(lexer);
+                if (c == '=') {
+                    advance(lexer);
+                    ok = lexer->lookahead != '=' && lexer->lookahead != '~';
+                }
+            }
+        } else if (c == ':') {
             advance(lexer);
             ok = lexer->lookahead == ':';
         } else if (c == '.' || c == '\n' || c == '\r') {

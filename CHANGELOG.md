@@ -155,6 +155,10 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   `ArrayList<Job>.class`, `Mono<String>.fromCallable { }`; `i<n` stays a
   comparison. A cast or `instanceof` type may also be a dotted generic or
   array type: `x as java.util.concurrent.Callable<T>`, `[] as A.B[]`.
+- A space may come before a declaration's type arguments:
+  `Map <String, List<String>> m = [:]`, `Collection <T> items() { }`,
+  `AbstractFolder < ? > f = x`, `new TreeSet <String>()`. Comparisons
+  such as `a < b && c > d` are unaffected.
 
 ## [0.3.0] - 2026-08-30
 
