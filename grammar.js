@@ -110,6 +110,10 @@ module.exports = grammar({
     // tabs allowed). A `[` after a newline isn't one, so it starts a list or
     // map literal: a statement, not a subscript of the line above.
     $._subscript_open,
+    // §5.5 — zero-width: the first argument of a command call on a dotted
+    // receiver (`response.setHeader 'k', v`) starts on the receiver's line.
+    // A string or number on the next line is a new statement.
+    $._command_literal_start,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -122,7 +126,12 @@ module.exports = grammar({
     // argument, or the start of a trailing method_invocation's function
     // expression; only `(` would make it the latter.
     [$._command_argument, $._expression],
-    [$._command_trailing_argument, $._expression],
+    [$._command_literal_argument, $._expression],
+    // `foo bar, baz` is a call; `foo bar` alone is two statements. The
+    // comma decides, so both readings stay alive until then.
+    [$.command_chain, $._expression],
+    [$.command_chain, $._expression, $._type],
+    [$.command_chain, $._type],
     // See SPECIFICATION.md §7. Populated as rules accumulate.
     // (list_literal vs map_literal — tree-sitter resolves without
     //  an explicit conflict because `:` after the first element
@@ -252,15 +261,47 @@ module.exports = grammar({
     // (comma-separated literal arguments per Gradle / Jenkins DSL
     // idioms). Chained `foo bar baz` and complex argument shapes
     // land later. Closes a subset of murtaza64 #5.
-    command_chain: $ => prec(2, seq(
-      field('receiver', $.identifier),
-      field('argument', choice($._command_argument, alias($._command_named_argument, $.named_argument))),
-      repeat(seq(',', field('argument', choice(
-        $._command_argument,
-        alias($._command_named_argument, $.named_argument),
-        $._command_trailing_argument,
-      )))),
-    )),
+    //
+    // The receiver may also be a dotted path (`script.writeFile file: f`,
+    // `response.setHeader 'k', v`). Its first argument must start on the
+    // receiver's line and is a string, a number or a named argument; not a
+    // closure, since `list.each { … }` is a method_invocation. An identifier, dotted
+    // or call-shaped first argument needs a comma after it (`bind Foo, Bar`),
+    // because `foo bar` alone is two statements or a declaration.
+    // That last form carries no precedence, so the parser keeps both readings
+    // until the comma (or its absence) decides.
+    command_chain: $ => choice(
+      prec(2, seq(
+        field('receiver', $.identifier),
+        field('argument', choice($._command_argument, alias($._command_named_argument, $.named_argument))),
+        repeat($._command_later_argument),
+      )),
+      seq(
+        field('receiver', $.field_access),
+        choice(
+          seq($._command_literal_start, field('argument', choice(
+            $.string_literal,
+            $.number_literal,
+            alias($._command_named_argument, $.named_argument),
+          ))),
+          field('argument', alias($._command_named_argument, $.named_argument)),
+        ),
+        repeat($._command_later_argument),
+      ),
+      seq(
+        field('receiver', choice($.identifier, $.field_access)),
+        field('argument', $._command_trailing_argument),
+        repeat1($._command_later_argument),
+      ),
+    ),
+
+    // After the first argument has made the statement a command chain,
+    // a later argument is any expression or a named argument:
+    // `helper.registerAllowedMethod 'sh', [Map], { m -> }`.
+    _command_later_argument: $ => seq(',', field('argument', choice(
+      $._expression,
+      alias($._command_named_argument, $.named_argument),
+    ))),
 
     // §5.5 item 3 — named arguments in a parenthesis-free call:
     // `exclude group: 'a', module: 'b'`, `archiveArtifacts artifacts: 'x'`,
@@ -268,8 +309,9 @@ module.exports = grammar({
     // lexed by the external scanner only when `:` follows on the same
     // line, so `Type name = …` and a bare statement followed by a Spock
     // label on the next line are unaffected.
+    // A quoted key works too: `attributes 'Main-Class': main`.
     _command_named_argument: $ => seq(
-      field('key', alias($._command_named_key, $.identifier)),
+      field('key', choice(alias($._command_named_key, $.identifier), $.string_literal)),
       ':',
       field('value', $._expression),
     ),
@@ -288,11 +330,15 @@ module.exports = grammar({
     ),
 
     _command_argument: $ => choice(
+      $._command_literal_argument,
+      $.closure,
+    ),
+
+    _command_literal_argument: $ => choice(
       $.string_literal,
       $.number_literal,
       $.boolean_literal,
       $.null_literal,
-      $.closure,
     ),
 
     // §5.3 — `label: stmt`. Required only at statement-start
@@ -1055,10 +1101,12 @@ module.exports = grammar({
       $.generic_type,
     ),
 
-    _dotted_type: $ => seq(
+    // prec.dynamic: with a dotted command receiver in the grammar, the
+    // parser can also carry `(x as java).util` to the end; the type wins.
+    _dotted_type: $ => prec.dynamic(1, seq(
       alias($.identifier, $.type_identifier),
       $._dotted_type_tail,
-    ),
+    )),
 
     _dotted_type_tail: $ => prec.right(PREC.ACCESS + 1, seq(
       '.',

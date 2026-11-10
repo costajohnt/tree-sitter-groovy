@@ -828,6 +828,7 @@ enum TokenType {
   GROOVYDOC_COMMENT,      // single-token /** ... */ comment
   COMMAND_NAMED_KEY,      // §5.5 — `name` of `name:` in a parenthesis-free call
   SUBSCRIPT_OPEN,         // §5.10 — `[` on the same line as the expression before it
+  COMMAND_LITERAL_START,  // §5.5 — zero-width, before a dotted receiver's first argument
   ERROR_SENTINEL,         // never in a rule; valid only during error recovery
 };
 ```
@@ -953,6 +954,16 @@ stays two statements.
 ### 6.8 SUBSCRIPT_OPEN — implementation contract
 
 Emitted only where a subscript or array-type `[` may follow, and never during error recovery (`ERROR_SENTINEL` valid). Skips spaces and tabs but not newlines; if the next character is `[`, consumes it. At a newline it emits nothing, so the in-grammar `[` lexes instead and starts a list or map literal: Groovy ends a statement at a newline, which is what lets a Grails controller action return `[model: value]` on its own line.
+
+### 6.9 COMMAND_LITERAL_START — implementation contract
+
+Zero width. Valid only after a dotted command receiver
+(`response.setHeader 'k', v`), and never during error recovery. Skips
+spaces and tabs but not newlines, then emits when the next character is a
+quote or a digit, the start of a string or number argument (or a quoted
+named-argument key). A string or number on the next line therefore stays
+a separate statement instead of becoming the argument of the dotted
+expression above it.
 
 ---
 

@@ -78,6 +78,13 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - Annotated declarations now parse at statement level, including the
   script field idiom `@Field String NAME = 'x'`, `@Field final Map m = [:]`,
   `@Field def x` and `@Field NAME = 1`.
+- More parenthesis-free call shapes parse: an identifier or call as the
+  first of several arguments (`bind Foo, Bar`, `foo bar, { }`), quoted
+  named-argument keys (`attributes 'Main-Class': main`), dotted receivers
+  (`script.writeFile file: f`, `response.setHeader 'k', v`) and any
+  expression after the first argument. A dotted receiver's first string or
+  number argument must start on the receiver's line, checked by a new
+  zero-width scanner token, `_command_literal_start`.
 
 ## [0.3.0] - 2026-08-30
 
