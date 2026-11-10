@@ -457,3 +457,51 @@ class S {
             label: (identifier)
             statement: (expression_statement
               (boolean_literal))))))))
+
+==================
+script methods with modifiers and no return type
+==================
+
+private invalidateCache(configuration) {
+    configuration.clear()
+}
+static final helper(Map m) throws IOException { m }
+final x = 1
+private static String typed() { 'x' }
+---
+
+(source_file
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters
+      (formal_parameter
+        name: (identifier)))
+    body: (block
+      (expression_statement
+        (method_invocation
+          function: (field_access
+            object: (identifier)
+            field: (identifier))
+          arguments: (argument_list)))))
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters
+      (formal_parameter
+        type: (type_identifier)
+        name: (identifier)))
+    (throws_clause
+      (type_identifier))
+    body: (block
+      (expression_statement
+        (identifier))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (number_literal)))
+  (method_declaration
+    return_type: (type_identifier)
+    name: (identifier)
+    parameters: (formal_parameters)
+    body: (block
+      (expression_statement
+        (string_literal)))))

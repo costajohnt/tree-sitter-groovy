@@ -387,9 +387,22 @@ module.exports = grammar({
       $.multi_assignment_declaration,
       $.pipeline_statement,
       $.method_declaration,
+      // A script method with modifiers and no return type: `private f(x) { }`.
+      // In a class body the same shape is a constructor.
+      alias($._script_untyped_method, $.method_declaration),
       $.labeled_statement,
       $.command_chain,
     ),
+
+    // prec: after modifiers, a name and `(` start this, never a declarator.
+    _script_untyped_method: $ => prec(1, seq(
+      repeat($.annotation),
+      repeat1($._modifier),
+      field('name', $.identifier),
+      field('parameters', $.formal_parameters),
+      optional($.throws_clause),
+      field('body', $.block),
+    )),
 
     // §5.5 — command_chain is the parenthesis-free method-call
     // form (`println 'hello'`, `events 'a', 'b', 'c'`). v1 is
