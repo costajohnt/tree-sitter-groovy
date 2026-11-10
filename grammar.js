@@ -191,6 +191,11 @@ module.exports = grammar({
     // value of a declaration or assignment starts on the receiver's line
     // (`def r = sh returnStdout: true, script: 'x'`, `x = foo bar`).
     $._command_value_start,
+    // §5.10 — zero-width: a statement that starts on a new line with a name
+    // or `(`. Where the line before could end a statement, this ends it, so
+    // `x` and then `bar = 1` on the next line are two statements, never a
+    // declaration `x bar = 1` typed by the line above.
+    $._line_break,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -322,6 +327,16 @@ module.exports = grammar({
     // closure body's assignment; `->` decides.
     [$._expression, $.closure_parameter],
     [$._value, $.closure_parameter],
+
+    // §5.10 — after `{` and a `_line_break`, a closure's parameters or its
+    // first statement may follow; in an enum, a constant or a member.
+    [$.closure],
+    [$.block, $.closure],
+    [$.enum_body],
+
+    // §4 — `List<String> x` declares `x` with no value; `List<String> x = 1`
+    // is the initialized form. The token after the name decides.
+    [$.local_variable_declaration, $._type],
   ],
 
   rules: {
@@ -329,7 +344,7 @@ module.exports = grammar({
     // SPECIFICATION.md §4 (statement and declaration coverage).
     source_file: $ => seq(
       optional($.shebang),
-      repeat(choice($._statement, ';')),
+      repeat(choice($._statement, ';', $._line_break)),
     ),
 
     // §4 — `#!/usr/bin/env groovy` line at file start. Single
@@ -492,7 +507,7 @@ module.exports = grammar({
     // are valid alternatives (e.g. the body slot of `if` / `while`).
     block: $ => prec(1, seq(
       '{',
-      repeat(choice($._statement, ';')),
+      repeat(choice($._statement, ';', $._line_break)),
       '}',
     )),
 
@@ -799,6 +814,7 @@ module.exports = grammar({
         $._class_member,
         alias($._annotation_type_element, $.method_declaration),
         ';',
+        $._line_break,
       )),
       '}',
     ),
@@ -823,7 +839,7 @@ module.exports = grammar({
     // a no-op member. `;` is anonymous, so it never appears in the AST.
     class_body: $ => seq(
       '{',
-      repeat(choice($._class_member, ';')),
+      repeat(choice($._class_member, ';', $._line_break)),
       '}',
     ),
 
@@ -891,7 +907,7 @@ module.exports = grammar({
         ...memberModifiers($),
         choice(
           seq('def', repeat($._modifier)),
-          seq('def', repeat1($._modifier), field('type', $._type)),
+          seq('def', repeat($._modifier), field('type', $._type)),
           field('type', $._type),
         ),
         $.variable_declarator,
@@ -925,6 +941,11 @@ module.exports = grammar({
     //
     // A modifier stands in for `def` before a quoted name, as in a Spock
     // feature method `private "a feature"() { … }`.
+    //
+    // A return type on the line before the name is a separate path that
+    // loses to any other reading (prec.dynamic): `a.b` and then `bar(z) { }`
+    // on the next line are two statements. `_line_break` after the type
+    // only matches across a line break.
     method_declaration: $ => prec.right(2, choice(
       seq(
         ...memberModifiers($),
@@ -932,7 +953,7 @@ module.exports = grammar({
           seq(
             optional(field('type_parameters', $.method_type_parameters)),
             choice(
-              seq('def', repeat($._modifier)),
+              seq('def', repeat($._modifier), optional(field('return_type', $._type))),
               field('return_type', $._type),
             ),
             methodNameToBody($),
@@ -945,6 +966,13 @@ module.exports = grammar({
           ),
         ),
       ),
+      prec.dynamic(-3, seq(
+        ...memberModifiers($),
+        optional(field('type_parameters', $.method_type_parameters)),
+        field('return_type', $._type),
+        $._line_break,
+        methodNameToBody($),
+      )),
       seq(
         repeat($.annotation),
         repeat1($._modifier),
@@ -1028,12 +1056,13 @@ module.exports = grammar({
 
     enum_body: $ => seq(
       '{',
+      optional($._line_break),
       optional(seq(
         $.enum_constant,
-        repeat(seq(',', $.enum_constant)),
+        repeat(seq(',', optional($._line_break), $.enum_constant)),
         optional(','),
       )),
-      repeat(choice($._class_member, ';')),
+      repeat(choice($._class_member, ';', $._line_break)),
       '}',
     ),
 
@@ -1124,15 +1153,34 @@ module.exports = grammar({
     local_variable_declaration: $ => prec.right(choice(
       seq(
         optional('final'),
-        choice('def', 'var'),
+        choice('def', 'var', seq('def', field('type', $._type))),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
+      // A generic or array type can't start a command call, so a declarator
+      // after one needs no value: `List<String> names`, `byte[] body`.
+      prec.dynamic(1, seq(
+        optional('final'),
+        field('type', choice($.generic_type, $.array_type)),
+        alias($._bare_declarator, $.variable_declarator),
+        repeat(seq(',', alias($._bare_declarator, $.variable_declarator))),
+      )),
       // prec.dynamic: `String t = z` is one declaration, not `String` and
       // `t = z` (statements need no separator in this grammar).
       prec.dynamic(1, seq(
         optional('final'),
         field('type', $._type),
+        $._initialized_declarator,
+        repeat(seq(',', $._initialized_declarator)),
+      )),
+      // §5.10 — a type on the line before the name is a separate path that
+      // loses to any other reading: `a.b` and then `bar = 1` on the next
+      // line are two statements, though the parser split at the `.` before
+      // it saw the line break.
+      prec.dynamic(-3, seq(
+        optional('final'),
+        field('type', $._type),
+        $._line_break,
         $._initialized_declarator,
         repeat(seq(',', $._initialized_declarator)),
       )),
@@ -1155,6 +1203,8 @@ module.exports = grammar({
       '=',
       field('value', $._value),
     ),
+
+    _bare_declarator: $ => seq(field('name', $.identifier)),
 
     variable_declarator: $ => seq(
       field('name', $.identifier),
@@ -1393,7 +1443,7 @@ module.exports = grammar({
       'case',
       field('value', $._expression),
       ':',
-      repeat(choice($._statement, ';')),
+      repeat(choice($._statement, ';', $._line_break)),
     ),
 
     // The arrow body may be terminated by `;` (`case 1 -> foo();`),
@@ -1413,7 +1463,7 @@ module.exports = grammar({
     switch_default: $ => seq(
       'default',
       choice(
-        seq(':', repeat(choice($._statement, ';'))),
+        seq(':', repeat(choice($._statement, ';', $._line_break))),
         seq('->', field('body', choice($.block, $._statement)), optional(';')),
       ),
     ),
@@ -1575,6 +1625,20 @@ module.exports = grammar({
           $.lambda_expression,
         )),
       ),
+      // A `(` value on the next line is a cast only on a path that loses
+      // to any other reading: `v = (b)` and then `(a + b).c()` are two
+      // statements.
+      prec.dynamic(-3, seq(
+        '(',
+        field('type', $._type),
+        ')',
+        $._line_break,
+        field('value', choice(
+          $.parenthesized_expression,
+          $.parenthesized_type_cast,
+          $.lambda_expression,
+        )),
+      )),
     )),
 
     // §4 — `_type`. Supports unqualified type identifiers,
@@ -2024,10 +2088,11 @@ module.exports = grammar({
     // `{ String a, int b -> body }` has typed parameters; `{ body }`
     // has no `->` and an implicit `it` parameter (we do NOT emit a
     // synthetic `it` per §5.8). Default values and varargs land later.
+    // The parameters may start on the line after the `{`.
     closure: $ => seq(
       '{',
-      optional($.closure_parameters),
-      repeat(choice($._statement, ';')),
+      optional(seq(optional($._line_break), $.closure_parameters)),
+      repeat(choice($._statement, ';', $._line_break)),
       '}',
     ),
 

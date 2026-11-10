@@ -26,6 +26,7 @@ enum TokenType {
     STRING_BODY,
     RECORD_KEYWORD,
     COMMAND_VALUE_START,
+    LINE_BREAK,
     ERROR_SENTINEL,
 };
 
@@ -158,7 +159,10 @@ bool tree_sitter_groovy_external_scanner_scan(
             lexer->result_symbol = CAST_VALUE_START;
             return true;
         }
-        return false;
+        // At a line break the `_line_break` branch below decides.
+        if (c != '\n' && c != '\r') {
+            return false;
+        }
     }
 
     // SPECIFICATION.md §5.10 — a `[` on the current line continues the
@@ -266,6 +270,52 @@ bool tree_sitter_groovy_external_scanner_scan(
             }
             lexer->result_symbol = COMMAND_VALUE_START;
             return true;
+        }
+    }
+
+    // SPECIFICATION.md §5.10 — zero-width, before a statement that starts on
+    // a new line with a name or `(`, where the line before may end one. The
+    // names that continue a statement or expression across a line break are
+    // left alone: `else`, `catch`, `finally`, `while` (of `do`), `case`,
+    // `default`, `as`, `in`, `instanceof`, `throws`, `extends`, `implements`,
+    // `permits`.
+    if (valid_symbols[LINE_BREAK] && !valid_symbols[ERROR_SENTINEL]) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, true);
+        }
+        if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+            while (is_whitespace(lexer->lookahead)) {
+                lexer->advance(lexer, true);
+            }
+            if (lexer->lookahead == '(') {
+                lexer->mark_end(lexer);
+                lexer->result_symbol = LINE_BREAK;
+                return true;
+            }
+            if (is_ident_start(lexer->lookahead)) {
+                lexer->mark_end(lexer);
+                char word[12];
+                unsigned len = 0;
+                while (is_ident_part(lexer->lookahead)) {
+                    if (len < sizeof(word)) {
+                        word[len] = (char)lexer->lookahead;
+                    }
+                    len++;
+                    advance(lexer);
+                }
+                static const char *const continuing[] = {
+                    "else", "catch", "finally", "while", "case", "default",
+                    "as", "in", "instanceof", "throws", "extends",
+                    "implements", "permits",
+                };
+                for (unsigned i = 0; i < sizeof(continuing) / sizeof(continuing[0]); i++) {
+                    if (strlen(continuing[i]) == len && memcmp(word, continuing[i], len) == 0) {
+                        return false;
+                    }
+                }
+                lexer->result_symbol = LINE_BREAK;
+                return true;
+            }
         }
     }
 
