@@ -735,7 +735,7 @@ module.exports = grammar({
     resource_specification: $ => seq(
       '(',
       $.resource,
-      repeat(seq(';', $.resource)),
+      repeat(seq(choice(';', $._line_break), $.resource)),
       optional(';'),
       ')',
     ),

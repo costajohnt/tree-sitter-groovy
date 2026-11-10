@@ -298,3 +298,35 @@ try (parser) { }
       (resource
         name: (identifier)))
     body: (block)))
+
+==================
+try resources on separate lines
+==================
+
+try (
+    final asciidoctor = create()
+    final logger = new Handler(file)
+) {
+    run()
+}
+---
+
+(source_file
+  (try_statement
+    resources: (resource_specification
+      (resource
+        name: (identifier)
+        value: (method_invocation
+          function: (identifier)
+          arguments: (argument_list)))
+      (resource
+        name: (identifier)
+        value: (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list
+            (identifier)))))
+    body: (block
+      (expression_statement
+        (method_invocation
+          function: (identifier)
+          arguments: (argument_list))))))

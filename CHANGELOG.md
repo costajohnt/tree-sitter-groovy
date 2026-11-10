@@ -209,6 +209,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - An enum constant may be annotated and may have both arguments and a
   body when a `,` follows: `@GraphQL(deprecated = true) X,`,
   `THREE() { String f() { '3' } },`.
+- Try resources may be separated by a line break instead of `;`.
 
 ## [0.3.0] - 2026-08-30
 
