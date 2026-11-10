@@ -1154,10 +1154,12 @@ module.exports = grammar({
       ')',
     ),
 
+    // A spread map is an argument too: `f(*: m)`.
     _argument: $ => choice(
       $._expression,
       alias($.map_entry, $.named_argument),
       $.spread_arguments,
+      $.spread_map_entry,
     ),
 
     // §5.11 — `*expr` only inside argument list / list literal.

@@ -4087,6 +4087,10 @@
         {
           "type": "SYMBOL",
           "name": "spread_arguments"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "spread_map_entry"
         }
       ]
     },
