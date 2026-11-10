@@ -207,6 +207,11 @@ module.exports = grammar({
     $._var_keyword,
     $._pipeline_keyword,
     $._trait_keyword,
+    // §5.14 — the `<` of type arguments right after a name, when the scanner
+    // finds a balanced, type-shaped `<…>` that a `)`, `,`, `]`, `.` or `::`
+    // follows: `Mock(Supplier<Long>)`, `ArrayList<Job>.class`. Anywhere else
+    // `<` is left to the grammar, so `i<n` stays a comparison.
+    $._type_arguments_open,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -272,6 +277,8 @@ module.exports = grammar({
     // surrounding `field_access` reduction.
     [$._cast_type, $._type],
     [$._cast_type, $._dotted_type, $.qualified_type],
+    // §5.14 — `(List<X>)` is a cast's type or a parenthesized generic value.
+    [$.generic_type, $._generic_type_value],
 
     // §4 — `for ( identifier …` could continue as a for_statement
     // (identifier is part of the init expression) or as a
@@ -1463,6 +1470,7 @@ module.exports = grammar({
       // §4 — an array type is a value too: `byte[].class`,
       // `getBean(String[], name)`, `String[]::new`, `List[]` in a data table.
       alias($._array_type_value, $.array_type),
+      alias($._generic_type_value, $.generic_type),
     ),
 
     // Not on a generic type: `<` right after a name would then lex as a type
@@ -1547,12 +1555,33 @@ module.exports = grammar({
     // precedence tighter than `field_access`.
     // prec.dynamic: `x as A.B<C>` is a cast to a generic type, never the
     // comparison chain `(x as A.B) < C > …` that `_dotted_type` would win.
+    // A dotted name may also take type arguments or `[]` here:
+    // `x as java.util.concurrent.Callable<T>`, `[] as A.B[]`.
     _cast_type: $ => choice(
       alias($.identifier, $.type_identifier),
       $.array_type,
       alias($._dotted_type, $.qualified_type),
       prec.dynamic(2, $.generic_type),
+      prec.dynamic(2, alias($._dotted_generic_type, $.generic_type)),
+      alias($._dotted_array_type, $.array_type),
     ),
+
+    _dotted_generic_type: $ => seq(
+      field('base', alias($._dotted_type, $.qualified_type)),
+      field('arguments', choice(
+        $.type_arguments,
+        alias($._value_type_arguments, $.type_arguments),
+      )),
+    ),
+
+    _dotted_array_type: $ => prec(PREC.ARRAY_TYPE, seq(
+      choice(
+        alias($._dotted_type, $.qualified_type),
+        alias($._dotted_array_type, $.array_type),
+      ),
+      alias($._subscript_open, '['),
+      ']',
+    )),
 
     // prec.dynamic: with a dotted command receiver in the grammar, the
     // parser can also carry `(x as java).util` to the end; the type wins.
@@ -1743,8 +1772,30 @@ module.exports = grammar({
         alias($.identifier, $.type_identifier),
         $.qualified_type,
       )),
-      field('arguments', $.type_arguments),
+      field('arguments', choice(
+        $.type_arguments,
+        alias($._value_type_arguments, $.type_arguments),
+      )),
     )),
+
+    // A generic type as a value: `Mock(Supplier<Long>)`, `typeOf(List<X>)`,
+    // `HashMap<String, Object>.class`, `Mono<String>.fromCallable { }`.
+    _generic_type_value: $ => prec.right(PREC.ARRAY_TYPE, seq(
+      field('base', choice(
+        alias($.identifier, $.type_identifier),
+        $.qualified_type,
+      )),
+      field('arguments', alias($._value_type_arguments, $.type_arguments)),
+    )),
+
+    _value_type_arguments: $ => seq(
+      alias($._type_arguments_open, '<'),
+      optional(seq(
+        $._type_argument,
+        repeat(seq(',', $._type_argument)),
+      )),
+      '>',
+    ),
 
     // Empty type-argument list is the diamond operator (`new
     // ArrayList<>()`) — ubiquitous since Java 7 / Groovy's matching
