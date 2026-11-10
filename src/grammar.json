@@ -3908,6 +3908,15 @@
                   "name": "identifier"
                 },
                 {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "string_literal"
+                  },
+                  "named": true,
+                  "value": "quoted_identifier"
+                },
+                {
                   "type": "STRING",
                   "value": "new"
                 }
