@@ -72,6 +72,31 @@ function gstringPart($, textRule) {
   );
 }
 
+/**
+ * A method's name, parameters, throws clause and body. A method without a
+ * body (abstract, or in an interface) carries a negative dynamic
+ * precedence: in a block, `(Type) x` followed by `setup(test)` on the next
+ * line can also read as `(Type)` and a bodiless method `x setup(test)`.
+ *
+ * @param {GrammarSymbols<string>} $ Grammar reference symbols.
+ * @returns {ChoiceRule} The method tail.
+ */
+function methodNameToBody($) {
+  return choice(
+    seq(
+      field('name', $._property_name),
+      field('parameters', $.formal_parameters),
+      optional($.throws_clause),
+      field('body', $.block),
+    ),
+    prec.dynamic(-1, seq(
+      field('name', $._property_name),
+      field('parameters', $.formal_parameters),
+      optional($.throws_clause),
+    )),
+  );
+}
+
 module.exports = grammar({
   name: 'groovy',
 
@@ -699,10 +724,7 @@ module.exports = grammar({
       repeat($._modifier),
       optional(field('type_parameters', $.method_type_parameters)),
       choice('def', field('return_type', $._type)),
-      field('name', $._property_name),
-      field('parameters', $.formal_parameters),
-      optional($.throws_clause),
-      optional(field('body', $.block)),
+      methodNameToBody($),
     )),
 
     // §4 / §5.14 — method-level generic type parameters
