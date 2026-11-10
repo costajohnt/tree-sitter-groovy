@@ -1399,11 +1399,12 @@ module.exports = grammar({
     // form (see map_literal). Tree-sitter splits the parse between
     // list_literal and map_literal until a `:` or `]` disambiguates;
     // the conflict declaration above keeps both alternatives alive.
+    // Elements may be spread: `[*a, *b]`.
     list_literal: $ => seq(
       '[',
       optional(seq(
-        $._expression,
-        repeat(seq(',', $._expression)),
+        choice($._expression, $.spread_arguments),
+        repeat(seq(',', choice($._expression, $.spread_arguments))),
         optional(','),
       )),
       ']',

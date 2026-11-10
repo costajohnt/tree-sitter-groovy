@@ -180,3 +180,22 @@ List containing map
     (list_literal
       (map_literal (map_entry key: (identifier) value: (number_literal)))
       (map_literal (map_entry key: (identifier) value: (number_literal))))))
+
+==================
+Spread elements in a list literal
+==================
+
+def all = [*a, *b, 3]
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (list_literal
+        (spread_arguments
+          value: (identifier))
+        (spread_arguments
+          value: (identifier))
+        (number_literal)))))
