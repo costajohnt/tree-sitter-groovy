@@ -113,6 +113,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - `?.@` and `*.@` attribute access parse as `direct_field_access_expression`.
 - A method reference may name its method with a string: `System::'print'`.
 - Explicit type arguments on a call parse: `Collections.<String>emptyList()`.
+- List literals accept spread elements: `[*a, *b]`.
 
 ## [0.3.0] - 2026-08-30
 
