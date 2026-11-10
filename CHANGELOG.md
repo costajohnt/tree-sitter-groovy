@@ -109,6 +109,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   `def static f()`), `def <T> T f()`, a bodiless untyped method with
   modifiers (`abstract setVersion(v)`), and an annotation element default
   (`String value() default 'x'`, in the new `default` field).
+- `synchronized (lock) { … }` parses as the new `synchronized_statement`.
 
 ## [0.3.0] - 2026-08-30
 

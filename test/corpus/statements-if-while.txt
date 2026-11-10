@@ -151,3 +151,27 @@ while (a) { if (b) c }
       (if_statement
         condition: (identifier)
         consequence: (expression_statement (identifier))))))
+
+==================
+Synchronized block
+==================
+
+def f() {
+    synchronized (lock) {
+        count++
+    }
+}
+
+---
+
+(source_file
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters)
+    body: (block
+      (synchronized_statement
+        lock: (identifier)
+        body: (block
+          (expression_statement
+            (update_expression
+              operand: (identifier))))))))

@@ -247,6 +247,7 @@ module.exports = grammar({
       $.expression_statement,
       $.if_statement,
       $.while_statement,
+      $.synchronized_statement,
       $.do_while_statement,
       $.for_statement,
       $.for_in_statement,
@@ -425,6 +426,15 @@ module.exports = grammar({
       field('condition', $._expression),
       ')',
       field('body', choice($.block, $._statement)),
+    ),
+
+    // §4 — `synchronized (lock) { … }`, the Java block form.
+    synchronized_statement: $ => seq(
+      'synchronized',
+      '(',
+      field('lock', $._expression),
+      ')',
+      field('body', $.block),
     ),
 
     // §4 — C-style for. init / condition / update slots all
