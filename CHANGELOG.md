@@ -171,6 +171,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - Where an expression must start, a slashy string may begin with
   whitespace or span lines: `msg =~ / X /`, `s.split(/ /)`, `def r = /`
   with the body on the following lines. `a / b / c` is still division.
+- `new Foo() { … }` has an anonymous class body (`class_body`, field
+  `body`), not a closure argument; a class body takes instance
+  initializer blocks (`new HashMap() {{ put('a', 1) }}`).
 
 ## [0.3.0] - 2026-08-30
 
