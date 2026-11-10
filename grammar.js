@@ -2347,7 +2347,7 @@ module.exports = grammar({
     // followed by a `:` colon outside this context would have to be
     // syntactically impossible by the surrounding rules.
     spread_map_entry: $ => seq(
-      '*:',
+      choice('*:', seq('*', ':')),
       field('value', $._expression),
     ),
 

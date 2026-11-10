@@ -90,3 +90,32 @@ items*.size()
         object: (identifier)
         property: (identifier))
       arguments: (argument_list))))
+
+==================
+spread map entry with spaces
+==================
+
+def m = [*  : p.getAllFields(), x: 1]
+def n = [* : parameters]
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (map_literal
+        (spread_map_entry
+          value: (method_invocation
+            function: (field_access
+              object: (identifier)
+              field: (identifier))
+            arguments: (argument_list)))
+        (map_entry
+          key: (identifier)
+          value: (number_literal)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (map_literal
+        (spread_map_entry
+          value: (identifier))))))
