@@ -114,6 +114,8 @@ module.exports = grammar({
     // receiver (`response.setHeader 'k', v`) starts on the receiver's line.
     // A string or number on the next line is a new statement.
     $._command_literal_start,
+    // §5.5 — zero-width: a `{` on a bare command receiver's line.
+    $._command_closure_start,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -266,7 +268,9 @@ module.exports = grammar({
     // string or a number may be any expression (`log.warn '*' * 80`,
     // `myActor 10 as BigDecimal`); the zero-width `_command_literal_start`
     // only matches when it starts on the receiver's line. A dotted receiver
-    // takes no closure, since `list.each { … }` is a method_invocation. An
+    // takes no closure, since `list.each { … }` is a method_invocation. A
+    // closure on a bare receiver's line may likewise lead a longer expression
+    // (`thrownException { f() } instanceof IllegalStateException`). An
     // identifier, dotted or call-shaped first argument needs a comma after
     // it (`bind Foo, Bar`), because `foo bar` alone is two statements or a
     // declaration. That last form carries no precedence, so the parser
@@ -274,7 +278,10 @@ module.exports = grammar({
     command_chain: $ => choice(
       prec(2, seq(
         field('receiver', $.identifier),
-        field('argument', $._command_argument),
+        choice(
+          seq($._command_closure_start, field('argument', $._expression)),
+          field('argument', $._command_argument),
+        ),
         repeat($._command_later_argument),
       )),
       prec(2, seq(
