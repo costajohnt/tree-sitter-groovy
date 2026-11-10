@@ -133,3 +133,39 @@ class Foo { }
   (class_declaration
     name: (identifier)
     body: (class_body)))
+
+==================
+Annotated package and import declarations
+==================
+
+@Requires(property = "x")
+package com.example
+@Grab("org.apache.groovy:groovy-ant:4.0.1")
+import groovy.ant.AntBuilder
+
+---
+
+(source_file
+  (package_declaration
+    (annotation
+      name: (qualified_name
+        (identifier))
+      arguments: (argument_list
+        (assignment_expression
+          left: (identifier)
+          right: (string_literal
+            (string_fragment)))))
+    name: (qualified_name
+      (identifier)
+      (identifier)))
+  (import_declaration
+    (annotation
+      name: (qualified_name
+        (identifier))
+      arguments: (argument_list
+        (string_literal
+          (string_fragment))))
+    name: (qualified_name
+      (identifier)
+      (identifier)
+      (identifier))))
