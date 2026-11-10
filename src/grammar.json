@@ -2950,6 +2950,13 @@
             }
           },
           {
+            "type": "REPEAT",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_modifier"
+            }
+          },
+          {
             "type": "STRING",
             "value": "record"
           },
@@ -7328,7 +7335,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "_block_statement"
+                "name": "_statement"
               },
               {
                 "type": "STRING",
@@ -8390,6 +8397,14 @@
     [
       "for_in_statement",
       "_expression"
+    ],
+    [
+      "_statement",
+      "_block_statement"
+    ],
+    [
+      "block",
+      "closure"
     ],
     [
       "variable_declarator",

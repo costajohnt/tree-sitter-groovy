@@ -188,6 +188,11 @@ module.exports = grammar({
     // disambiguates.
     [$.for_in_statement, $._expression],
 
+    // §4 — a `{` body: a block takes no method declaration, a closure
+    // does; the statements inside decide which one it is.
+    [$._statement, $._block_statement],
+    [$.block, $.closure],
+
     // §5.2 — `def identifier` could either be a
     // local_variable_declaration (variable_declarator with no
     // initializer) or the start of a method_declaration
@@ -275,7 +280,9 @@ module.exports = grammar({
     ),
 
     // A method can only be declared at the top of a script or in a class
-    // body, so a block or closure body takes every statement but that.
+    // body, so a block takes every statement but that. A closure keeps
+    // them, since an anonymous class body (`new Runnable() { void run()
+    // { … } }`) parses as a closure.
     // Leaving it out stops `(List) items.ids` followed by `if (ids) { … }`
     // from also reading as a method named `if`.
     _block_statement: $ => choice(
@@ -949,6 +956,7 @@ module.exports = grammar({
     // keeps `record` usable as a plain identifier elsewhere.
     record_declaration: $ => prec.right(seq(
       repeat($.annotation),
+      repeat($._modifier),
       'record',
       field('name', $.identifier),
       field('components', $.record_components),
@@ -1841,7 +1849,7 @@ module.exports = grammar({
     closure: $ => seq(
       '{',
       optional($.closure_parameters),
-      repeat(choice($._block_statement, ';')),
+      repeat(choice($._statement, ';')),
       '}',
     ),
 
