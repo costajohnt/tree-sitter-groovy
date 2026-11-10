@@ -248,3 +248,62 @@ enum Op {
       (enum_constant
         name: (identifier)
         body: (class_body)))))
+
+==================
+annotated enum constants and constants with arguments and a body
+==================
+
+enum Foo {
+    @GraphQL(deprecated = true)
+    X,
+    @GraphQL('z')
+    Z
+}
+enum TestEnum {
+    ENUM1,
+    ENUM3() {
+        String toString() { "3" }
+    },
+    ENUM4
+}
+---
+
+(source_file
+  (enum_declaration
+    name: (identifier)
+    body: (enum_body
+      (enum_constant
+        (annotation
+          name: (qualified_name
+            (identifier))
+          arguments: (argument_list
+            (assignment_expression
+              left: (identifier)
+              right: (boolean_literal))))
+        name: (identifier))
+      (enum_constant
+        (annotation
+          name: (qualified_name
+            (identifier))
+          arguments: (argument_list
+            (string_literal)))
+        name: (identifier))))
+  (enum_declaration
+    name: (identifier)
+    body: (enum_body
+      (enum_constant
+        name: (identifier))
+      (enum_constant
+        name: (identifier)
+        arguments: (argument_list)
+        body: (class_body
+          (method_declaration
+            return_type: (type_identifier)
+            name: (identifier)
+            parameters: (formal_parameters)
+            body: (block
+              (expression_statement
+                (string_literal
+                  (string_fragment)))))))
+      (enum_constant
+        name: (identifier)))))
