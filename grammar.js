@@ -79,6 +79,22 @@ module.exports = grammar({
   // is the contract this rule set will fulfil.
   word: $ => $.identifier,
 
+  // §5.2 — Groovy's statement keywords are never identifiers, except as a
+  // property name after a dot (`x.class`) and as a map or named-argument
+  // key (`[default: 1]`). Without this, a statement keyword after a newline
+  // could lex as an identifier on one parse path: `List ids = (List) a.b`
+  // followed by `if (ids) { … }` also read as `(List)` and a method named
+  // `if` returning `a.b`.
+  reserved: {
+    global: _ => [
+      'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'return',
+      'break', 'continue', 'throw', 'try', 'catch', 'finally', 'assert',
+      'synchronized', 'new', 'class', 'interface', 'enum', 'import',
+      'package',
+    ],
+    properties: _ => [],
+  },
+
   extras: $ => [
     /\s/,
     $.line_comment,
@@ -145,6 +161,11 @@ module.exports = grammar({
     // decides; the conflict keeps both alternatives alive until
     // then.
     [$.variable_declarator, $._property_name],
+
+    // §5.2 — a map key may be a statement keyword (`[class: x]`); the
+    // reserved-free key path and the expression path merge at the `:`.
+    [$.variable_declarator, $._method_name],
+    [$._expression, $.map_entry],
   ],
 
   rules: {
@@ -592,7 +613,7 @@ module.exports = grammar({
       repeat($._modifier),
       optional(field('type_parameters', $.method_type_parameters)),
       choice('def', field('return_type', $._type)),
-      field('name', $._property_name),
+      field('name', $._method_name),
       field('parameters', $.formal_parameters),
       optional($.throws_clause),
       optional(field('body', $.block)),
@@ -1101,8 +1122,15 @@ module.exports = grammar({
     // *quoted identifier*: a string literal that escapes spaces,
     // keywords, or special chars. `map."key with spaces"` and
     // `def "abstract"() { … }` both rely on this.
-    _property_name: $ => choice(
+    // A declared method's name: reserved words excluded (a statement keyword
+    // on the next line is never a method name), or a quoted name.
+    _method_name: $ => choice(
       $.identifier,
+      alias($.string_literal, $.quoted_identifier),
+    ),
+
+    _property_name: $ => choice(
+      reserved('properties', $.identifier),
       alias($.string_literal, $.quoted_identifier),
     ),
 
@@ -1432,7 +1460,7 @@ module.exports = grammar({
     },
 
     map_entry: $ => seq(
-      field('key', $._expression),
+      field('key', choice($._expression, reserved('properties', $.identifier))),
       ':',
       field('value', $._expression),
     ),

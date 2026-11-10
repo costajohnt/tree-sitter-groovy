@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Fixed
+
+- Statement keywords are reserved words: a keyword on the line after an
+  expression (`x.y` then `if (c) { … }`) starts its statement instead of
+  becoming the name of a method declared with the line above as its return
+  type. They stay valid after a dot (`x.class`) and as map keys.
+
 ## [0.3.0] - 2026-08-30
 
 ### Changed

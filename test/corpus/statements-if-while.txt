@@ -151,3 +151,69 @@ while (a) { if (b) c }
       (if_statement
         condition: (identifier)
         consequence: (expression_statement (identifier))))))
+
+==================
+Statement keyword on the line after an expression
+==================
+
+x.y
+if (c) {
+    g()
+}
+items.ids
+while (c) {
+    g()
+}
+
+---
+
+(source_file
+  (expression_statement
+    (field_access
+      object: (identifier)
+      field: (identifier)))
+  (if_statement
+    condition: (identifier)
+    consequence: (block
+      (expression_statement
+        (method_invocation
+          function: (identifier)
+          arguments: (argument_list)))))
+  (expression_statement
+    (field_access
+      object: (identifier)
+      field: (identifier)))
+  (while_statement
+    condition: (identifier)
+    body: (block
+      (expression_statement
+        (method_invocation
+          function: (identifier)
+          arguments: (argument_list))))))
+
+==================
+Statement keywords as property names and map keys
+==================
+
+def k = x.class
+def m = [class: 'a', for: 1]
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (field_access
+        object: (identifier)
+        field: (identifier))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (map_literal
+        (map_entry
+          key: (identifier)
+          value: (string_literal))
+        (map_entry
+          key: (identifier)
+          value: (number_literal))))))
