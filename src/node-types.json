@@ -222,6 +222,10 @@
           "named": true
         },
         {
+          "type": "spread_map_entry",
+          "named": true
+        },
+        {
           "type": "string_literal",
           "named": true
         },

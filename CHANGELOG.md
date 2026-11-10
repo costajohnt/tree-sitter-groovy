@@ -132,6 +132,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   the next identifier into a line comment when a newline and comment
   follow (`assertEquals 'v', x` then `// note`).
 - `//` and `/*` inside a double-quoted or triple-double-quoted string are text, not the start of a comment: `"// x"`.
+- A spread map is an argument: `f(*: m)`.
 
 ## [0.3.0] - 2026-08-30
 

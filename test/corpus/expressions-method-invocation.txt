@@ -194,3 +194,28 @@ f(g(x))
         (method_invocation
           function: (identifier)
           arguments: (argument_list (identifier)))))))
+
+==================
+Spread map argument
+==================
+
+f(*: m)
+f(a: 1, *: m)
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (spread_map_entry
+          value: (identifier)))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (named_argument
+          key: (identifier)
+          value: (number_literal))
+        (spread_map_entry
+          value: (identifier))))))
