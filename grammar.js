@@ -885,7 +885,7 @@ module.exports = grammar({
     // a no-op member. `;` is anonymous, so it never appears in the AST.
     class_body: $ => seq(
       '{',
-      repeat(choice($._class_member, ';', $._line_break)),
+      repeat(choice($._class_member, $.instance_initializer, ';', $._line_break)),
       '}',
     ),
 
@@ -931,6 +931,10 @@ module.exports = grammar({
       'static',
       field('body', $.block),
     ),
+
+    // §4 — `{ … }` as a class member runs for each new instance; the
+    // "double brace" idiom `new HashMap() {{ put('a', 1) }}` is one.
+    instance_initializer: $ => field('body', $.block),
 
     // §4 — class / interface / trait field. Java-style shape: optional
     // annotations, optional modifiers, `def` or a `_type`, then one or
@@ -1597,10 +1601,14 @@ module.exports = grammar({
     // generic types, and array initialisers land later. PREC.PRIMARY
     // so it composes with the access tier from the left
     // (`new Foo().bar`).
+    // A `{` after the arguments starts an anonymous class body:
+    // `new Runnable() { void run() { } }`. Groovy never reads it as a closure
+    // argument of the new object.
     object_creation_expression: $ => prec.right(PREC.PRIMARY, seq(
       'new',
       field('type', $._type),
       field('arguments', alias($._new_argument_list, $.argument_list)),
+      optional(field('body', $.class_body)),
     )),
 
     // §3.2 / §5.15 — array creation: `new byte[10]`, `new int[2][3]`,

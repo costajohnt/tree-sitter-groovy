@@ -2207,6 +2207,10 @@
           "named": true
         },
         {
+          "type": "instance_initializer",
+          "named": true
+        },
+        {
           "type": "interface_declaration",
           "named": true
         },
@@ -6928,6 +6932,22 @@
     }
   },
   {
+    "type": "instance_initializer",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "block",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "instanceof_expression",
     "named": true,
     "fields": {
@@ -10765,6 +10785,16 @@
         "types": [
           {
             "type": "argument_list",
+            "named": true
+          }
+        ]
+      },
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "class_body",
             "named": true
           }
         ]

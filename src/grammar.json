@@ -2283,6 +2283,10 @@
                 "name": "_class_member"
               },
               {
+                "type": "SYMBOL",
+                "name": "instance_initializer"
+              },
+              {
                 "type": "STRING",
                 "value": ";"
               },
@@ -2428,6 +2432,14 @@
           }
         }
       ]
+    },
+    "instance_initializer": {
+      "type": "FIELD",
+      "name": "body",
+      "content": {
+        "type": "SYMBOL",
+        "name": "block"
+      }
     },
     "field_declaration": {
       "type": "CHOICE",
@@ -5764,6 +5776,22 @@
               "named": true,
               "value": "argument_list"
             }
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "body",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "class_body"
+                }
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
           }
         ]
       }

@@ -179,3 +179,71 @@ def t = new java.lang.Object[]{a, b}
         value: (array_initializer
           (identifier)
           (identifier))))))
+
+==================
+anonymous class bodies
+==================
+
+def x = new Foo() {
+    private long n = 0
+    void bar() { }
+}
+def m = new HashMap() {{
+    put("a", 1)
+}}
+foo(new Runnable() {
+    @Override
+    void run() { }
+})
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (object_creation_expression
+        type: (type_identifier)
+        arguments: (argument_list)
+        body: (class_body
+          (field_declaration
+            type: (type_identifier)
+            (variable_declarator
+              name: (identifier)
+              value: (number_literal)))
+          (method_declaration
+            return_type: (type_identifier)
+            name: (identifier)
+            parameters: (formal_parameters)
+            body: (block))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (object_creation_expression
+        type: (type_identifier)
+        arguments: (argument_list)
+        body: (class_body
+          (instance_initializer
+            body: (block
+              (expression_statement
+                (method_invocation
+                  function: (identifier)
+                  arguments: (argument_list
+                    (string_literal
+                      (string_fragment))
+                    (number_literal))))))))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list)
+          body: (class_body
+            (method_declaration
+              (annotation
+                name: (qualified_name
+                  (identifier)))
+              return_type: (type_identifier)
+              name: (identifier)
+              parameters: (formal_parameters)
+              body: (block))))))))
