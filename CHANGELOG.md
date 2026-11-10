@@ -150,6 +150,11 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - `x as A.B<C>` is a cast to a generic type, never a comparison chain.
 - `a.b key` on its own is a command call when the statement ends after it, so an `else` on the next line attaches.
 - A named argument of a parenthesis-free call may start on the line after a comma: `sh returnStdout: true,` then `script: 'x'`.
+- Annotations on type arguments, after `extends` and `new`, after
+  modifiers on an interface, and an annotation or a list of them as an
+  annotation element's default: `Map<String, @Nullable String>`,
+  `extends @Marked Object`, `new @A Foo<@B T>() { }`,
+  `static @Managed interface I { }`, `Tag[] tags() default [@Tag('a')]`.
 
 ## [0.3.0] - 2026-08-30
 
