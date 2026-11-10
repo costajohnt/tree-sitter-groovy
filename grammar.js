@@ -906,23 +906,36 @@ module.exports = grammar({
     // Groovy also takes modifiers or type parameters after `def`
     // (`def static foo()`, `def <T> T foo()`) and a bodiless method with
     // modifiers but no return type (`abstract setVersion(v)`).
-    method_declaration: $ => prec.right(2, seq(
-      ...memberModifiers($),
-      choice(
-        seq(
-          optional(field('type_parameters', $.method_type_parameters)),
-          choice(
-            seq('def', repeat($._modifier)),
-            field('return_type', $._type),
+    //
+    // A modifier stands in for `def` before a quoted name, as in a Spock
+    // feature method `private "a feature"() { … }`.
+    method_declaration: $ => prec.right(2, choice(
+      seq(
+        ...memberModifiers($),
+        choice(
+          seq(
+            optional(field('type_parameters', $.method_type_parameters)),
+            choice(
+              seq('def', repeat($._modifier)),
+              field('return_type', $._type),
+            ),
+            methodNameToBody($),
           ),
-          methodNameToBody($),
+          seq(
+            'def',
+            field('type_parameters', $.method_type_parameters),
+            field('return_type', $._type),
+            methodNameToBody($),
+          ),
         ),
-        seq(
-          'def',
-          field('type_parameters', $.method_type_parameters),
-          field('return_type', $._type),
-          methodNameToBody($),
-        ),
+      ),
+      seq(
+        repeat($.annotation),
+        repeat1($._modifier),
+        field('name', alias($.string_literal, $.quoted_identifier)),
+        field('parameters', $.formal_parameters),
+        optional($.throws_clause),
+        field('body', $.block),
       ),
     )),
 

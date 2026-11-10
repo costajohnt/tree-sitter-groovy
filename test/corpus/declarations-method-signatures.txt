@@ -432,3 +432,28 @@ class A {
           (formal_parameter
             type: (type_identifier)
             name: (identifier)))))))
+
+==================
+Modifier before a quoted method name
+==================
+
+class S {
+    private "a feature"() {
+        expect: true
+    }
+}
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (method_declaration
+        name: (quoted_identifier
+          (string_fragment))
+        parameters: (formal_parameters)
+        body: (block
+          (labeled_statement
+            label: (identifier)
+            statement: (expression_statement
+              (boolean_literal))))))))
