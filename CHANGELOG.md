@@ -185,6 +185,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   variable as a resource, `try (parser) { }`.
 - `final def (a, b) = f()`.
 - A `while` loop may have an empty body: `while (--x);`.
+- A script method may have modifiers and no return type:
+  `private deploy(script, Map config) { }`, as Jenkins shared libraries
+  write them.
 
 ## [0.3.0] - 2026-08-30
 
