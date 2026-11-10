@@ -834,6 +834,7 @@ module.exports = grammar({
       $.direct_field_access_expression,
       $.method_reference_expression,
       $.object_creation_expression,
+      $.array_creation_expression,
       $.parenthesized_type_cast,
       $.cast_expression,
       $.membership_expression,
@@ -975,6 +976,40 @@ module.exports = grammar({
       field('type', $._type),
       field('arguments', $.argument_list),
     )),
+
+    // §3.2 / §5.15 — array creation: `new byte[10]`, `new int[2][3]`,
+    // `new String[3][]`, and with a Java array initializer
+    // `new String[] { 'a', 'b' }`.
+    array_creation_expression: $ => prec.right(PREC.PRIMARY, seq(
+      'new',
+      field('type', choice(
+        alias($.identifier, $.type_identifier),
+        $.qualified_type,
+        $.generic_type,
+      )),
+      choice(
+        seq(repeat1($.dimension_expression), repeat($.dimension)),
+        seq(repeat1($.dimension), field('value', $.array_initializer)),
+      ),
+    )),
+
+    dimension_expression: $ => seq('[', $._expression, ']'),
+
+    dimension: _ => seq('[', ']'),
+
+    // Elements are expressions; a nested initializer (`{{1, 2}, {3}}`)
+    // would collide with closures and is not supported.
+    array_initializer: $ => seq(
+      '{',
+      optional(seq(
+        $._array_initializer_element,
+        repeat(seq(',', $._array_initializer_element)),
+        optional(','),
+      )),
+      '}',
+    ),
+
+    _array_initializer_element: $ => $._expression,
 
     // §5.15 — C-style cast `(Foo) x`. Distinct from
     // `parenthesized_expression` followed by something (resolved

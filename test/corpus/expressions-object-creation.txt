@@ -92,3 +92,74 @@ print(new Foo())
         (object_creation_expression
           type: (type_identifier)
           arguments: (argument_list))))))
+
+==================
+Array creation with dimensions
+==================
+
+byte[] b = new byte[10]
+def m = new int[2][3]
+def n = new String[size()][]
+
+---
+
+(source_file
+  (local_variable_declaration
+    type: (array_type
+      (type_identifier))
+    name: (identifier)
+    value: (array_creation_expression
+      type: (type_identifier)
+      (dimension_expression
+        (number_literal))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (array_creation_expression
+        type: (type_identifier)
+        (dimension_expression
+          (number_literal))
+        (dimension_expression
+          (number_literal)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (array_creation_expression
+        type: (type_identifier)
+        (dimension_expression
+          (method_invocation
+            function: (identifier)
+            arguments: (argument_list)))
+        (dimension)))))
+
+==================
+Array creation with an initializer
+==================
+
+def s = new String[] {'a', 'b'}
+def t = new java.lang.Object[]{a, b}
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (array_creation_expression
+        type: (type_identifier)
+        (dimension)
+        value: (array_initializer
+          (string_literal)
+          (string_literal)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (array_creation_expression
+        type: (qualified_type
+          (type_identifier)
+          (type_identifier)
+          (type_identifier))
+        (dimension)
+        value: (array_initializer
+          (identifier)
+          (identifier))))))

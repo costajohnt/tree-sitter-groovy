@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Fixed
+
+- Array creation parses as the new `array_creation_expression`:
+  `new byte[10]`, `new int[2][3]`, `new String[n][]`, and
+  `new String[] { 'a', 'b' }` with an `array_initializer`.
+
 ## [0.3.0] - 2026-08-30
 
 ### Changed
