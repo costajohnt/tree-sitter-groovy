@@ -134,6 +134,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - `//` and `/*` inside a double-quoted or triple-double-quoted string are text, not the start of a comment: `"// x"`.
 - A spread map is an argument: `f(*: m)`.
 - Annotation type declarations take modifiers: `public @interface Foo { }`.
+- An enum may implement interfaces: `enum E implements Named { … }`.
 
 ## [0.3.0] - 2026-08-30
 
