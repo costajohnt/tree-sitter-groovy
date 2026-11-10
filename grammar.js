@@ -216,6 +216,9 @@ module.exports = grammar({
     [$.command_chain, $._expression],
     [$.command_chain, $._expression, $._type],
     [$.command_chain, $._type],
+    // §5.5 — `(el x)` is a command call; `(String s) -> …` a lambda's
+    // parameter list. The `->` decides.
+    [$._type, $._parenthesized_command],
     // See SPECIFICATION.md §7. Populated as rules accumulate.
     // (list_literal vs map_literal — tree-sitter resolves without
     //  an explicit conflict because `:` after the first element
@@ -532,7 +535,11 @@ module.exports = grammar({
     if_statement: $ => prec.right(seq(
       'if',
       '(',
-      field('condition', $._expression),
+      // also a command call: `if (msg.contains 'x') { … }`
+      field('condition', choice(
+        $._expression,
+        alias($._parenthesized_command, $.command_chain),
+      )),
       ')',
       field('consequence', choice($.block, $._statement)),
       optional(';'),
@@ -2215,7 +2222,28 @@ module.exports = grammar({
     // §3.2 PRIMARY — `( expr )`. Distinct from `parenthesized_type_cast`
     // (§5.15), which lands once we have `_type`. The parser disambiguates
     // by what's inside the parens.
-    parenthesized_expression: $ => seq('(', $._expression, ')'),
+    parenthesized_expression: $ => seq(
+      '(',
+      choice($._expression, alias($._parenthesized_command, $.command_chain)),
+      ')',
+    ),
+
+    // §5.5 — a command call inside parentheses, as Geb page objects write it:
+    // `(el searchBy).click()`, `(go LoginPage).login(u, p)`,
+    // `return (run service: 'x', with: m)`. Inside `( … )` a name after the
+    // receiver can't start a declaration, so it is the argument.
+    _parenthesized_command: $ => seq(
+      field('receiver', choice($.identifier, $.field_access)),
+      choice(
+        seq($._command_literal_start, field('argument', choice(
+          $._expression,
+          alias($._command_quoted_named_argument, $.named_argument),
+        ))),
+        field('argument', alias($._command_named_argument, $.named_argument)),
+        field('argument', $.identifier),
+      ),
+      repeat($._command_later_argument),
+    ),
 
     // §3.2 — single `unary_expression` node kind but two precedence
     // alternatives, matching Apache §3.1:
