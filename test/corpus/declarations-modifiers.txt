@@ -119,3 +119,46 @@ public final String toString() { name }
     parameters: (formal_parameters)
     body: (block
       (expression_statement (identifier)))))
+
+==================
+Annotations after modifiers
+==================
+
+class A {
+    final @Delegate Map target
+    static @Rule TestName name = new TestName()
+    private static @Nullable String f() { null }
+}
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (field_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        type: (type_identifier)
+        (variable_declarator
+          name: (identifier)))
+      (field_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        type: (type_identifier)
+        (variable_declarator
+          name: (identifier)
+          value: (object_creation_expression
+            type: (type_identifier)
+            arguments: (argument_list))))
+      (method_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        return_type: (type_identifier)
+        name: (identifier)
+        parameters: (formal_parameters)
+        body: (block
+          (expression_statement
+            (null_literal)))))))
