@@ -139,3 +139,56 @@ record Product(@NotBlank String name) { }
         type: (type_identifier)
         name: (identifier)))
     body: (class_body)))
+
+==================
+record as an identifier
+==================
+
+record { x() }
+record << y
+record.task_id = 1
+def f() { return record }
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (closure
+      (expression_statement
+        (method_invocation
+          function: (identifier)
+          arguments: (argument_list)))))
+  (expression_statement
+    (binary_expression
+      left: (identifier)
+      right: (identifier)))
+  (expression_statement
+    (assignment_expression
+      left: (field_access
+        object: (identifier)
+        field: (identifier))
+      right: (number_literal)))
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters)
+    body: (block
+      (return_statement
+        (identifier)))))
+
+==================
+Record implementing an interface
+==================
+
+record Tenant(String id) implements Element {}
+---
+
+(source_file
+  (record_declaration
+    name: (identifier)
+    components: (record_components
+      (record_component
+        type: (type_identifier)
+        name: (identifier)))
+    (super_interfaces
+      (type_identifier))
+    body: (class_body)))

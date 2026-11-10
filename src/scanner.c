@@ -24,6 +24,7 @@ enum TokenType {
     CALL_OPEN,
     CAST_VALUE_START,
     STRING_BODY,
+    RECORD_KEYWORD,
     ERROR_SENTINEL,
 };
 
@@ -228,6 +229,47 @@ bool tree_sitter_groovy_external_scanner_scan(
         // line_comment, since mark_end had already been called.
         if (is_ident_start(lexer->lookahead)) {
             return scan_command_named_key(lexer);
+        }
+    }
+
+    // SPECIFICATION.md §4 — `record` starts a record declaration only when
+    // a name and then `(` or `<` follow on the same line. Otherwise it is
+    // left to the grammar, which lexes it as an identifier.
+    if (valid_symbols[RECORD_KEYWORD] && !valid_symbols[ERROR_SENTINEL]) {
+        while (is_whitespace(lexer->lookahead)) {
+            lexer->advance(lexer, true);
+        }
+        if (lexer->lookahead == 'r') {
+            for (const char *p = "record"; *p; p++) {
+                if (lexer->lookahead != *p) {
+                    return false;
+                }
+                advance(lexer);
+            }
+            if (is_ident_part(lexer->lookahead)) {
+                return false;
+            }
+            lexer->mark_end(lexer);
+            if (lexer->lookahead != ' ' && lexer->lookahead != '\t') {
+                return false;
+            }
+            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                advance(lexer);
+            }
+            if (!is_ident_start(lexer->lookahead)) {
+                return false;
+            }
+            while (is_ident_part(lexer->lookahead)) {
+                advance(lexer);
+            }
+            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                advance(lexer);
+            }
+            if (lexer->lookahead == '(' || lexer->lookahead == '<') {
+                lexer->result_symbol = RECORD_KEYWORD;
+                return true;
+            }
+            return false;
         }
     }
 

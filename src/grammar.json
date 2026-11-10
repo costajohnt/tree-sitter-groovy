@@ -3222,7 +3222,12 @@
               }
             },
             {
-              "type": "STRING",
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_record_keyword"
+              },
+              "named": false,
               "value": "record"
             },
             {
@@ -3240,6 +3245,18 @@
                 "type": "SYMBOL",
                 "name": "record_components"
               }
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "super_interfaces"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
             },
             {
               "type": "CHOICE",
@@ -9082,6 +9099,10 @@
     {
       "type": "SYMBOL",
       "name": "_string_body"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_record_keyword"
     },
     {
       "type": "SYMBOL",
