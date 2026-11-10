@@ -92,9 +92,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - An annotated field may omit its type, as in Spock's `@Shared log = []`.
 - A `(` on the line after an expression starts a new statement instead of
   calling that expression (`println 'x'` then `(1..n).each { }`), via a new
-  scanner token, `_call_open`. A cast followed by a statement on the next
-  line (`(List) items.ids` then `if (ids) { … }`) stays a cast, since a
-  block or closure body no longer takes a method declaration.
+  scanner token, `_call_open`.
+- Records accept access modifiers and `static` (`private static record
+  Range(…) { … }`) and annotated components (`record P(@NotBlank String n)`).
 - Multiple assignment accepts typed targets (`def (String a, int b) = l`)
   and, as the new `multi_assignment_expression`, the def-less form
   `(a, b) = l` that assigns existing variables.
