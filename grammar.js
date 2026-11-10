@@ -2470,8 +2470,10 @@ module.exports = grammar({
     _triple_gstring_text: _ => token.immediate(repeat1(choice(
       /[^"\\$]/,
       /\\[\s\S]/,
-      /"[^"]/,
-      /""[^"]/,
+      /"[^"\\]/,
+      /""[^"\\]/,
+      /"\\[\s\S]/,
+      /""\\[\s\S]/,
     ))),
 
     // §5.7 — `$identifier(.identifier)*` interpolation. The whole

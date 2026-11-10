@@ -713,3 +713,20 @@ y = "${a / b} / c".size()
             (string_fragment))
           field: (identifier))
         arguments: (argument_list)))))
+
+==================
+escaped dollar after a quote in a triple-quoted GString
+==================
+
+def s = """
+for x in "\${pid[@]}"; do
+  y=""\${a[@]}""
+"""
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (string_fragment)))))
