@@ -829,6 +829,7 @@ enum TokenType {
   COMMAND_NAMED_KEY,      // §5.5 — `name` of `name:` in a parenthesis-free call
   COMMAND_LITERAL_START,  // §5.5 — zero-width, before a literal-led first command argument
   COMMAND_CLOSURE_START,  // §5.5 — zero-width, before a closure-led first command argument
+  CALL_OPEN,              // §5.5 — `(` of an argument list, on the callee's line
   ERROR_SENTINEL,         // never in a rule; valid only during error recovery
 };
 ```
@@ -968,6 +969,16 @@ during error recovery. Skips spaces and tabs but not newlines, then emits
 when the next character is `{`. The argument that follows is any
 expression, so a closure argument can lead a longer one
 (`thrownException { f() } instanceof IllegalStateException`).
+
+### 6.10 CALL_OPEN — implementation contract
+
+Emitted where an argument list may start, never during error recovery.
+Skips spaces and tabs but not newlines; if the next character is `(`,
+consumes it. At a newline it emits nothing, so the in-grammar `(` starts a
+new statement: `println 'x'` followed by `(1..n).each { }` on the next
+line is two statements, as in Groovy. Parameter lists and record
+components accept it as well as the in-grammar `(`, since `String f(`
+also reads as a statement `String` followed by a call `f(`.
 
 ---
 

@@ -20,6 +20,7 @@ enum TokenType {
     COMMAND_NAMED_KEY,
     COMMAND_LITERAL_START,
     COMMAND_CLOSURE_START,
+    CALL_OPEN,
     ERROR_SENTINEL,
 };
 
@@ -115,6 +116,20 @@ bool tree_sitter_groovy_external_scanner_scan(
     const bool *valid_symbols
 ) {
     (void)payload;
+
+    // SPECIFICATION.md §5.5 — the `(` of an argument list must be on the
+    // line of the callee. At a newline we fall through, and the in-grammar
+    // `(` starts a new statement instead.
+    if (valid_symbols[CALL_OPEN] && !valid_symbols[ERROR_SENTINEL]) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, true);
+        }
+        if (lexer->lookahead == '(') {
+            lexer->advance(lexer, false);
+            lexer->result_symbol = CALL_OPEN;
+            return true;
+        }
+    }
 
     // SPECIFICATION.md §5.5 — a zero-width marker before the first argument
     // of a command call on a dotted receiver: matches only when a string or

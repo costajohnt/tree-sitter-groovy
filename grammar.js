@@ -112,6 +112,11 @@ module.exports = grammar({
     $._command_literal_start,
     // §5.5 — zero-width: a `{` on a bare command receiver's line.
     $._command_closure_start,
+    // §5.5 — `(` of an argument list, on the line of the expression
+    // before it. A `(` after a newline starts a new statement. Parameter
+    // lists accept it too, since `String f(` is also a call `f(` after a
+    // statement `String`.
+    $._call_open,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -715,7 +720,7 @@ module.exports = grammar({
     )),
 
     formal_parameters: $ => seq(
-      '(',
+      choice('(', alias($._call_open, '(')),
       optional(seq(
         $.formal_parameter,
         repeat(seq(',', $.formal_parameter)),
@@ -774,7 +779,7 @@ module.exports = grammar({
     )),
 
     record_components: $ => seq(
-      '(',
+      choice('(', alias($._call_open, '(')),
       optional(seq(
         $.record_component,
         repeat(seq(',', $.record_component)),
@@ -1080,12 +1085,15 @@ module.exports = grammar({
     // by tree-sitter's GLR; declared as a conflict if needed).
     // PREC.UNARY right-associative so `(Foo) -x` parses as
     // `(Foo)(-x)` and the type binds to the rightward expression.
-    parenthesized_type_cast: $ => prec.right(PREC.UNARY, seq(
+    // prec.dynamic: `(List) items.ids` followed by `if (ids) { … }` on the
+    // next line can also read as `(List)` and a method declaration
+    // `items.ids if(…) { … }`; the cast wins.
+    parenthesized_type_cast: $ => prec.right(PREC.UNARY, prec.dynamic(1, seq(
       '(',
       field('type', $._type),
       ')',
       field('value', $._expression),
-    )),
+    ))),
 
     // §4 — `_type`. Supports unqualified type identifiers,
     // qualified types (`java.util.List`), array types
@@ -1243,8 +1251,11 @@ module.exports = grammar({
     // named args (Groovy's `k: v` in call position) are `map_entry`
     // aliased to `named_argument` so downstream tools can tell them
     // apart from positional values. Spread (`*expr`) lands later.
+    // The `(` must be on the line of the expression before it
+    // (`_call_open`): `println 'x'` followed by `(1..n).each { }` on the
+    // next line is two statements, not a call on `'x'`.
     argument_list: $ => seq(
-      '(',
+      alias($._call_open, '('),
       optional(seq(
         $._argument,
         repeat(seq(',', $._argument)),
