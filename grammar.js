@@ -660,9 +660,14 @@ module.exports = grammar({
       '}',
     ),
 
+    // A constant may have a body: `ONE { String f() { 'a' } }`. Not after
+    // arguments, where `E() { … }` is a constructor.
     enum_constant: $ => seq(
       field('name', $.identifier),
-      optional(field('arguments', $.argument_list)),
+      optional(choice(
+        field('arguments', $.argument_list),
+        field('body', $.class_body),
+      )),
     ),
 
     // §4 — record (Groovy 4+). `record Name(Type a, Type b) [{ body }]`.
