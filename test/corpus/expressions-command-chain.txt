@@ -671,3 +671,47 @@ println x
     (identifier))
   (expression_statement
     (identifier)))
+
+==================
+Named arguments on the lines after a comma
+==================
+
+def r = sh returnStdout: true,
+    script: 'x'
+render template: 'a',
+    destination: file('b')
+foo
+when: x()
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (command_chain
+        receiver: (identifier)
+        argument: (named_argument
+          key: (identifier)
+          value: (boolean_literal))
+        argument: (named_argument
+          key: (identifier)
+          value: (string_literal)))))
+  (command_chain
+    receiver: (identifier)
+    argument: (named_argument
+      key: (identifier)
+      value: (string_literal))
+    argument: (named_argument
+      key: (identifier)
+      value: (method_invocation
+        function: (identifier)
+        arguments: (argument_list
+          (string_literal)))))
+  (expression_statement
+    (identifier))
+  (labeled_statement
+    label: (identifier)
+    statement: (expression_statement
+      (method_invocation
+        function: (identifier)
+        arguments: (argument_list)))))
