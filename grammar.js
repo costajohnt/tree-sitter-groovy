@@ -982,9 +982,12 @@ module.exports = grammar({
         $._line_break,
         methodNameToBody($),
       )),
+      // An annotation stands in for a modifier too: `@Unroll "a feature"() { }`.
       seq(
-        repeat($.annotation),
-        repeat1($._modifier),
+        choice(
+          seq(repeat($.annotation), repeat1($._modifier)),
+          repeat1($.annotation),
+        ),
         field('name', alias($.string_literal, $.quoted_identifier)),
         field('parameters', $.formal_parameters),
         optional($.throws_clause),
@@ -993,10 +996,13 @@ module.exports = grammar({
     )),
 
     // `abstract setVersion(version)`: modifiers, no return type, no body.
-    // With a body the same shape is a constructor_declaration.
+    // With a body the same shape is a constructor_declaration. In an
+    // interface an annotation is enough: `@Option flag()`.
     _bodiless_untyped_method: $ => seq(
-      repeat($.annotation),
-      repeat1($._modifier),
+      choice(
+        seq(repeat($.annotation), repeat1($._modifier)),
+        repeat1($.annotation),
+      ),
       field('name', $.identifier),
       field('parameters', $.formal_parameters),
       optional($.throws_clause),

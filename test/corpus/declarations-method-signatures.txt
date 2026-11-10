@@ -457,3 +457,46 @@ class S {
             label: (identifier)
             statement: (expression_statement
               (boolean_literal))))))))
+
+==================
+annotated methods without a return type
+==================
+
+class S {
+    @Unroll
+    "can map #x"() { }
+}
+interface O {
+    @Option flag()
+    @Unparsed List remaining()
+}
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (method_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        name: (quoted_identifier
+          (string_fragment))
+        parameters: (formal_parameters)
+        body: (block))))
+  (interface_declaration
+    name: (identifier)
+    body: (class_body
+      (method_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        name: (identifier)
+        parameters: (formal_parameters))
+      (method_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        return_type: (type_identifier)
+        name: (identifier)
+        parameters: (formal_parameters)))))
