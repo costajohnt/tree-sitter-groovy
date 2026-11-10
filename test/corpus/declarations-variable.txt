@@ -357,3 +357,54 @@ def call(Map args) { X }
     body: (block
       (expression_statement
         (identifier)))))
+
+==================
+Typed multi-assignment
+==================
+
+def (String foo, int bar) = ["foo", 42]
+
+---
+
+(source_file
+  (multi_assignment_declaration
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier))
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier))
+    value: (list_literal
+      (string_literal
+        (string_fragment))
+      (number_literal))))
+
+==================
+Multi-assignment to existing variables
+==================
+
+(a, b) = [1, 2]
+assert ((x, y) = [3, 4]) == [3, 4]
+
+---
+
+(source_file
+  (expression_statement
+    (multi_assignment_expression
+      left: (identifier)
+      left: (identifier)
+      right: (list_literal
+        (number_literal)
+        (number_literal))))
+  (assert_statement
+    (binary_expression
+      left: (parenthesized_expression
+        (multi_assignment_expression
+          left: (identifier)
+          left: (identifier)
+          right: (list_literal
+            (number_literal)
+            (number_literal))))
+      right: (list_literal
+        (number_literal)
+        (number_literal)))))

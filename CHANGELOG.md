@@ -94,6 +94,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   calling that expression (`println 'x'` then `(1..n).each { }`), via a new
   scanner token, `_call_open`. A cast followed by a statement on the next
   line (`(List) items.ids` then `if (ids) { … }`) stays a cast.
+- Multiple assignment accepts typed targets (`def (String a, int b) = l`)
+  and, as the new `multi_assignment_expression`, the def-less form
+  `(a, b) = l` that assigns existing variables.
 
 ## [0.3.0] - 2026-08-30
 
