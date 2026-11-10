@@ -52,3 +52,26 @@ nullable
 
 (source_file
   (expression_statement (identifier)))
+
+==================
+unicode identifiers
+==================
+
+def âøñè = 'âøñè'
+write([név: "x"])
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal)))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (map_literal
+          (map_entry
+            key: (identifier)
+            value: (string_literal
+              (string_fragment))))))))

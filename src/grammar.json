@@ -10387,7 +10387,7 @@
     },
     "identifier": {
       "type": "PATTERN",
-      "value": "[A-Za-z_$][A-Za-z0-9_$]*"
+      "value": "[\\p{L}_$][\\p{L}\\p{Nd}_$]*"
     }
   },
   "extras": [

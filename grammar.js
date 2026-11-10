@@ -2563,6 +2563,6 @@ module.exports = grammar({
       /[0-9][0-9_]*[GgLlIiDdFf]?/,
     )),
 
-    identifier: _ => /[A-Za-z_$][A-Za-z0-9_$]*/,
+    identifier: _ => /[\p{L}_$][\p{L}\p{Nd}_$]*/,
   },
 });
