@@ -7028,6 +7028,10 @@
           },
           "named": true,
           "value": "quoted_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "parenthesized_expression"
         }
       ]
     },

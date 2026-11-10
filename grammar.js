@@ -1917,6 +1917,7 @@ module.exports = grammar({
     _property_name: $ => choice(
       reserved('properties', $.identifier),
       alias($.string_literal, $.quoted_identifier),
+      $.parenthesized_expression,
     ),
 
     // §5.14 — method reference. Groovy 3+. The RHS is either an

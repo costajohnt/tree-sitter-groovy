@@ -191,6 +191,8 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - A space may separate a class's name from its type parameters:
   `class Sources <T, S extends Settings> { }`.
 - A spread map entry may have spaces before its colon: `[*  : m, a: 1]`.
+- A member name may be a parenthesized expression: `map.(key) = v`,
+  `this.('a' + 'b')(5)`.
 
 ## [0.3.0] - 2026-08-30
 
