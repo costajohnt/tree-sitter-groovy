@@ -720,11 +720,16 @@ module.exports = grammar({
       ')',
     ),
 
-    resource: $ => seq(
-      optional(field('type', $._type)),
+    // An existing variable is a resource too, as in Java 9: `try (parser)`.
+    resource: $ => choice(
+      seq(
+        optional('final'),
+        optional(field('type', $._type)),
+        field('name', $.identifier),
+        '=',
+        field('value', $._expression),
+      ),
       field('name', $.identifier),
-      '=',
-      field('value', $._expression),
     ),
 
     catch_clause: $ => seq(
@@ -740,6 +745,7 @@ module.exports = grammar({
     // murtaza64 #39. The type itself is optional — Groovy allows a
     // bare `catch (e) { … }`, implicitly typed as Exception.
     catch_formal_parameter: $ => seq(
+      optional('final'),
       optional(field('type', choice($._type, $.multi_type))),
       field('name', $.identifier),
     ),

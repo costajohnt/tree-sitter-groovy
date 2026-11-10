@@ -181,6 +181,8 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - A closure parameter may be annotated, `final`, or `def` with a type or
   a default value: `{ final String a, @Nullable B b -> }`,
   `{ def JobContext c -> }`, `{ int n, def acc = 1G -> }`.
+- `catch (final E e)`, `try (final InputStream s = f())` and a bare
+  variable as a resource, `try (parser) { }`.
 
 ## [0.3.0] - 2026-08-30
 

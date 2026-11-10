@@ -266,3 +266,35 @@ try (Foo f = open()) { use(f) } catch (E e) { handle(e) }
           (method_invocation
             function: (identifier)
             arguments: (argument_list (identifier))))))))
+
+==================
+final catch parameters and resources
+==================
+
+try { } catch (final RuntimeException ex) { }
+try (final InputStream is = open()) { }
+try (parser) { }
+---
+
+(source_file
+  (try_statement
+    body: (block)
+    (catch_clause
+      parameter: (catch_formal_parameter
+        type: (type_identifier)
+        name: (identifier))
+      body: (block)))
+  (try_statement
+    resources: (resource_specification
+      (resource
+        type: (type_identifier)
+        name: (identifier)
+        value: (method_invocation
+          function: (identifier)
+          arguments: (argument_list))))
+    body: (block))
+  (try_statement
+    resources: (resource_specification
+      (resource
+        name: (identifier)))
+    body: (block)))
