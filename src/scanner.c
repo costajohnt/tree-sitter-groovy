@@ -246,7 +246,12 @@ bool tree_sitter_groovy_external_scanner_scan(
 
     if ((valid_symbols[COMMAND_NAMED_KEY] || valid_symbols[COMMAND_NAME_ARGUMENT])
         && !valid_symbols[ERROR_SENTINEL]) {
-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        // Where no statement may end (after a comma between arguments), the
+        // key may start on the next line: `sh returnStdout: true,` then
+        // `script: 'x'`. Elsewhere a key on the next line is a label.
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t'
+            || (!valid_symbols[LINE_BREAK]
+                && (lexer->lookahead == '\n' || lexer->lookahead == '\r'))) {
             lexer->advance(lexer, true);
         }
         // An identifier is either the key or, once consumed, not something
