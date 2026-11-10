@@ -160,6 +160,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   then `else`), may be an operator expression or a list or map before a
   comma (`assertTrue x instanceof Y, 'msg'`, `assertEquals [:], m`), and
   the receiver may be `a?.b` or `a*.b` (`all*.exclude group: 'g'`).
+- A command call may sit in parentheses or be an `if` condition:
+  `(el searchBy).click()`, `return (run service: 'x', with: m)`,
+  `if (msg.contains 'x') { }`.
 
 ## [0.3.0] - 2026-08-30
 
