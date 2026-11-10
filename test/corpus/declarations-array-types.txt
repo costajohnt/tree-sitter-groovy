@@ -96,3 +96,54 @@ def a = xs as Object []
         value: (identifier)
         type: (array_type
           (type_identifier))))))
+
+==================
+Array types as values
+==================
+
+def c = byte[].class
+x(String[].class, int[][])
+def r = l.toArray(String[]::new)
+assert o.class == java.lang.Object[]
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (field_access
+        object: (array_type
+          (type_identifier))
+        field: (identifier))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (field_access
+          object: (array_type
+            (type_identifier))
+          field: (identifier))
+        (array_type
+          (array_type
+            (type_identifier))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (field_access
+          object: (identifier)
+          field: (identifier))
+        arguments: (argument_list
+          (method_reference_expression
+            target: (array_type
+              (type_identifier)))))))
+  (assert_statement
+    (binary_expression
+      left: (field_access
+        object: (identifier)
+        field: (identifier))
+      right: (array_type
+        (qualified_type
+          (type_identifier)
+          (type_identifier)
+          (type_identifier))))))

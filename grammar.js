@@ -284,6 +284,12 @@ module.exports = grammar({
 
     // §4 — an annotation type element `String value() default 'x'`.
     [$._annotation_type_element, $._property_name],
+
+    // §4 — `String[]` is a type, or a value (`String[].class`); after the
+    // name a subscript is possible too, until `]` follows `[`.
+    [$._expression, $._array_type_value, $._type],
+    [$._expression, $._array_type_value],
+    [$._array_type_value, $._type],
   ],
 
   rules: {
@@ -1278,6 +1284,21 @@ module.exports = grammar({
       $.membership_expression,
       $.instanceof_expression,
       $.switch_expression,
+      // §4 — an array type is a value too: `byte[].class`,
+      // `getBean(String[], name)`, `String[]::new`, `List[]` in a data table.
+      alias($._array_type_value, $.array_type),
+    ),
+
+    // Not on a generic type: `<` right after a name would then lex as a type
+    // argument opener in every expression, breaking `i<n`.
+    _array_type_value: $ => seq(
+      choice(
+        alias($.identifier, $.type_identifier),
+        $.qualified_type,
+        alias($._array_type_value, $.array_type),
+      ),
+      alias($._subscript_open, '['),
+      ']',
     ),
 
     // §4 — Groovy 4 switch-expression. Single rule for both classic
