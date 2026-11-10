@@ -98,6 +98,22 @@ function methodNameToBody($) {
   );
 }
 
+/**
+ * The annotations and modifiers before a field or method. Annotations may
+ * also follow modifiers: `final @Delegate Map target`,
+ * `static @Rule TestName name`, `private static @Nullable String f()`.
+ *
+ * @param {GrammarSymbols<string>} $ Grammar reference symbols.
+ * @returns {RuleOrLiteral[]} The prefix, to spread into a `seq`.
+ */
+function memberModifiers($) {
+  return [
+    repeat($.annotation),
+    optional(seq(repeat1($._modifier), repeat1($.annotation))),
+    repeat($._modifier),
+  ];
+}
+
 module.exports = grammar({
   name: 'groovy',
 
@@ -856,8 +872,7 @@ module.exports = grammar({
     // `def static NAME = …` puts the modifiers after `def`.
     field_declaration: $ => choice(
       seq(
-        repeat($.annotation),
-        repeat($._modifier),
+        ...memberModifiers($),
         choice(
           seq('def', repeat($._modifier)),
           seq('def', repeat1($._modifier), field('type', $._type)),
@@ -892,8 +907,7 @@ module.exports = grammar({
     // (`def static foo()`, `def <T> T foo()`) and a bodiless method with
     // modifiers but no return type (`abstract setVersion(v)`).
     method_declaration: $ => prec.right(2, seq(
-      repeat($.annotation),
-      repeat($._modifier),
+      ...memberModifiers($),
       choice(
         seq(
           optional(field('type_parameters', $.method_type_parameters)),

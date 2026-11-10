@@ -140,6 +140,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - An array type is a value: `byte[].class`, `getBean(String[], x)`, `String[]::new`.
 - A subscript takes several indexes: `map['a', 'b']`.
 - A generic type is an annotation argument: `@Scaffold(Foo<User>)`.
+- Annotations may follow modifiers on a field or method: `final @Delegate Map target`.
 
 ## [0.3.0] - 2026-08-30
 
