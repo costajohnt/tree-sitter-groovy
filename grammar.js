@@ -1477,9 +1477,10 @@ module.exports = grammar({
       field('method', $._property_name),
     )),
 
+    // `?.@` and `*.@` are the null-safe and spread forms.
     direct_field_access_expression: $ => prec.left(PREC.ACCESS, seq(
       field('object', $._expression),
-      '.@',
+      choice('.@', '?.@', '*.@'),
       field('field', $._property_name),
     )),
 

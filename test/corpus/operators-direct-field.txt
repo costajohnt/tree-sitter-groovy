@@ -39,3 +39,26 @@ obj.field
     (field_access
       object: (identifier)
       field: (identifier))))
+
+==================
+Null-safe and spread attribute access
+==================
+
+def a = other?.@order
+def b = nodes*.@href
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (direct_field_access_expression
+        object: (identifier)
+        field: (identifier))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (direct_field_access_expression
+        object: (identifier)
+        field: (identifier)))))
