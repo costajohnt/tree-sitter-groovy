@@ -72,3 +72,41 @@ record Point(int x, int y) {
         parameters: (formal_parameters)
         body: (block
           (expression_statement (identifier)))))))
+
+==================
+Record with modifiers and a method in its body
+==================
+
+private static record Range(int start, int end) {
+    public static Range of(int a) {
+        return new Range(a, a)
+    }
+}
+
+---
+
+(source_file
+  (record_declaration
+    name: (identifier)
+    components: (record_components
+      (record_component
+        type: (type_identifier)
+        name: (identifier))
+      (record_component
+        type: (type_identifier)
+        name: (identifier)))
+    body: (class_body
+      (method_declaration
+        return_type: (type_identifier)
+        name: (identifier)
+        parameters: (formal_parameters
+          (formal_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        body: (block
+          (return_statement
+            (object_creation_expression
+              type: (type_identifier)
+              arguments: (argument_list
+                (identifier)
+                (identifier)))))))))
