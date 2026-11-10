@@ -44,3 +44,25 @@ Annotation type with annotation on the type itself
       name: (qualified_name (identifier)))
     name: (identifier)
     body: (class_body)))
+
+==================
+Annotation type with modifiers
+==================
+
+public @interface Foo {
+    String value()
+}
+static @interface Bar {}
+---
+
+(source_file
+  (annotation_type_declaration
+    name: (identifier)
+    body: (class_body
+      (method_declaration
+        return_type: (type_identifier)
+        name: (identifier)
+        parameters: (formal_parameters))))
+  (annotation_type_declaration
+    name: (identifier)
+    body: (class_body)))

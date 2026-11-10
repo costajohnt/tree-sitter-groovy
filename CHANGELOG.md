@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Fixed
+
+- Annotation type declarations take modifiers: `public @interface Foo { }`.
+
 ## [0.3.0] - 2026-08-30
 
 ### Changed
