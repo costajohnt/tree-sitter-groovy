@@ -589,12 +589,14 @@ module.exports = grammar({
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
-      seq(
+      // prec.dynamic: `@Inject Engine engine` must stay one typed field,
+      // not an untyped field `Engine` followed by one more member.
+      prec.dynamic(-1, seq(
         repeat1($.annotation),
         repeat($._modifier),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
-      ),
+      )),
     ),
 
     // §4 — `def name(params) body`. Typed return type (`String foo()
