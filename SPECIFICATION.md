@@ -830,6 +830,7 @@ enum TokenType {
   COMMAND_LITERAL_START,  // §5.5 — zero-width, before a literal-led first command argument
   COMMAND_CLOSURE_START,  // §5.5 — zero-width, before a closure-led first command argument
   CALL_OPEN,              // §5.5 — `(` of an argument list, on the callee's line
+  CAST_VALUE_START,       // §5.15 — zero-width, a cast's value on the `)` line
   ERROR_SENTINEL,         // never in a rule; valid only during error recovery
 };
 ```
@@ -979,6 +980,16 @@ new statement: `println 'x'` followed by `(1..n).each { }` on the next
 line is two statements, as in Groovy. Parameter lists and record
 components accept it as well as the in-grammar `(`, since `String f(`
 also reads as a statement `String` followed by a call `f(`.
+
+### 6.11 CAST_VALUE_START — implementation contract
+
+Zero width, after a cast's `)`, never during error recovery. Skips spaces
+and tabs but not newlines, then emits when the next token starts with a
+quote, a digit or a name other than `in`, `as` and `instanceof`. The cast
+alternative that requires it carries a dynamic precedence, so `(T) x.y`
+followed by `bar = 1` stays a cast and an assignment; after a newline only
+the plain alternative remains and `x = (e.user)` followed by a statement
+on the next line keeps its meaning.
 
 ---
 
