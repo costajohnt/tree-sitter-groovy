@@ -218,6 +218,11 @@ module.exports = grammar({
     [$._annotation_element_pair, $._expression],
     [$._annotation_list, $.list_literal],
     [$._annotation_list_element, $.list_literal],
+
+    // §5.8 — `(a, b) -> …` and `x -> …` share a prefix with parenthesized
+    // expressions, casts and plain identifiers until the arrow decides.
+    [$.formal_parameter, $._multi_assignment_names],
+    [$.formal_parameter, $._expression, $._type],
   ],
 
   rules: {
@@ -987,13 +992,19 @@ module.exports = grammar({
     // §3.2 — `(a, b) = [1, 2]` assigns existing variables; as an
     // expression it may sit inside parentheses (`((a, b) = l) == l`).
     multi_assignment_expression: $ => prec.right(PREC.ASSIGN, seq(
+      $._multi_assignment_names,
+      '=',
+      field('right', $._expression),
+    )),
+
+    // No precedence here, so `(a, b)` stays open to a lambda's parameter
+    // list until `=` or `->` decides.
+    _multi_assignment_names: $ => seq(
       '(',
       field('left', $.identifier),
       repeat1(seq(',', field('left', $.identifier))),
       ')',
-      '=',
-      field('right', $._expression),
-    )),
+    ),
 
     // §4 / §10 row #37 — Jenkins-style `pipeline { … }` block.
     // Closes murtaza64 #37 (pipeline as a regular statement, not
@@ -1092,6 +1103,7 @@ module.exports = grammar({
       $.list_literal,
       $.map_literal,
       $.closure,
+      $.lambda_expression,
       $.binary_expression,
       $.range_expression,
       $.identity_expression,
@@ -1760,9 +1772,36 @@ module.exports = grammar({
       '->',
     ),
 
-    closure_parameter: $ => seq(
-      optional(field('type', $._type)),
+    // prec: in `{ x -> x }` the `x` is the closure's parameter, not the
+    // parameter of a lambda in the closure body.
+    // `def` may stand in for the type: `{ def m -> }`.
+    closure_parameter: $ => prec(2, seq(
+      optional(choice('def', field('type', $._type))),
       field('name', $.identifier),
+    )),
+
+    // §5.8 — Java-style lambda (Groovy 3+): `x -> x + 1`, `() -> 42`,
+    // `(a, b) -> { a + b }`, `(String s) -> s.trim()`. The body is a
+    // block or an expression. prec.dynamic: `{ x -> x }` stays a closure
+    // with a parameter, not a closure holding a lambda.
+    lambda_expression: $ => prec.right(PREC.ASSIGN, prec.dynamic(-1, seq(
+      field('parameters', choice(
+        alias($.identifier, $.formal_parameter),
+        alias($._lambda_parameters, $.formal_parameters),
+      )),
+      '->',
+      field('body', choice($.block, $._expression)),
+    ))),
+
+    // A lambda's `(` starts an expression, so it is the in-grammar `(`,
+    // never `_call_open`.
+    _lambda_parameters: $ => seq(
+      '(',
+      optional(seq(
+        $.formal_parameter,
+        repeat(seq(',', $.formal_parameter)),
+      )),
+      ')',
     ),
 
     // §3.2 PRIMARY / §5.13 — list literal with trailing-comma support.

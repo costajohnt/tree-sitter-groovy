@@ -102,6 +102,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - Array creation parses as the new `array_creation_expression`:
   `new byte[10]`, `new int[2][3]`, `new String[n][]`, and
   `new String[] { 'a', 'b' }` with an `array_initializer`.
+- Java-style lambdas parse as the new `lambda_expression`: `x -> x + 1`,
+  `() -> 42`, `(a, b) -> { a + b }`, `(String s) -> s.trim()`. A closure
+  parameter may be declared with `def` (`{ def m -> }`).
 
 ## [0.3.0] - 2026-08-30
 
