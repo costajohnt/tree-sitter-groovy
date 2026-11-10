@@ -2328,6 +2328,13 @@
       "type": "SEQ",
       "members": [
         {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "annotation"
+          }
+        },
+        {
           "type": "STRING",
           "value": "package"
         },
@@ -2344,6 +2351,13 @@
     "import_declaration": {
       "type": "SEQ",
       "members": [
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "annotation"
+          }
+        },
         {
           "type": "STRING",
           "value": "import"
@@ -6691,10 +6705,6 @@
       {
         "type": "STRING",
         "value": "if"
-      },
-      {
-        "type": "STRING",
-        "value": "else"
       },
       {
         "type": "STRING",

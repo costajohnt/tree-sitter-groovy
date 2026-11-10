@@ -12,7 +12,11 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - Statement keywords are reserved words: a keyword on the line after an
   expression (`x.y` then `if (c) { … }`) starts its statement instead of
   becoming the name of a method declared with the line above as its return
-  type. They stay valid after a dot (`x.class`) and as map keys.
+  type. They stay valid after a dot (`x.class`) and as map keys. `else`
+  is left out, since a braceless `if (c) cmd arg` followed by `else` on
+  the next line still depends on it.
+- Package and import declarations accept annotations
+  (`@Grab('g:a:1') import x.Y`, package-info files).
 
 ## [0.3.0] - 2026-08-30
 
