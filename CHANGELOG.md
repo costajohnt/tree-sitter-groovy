@@ -178,6 +178,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   `return \`, `include \` then `'a',`.
 - In a `"""` string, `\$` right after a `"` stays escaped:
   `"""for x in "\${pid[@]}"; do"""` is text, not an interpolation.
+- A closure parameter may be annotated, `final`, or `def` with a type or
+  a default value: `{ final String a, @Nullable B b -> }`,
+  `{ def JobContext c -> }`, `{ int n, def acc = 1G -> }`.
 
 ## [0.3.0] - 2026-08-30
 

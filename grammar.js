@@ -2238,11 +2238,17 @@ module.exports = grammar({
     // open as a closure body holding an assignment until `->` or `}` decides.
     closure_parameter: $ => choice(
       prec(2, seq(
-        optional(choice('def', field('type', choice($._type, $.varargs_type)))),
+        repeat($.annotation),
+        optional('final'),
+        optional(choice(
+          seq('def', optional(field('type', $._type))),
+          field('type', choice($._type, $.varargs_type)),
+        )),
         field('name', $.identifier),
       )),
       prec.dynamic(-1, seq(
-        optional(field('type', $._type)),
+        optional('final'),
+        optional(choice('def', field('type', $._type))),
         field('name', $.identifier),
         '=',
         field('default', $._expression),
