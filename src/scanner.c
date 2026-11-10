@@ -19,6 +19,7 @@ enum TokenType {
     GROOVYDOC_COMMENT,
     COMMAND_NAMED_KEY,
     COMMAND_LITERAL_START,
+    COMMAND_CLOSURE_START,
     ERROR_SENTINEL,
 };
 
@@ -127,6 +128,19 @@ bool tree_sitter_groovy_external_scanner_scan(
         if (c == '\'' || c == '"' || (c >= '0' && c <= '9')) {
             lexer->mark_end(lexer);
             lexer->result_symbol = COMMAND_LITERAL_START;
+            return true;
+        }
+    }
+
+    // The same for a closure after a bare identifier receiver, so the
+    // closure may lead a longer argument expression.
+    if (valid_symbols[COMMAND_CLOSURE_START] && !valid_symbols[ERROR_SENTINEL]) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, true);
+        }
+        if (lexer->lookahead == '{') {
+            lexer->mark_end(lexer);
+            lexer->result_symbol = COMMAND_CLOSURE_START;
             return true;
         }
     }

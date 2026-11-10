@@ -828,6 +828,7 @@ enum TokenType {
   GROOVYDOC_COMMENT,      // single-token /** ... */ comment
   COMMAND_NAMED_KEY,      // §5.5 — `name` of `name:` in a parenthesis-free call
   COMMAND_LITERAL_START,  // §5.5 — zero-width, before a literal-led first command argument
+  COMMAND_CLOSURE_START,  // §5.5 — zero-width, before a closure-led first command argument
   ERROR_SENTINEL,         // never in a rule; valid only during error recovery
 };
 ```
@@ -959,6 +960,14 @@ quote or a digit. The argument that follows may then be any expression
 (`log.warn '*' * 80`) or a quoted named argument (`attributes 'k': v`). A
 string or number on the next line stays a separate statement instead of
 becoming the argument of the identifier or dotted expression above it.
+
+### 6.9 COMMAND_CLOSURE_START — implementation contract
+
+Zero width. Valid only after a bare identifier command receiver, and never
+during error recovery. Skips spaces and tabs but not newlines, then emits
+when the next character is `{`. The argument that follows is any
+expression, so a closure argument can lead a longer one
+(`thrownException { f() } instanceof IllegalStateException`).
 
 ---
 

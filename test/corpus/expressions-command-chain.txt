@@ -450,3 +450,22 @@ foo
     (identifier))
   (expression_statement
     (string_literal)))
+
+==================
+Command argument led by a closure may be any expression
+==================
+
+thrownException { f() } instanceof IllegalStateException
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (instanceof_expression
+      value: (closure
+        (expression_statement
+          (method_invocation
+            function: (identifier)
+            arguments: (argument_list))))
+      type: (type_identifier))))

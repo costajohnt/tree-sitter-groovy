@@ -183,12 +183,34 @@
                 }
               },
               {
-                "type": "FIELD",
-                "name": "argument",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "_command_argument"
-                }
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "SYMBOL",
+                        "name": "_command_closure_start"
+                      },
+                      {
+                        "type": "FIELD",
+                        "name": "argument",
+                        "content": {
+                          "type": "SYMBOL",
+                          "name": "_expression"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "FIELD",
+                    "name": "argument",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "_command_argument"
+                    }
+                  }
+                ]
               },
               {
                 "type": "REPEAT",
@@ -6887,6 +6909,10 @@
     {
       "type": "SYMBOL",
       "name": "_command_literal_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_command_closure_start"
     },
     {
       "type": "SYMBOL",
