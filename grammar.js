@@ -822,12 +822,10 @@ module.exports = grammar({
     ),
 
     // §4 / §5.14 — generic type parameter list on a class /
-    // interface / trait / method declaration. The `<` is
-    // `token.immediate` so the parser only treats it as a type
-    // parameter opener when it follows the declaration name with
-    // no intervening whitespace.
+    // interface / trait / method declaration. After the declared name
+    // a `<` can only open type parameters, so a space may come before it.
     type_parameters: $ => seq(
-      token.immediate('<'),
+      '<',
       $.type_parameter,
       repeat(seq(',', $.type_parameter)),
       '>',

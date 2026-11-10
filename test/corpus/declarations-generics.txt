@@ -479,3 +479,39 @@ z = (List<String>) w
           arguments: (type_arguments
             (type_identifier)))
         value: (identifier)))))
+
+==================
+type parameters after a space
+==================
+
+class Sources <T, S extends Foo> implements Bar { }
+abstract class Op <V> extends Base<Map<String, V>> { }
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    type_parameters: (type_parameters
+      (type_parameter
+        name: (type_identifier))
+      (type_parameter
+        name: (type_identifier)
+        (type_identifier)))
+    (super_interfaces
+      (type_identifier))
+    body: (class_body))
+  (class_declaration
+    name: (identifier)
+    type_parameters: (type_parameters
+      (type_parameter
+        name: (type_identifier)))
+    (superclass
+      (generic_type
+        base: (type_identifier)
+        arguments: (type_arguments
+          (generic_type
+            base: (type_identifier)
+            arguments: (type_arguments
+              (type_identifier)
+              (type_identifier))))))
+    body: (class_body)))

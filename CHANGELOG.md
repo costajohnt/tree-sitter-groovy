@@ -188,6 +188,8 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - A script method may have modifiers and no return type:
   `private deploy(script, Map config) { }`, as Jenkins shared libraries
   write them.
+- A space may separate a class's name from its type parameters:
+  `class Sources <T, S extends Settings> { }`.
 
 ## [0.3.0] - 2026-08-30
 
