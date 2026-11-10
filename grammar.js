@@ -187,6 +187,10 @@ module.exports = grammar({
     // §4 — `record` is a keyword only before a record's name and its `(` or
     // `<`; anywhere else it's an identifier: `record { }`, `return record`.
     $._record_keyword,
+    // §5.5 — zero-width: the first argument of a command call that is the
+    // value of a declaration or assignment starts on the receiver's line
+    // (`def r = sh returnStdout: true, script: 'x'`, `x = foo bar`).
+    $._command_value_start,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -309,6 +313,10 @@ module.exports = grammar({
     [$._expression, $._array_type_value, $._type],
     [$._expression, $._array_type_value],
     [$._array_type_value, $._type],
+
+    // §5.5 — `assert x = cmd a, 'k': v`: a quoted named argument, or the
+    // assert's message after `:`.
+    [$._command_quoted_named_argument, $._expression],
   ],
 
   rules: {
@@ -1140,13 +1148,31 @@ module.exports = grammar({
     _initialized_declarator: $ => seq(
       field('name', $.identifier),
       '=',
-      field('value', $._expression),
+      field('value', $._value),
     ),
 
     variable_declarator: $ => seq(
       field('name', $.identifier),
-      optional(seq('=', field('value', $._expression))),
+      optional(seq('=', field('value', $._value))),
     ),
+
+    // The value of a declaration or assignment, which may be a command call:
+    // `def r = sh returnStdout: true, script: 'x'`.
+    _value: $ => choice($._expression, alias($._value_command, $.command_chain)),
+
+    // §5.5 — a command call as a value. Its first argument starts on the
+    // receiver's line (`_command_value_start`), and may be any expression,
+    // a name included, since a value can't be a declaration: `x = foo bar`.
+    // prec.right: a comma after an argument starts the next argument.
+    _value_command: $ => prec.right(seq(
+      field('receiver', choice($.identifier, $.field_access)),
+      $._command_value_start,
+      field('argument', choice(
+        $._expression,
+        alias($._command_named_argument, $.named_argument),
+      )),
+      repeat($._command_later_argument),
+    )),
 
     // §4 — `def (a, b) = expr`. Closes murtaza64 #22. v1 requires
     // the leading `def`; the no-`def` form `(a, b) = expr` lands
@@ -1845,7 +1871,7 @@ module.exports = grammar({
       return choice(...ops.map(op => prec.right(PREC.ASSIGN, seq(
         field('left', $._expression),
         field('operator', op),
-        field('right', $._expression),
+        field('right', $._value),
       ))));
     },
 

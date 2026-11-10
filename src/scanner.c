@@ -25,6 +25,7 @@ enum TokenType {
     CAST_VALUE_START,
     STRING_BODY,
     RECORD_KEYWORD,
+    COMMAND_VALUE_START,
     ERROR_SENTINEL,
 };
 
@@ -229,6 +230,42 @@ bool tree_sitter_groovy_external_scanner_scan(
         // line_comment, since mark_end had already been called.
         if (is_ident_start(lexer->lookahead)) {
             return scan_command_named_key(lexer);
+        }
+    }
+
+    // SPECIFICATION.md §5.5 — zero-width, before the first argument of a
+    // command call that is a declaration's or assignment's value: a name,
+    // string or number on the receiver's line. A name that continues the
+    // expression (`as`, `in`, `instanceof`) or the statement (`else`) is not
+    // an argument.
+    if (valid_symbols[COMMAND_VALUE_START] && !valid_symbols[ERROR_SENTINEL]) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, true);
+        }
+        int32_t c = lexer->lookahead;
+        if (c == '\'' || c == '"' || (c >= '0' && c <= '9')) {
+            lexer->mark_end(lexer);
+            lexer->result_symbol = COMMAND_VALUE_START;
+            return true;
+        }
+        if (is_ident_start(c)) {
+            lexer->mark_end(lexer);
+            char word[12];
+            unsigned len = 0;
+            while (is_ident_part(lexer->lookahead)) {
+                if (len < sizeof(word)) {
+                    word[len] = (char)lexer->lookahead;
+                }
+                len++;
+                advance(lexer);
+            }
+            if ((len == 2 && (memcmp(word, "as", 2) == 0 || memcmp(word, "in", 2) == 0))
+                || (len == 4 && memcmp(word, "else", 4) == 0)
+                || (len == 10 && memcmp(word, "instanceof", 10) == 0)) {
+                return false;
+            }
+            lexer->result_symbol = COMMAND_VALUE_START;
+            return true;
         }
     }
 
