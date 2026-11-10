@@ -862,11 +862,13 @@ module.exports = grammar({
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
-      seq(
+      // prec.dynamic: `String t = (String) "y"` is a declaration, not a
+      // statement `String`, an assignment `t = (String)` and a string.
+      prec.dynamic(1, seq(
         field('type', $._type),
         $._initialized_declarator,
         repeat(seq(',', $._initialized_declarator)),
-      ),
+      )),
     )),
 
     _initialized_declarator: $ => seq(
