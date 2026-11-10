@@ -28,6 +28,9 @@ enum TokenType {
     COMMAND_VALUE_START,
     LINE_BREAK,
     COMMAND_NAME_ARGUMENT,
+    VAR_KEYWORD,
+    PIPELINE_KEYWORD,
+    TRAIT_KEYWORD,
     ERROR_SENTINEL,
 };
 
@@ -343,6 +346,69 @@ bool tree_sitter_groovy_external_scanner_scan(
                 lexer->result_symbol = LINE_BREAK;
                 return true;
             }
+        }
+    }
+
+    // SPECIFICATION.md §4 — `var` and `trait` are keywords only before a name
+    // on the same line (not `in`, `as` or `instanceof`, which make them a
+    // value), and `pipeline` only before a `{` on its line. Otherwise the
+    // grammar lexes the word as an identifier: `var.set(1)`, `{ var -> }`,
+    // `def var = 1`, `trait.parentFile`, `Pipeline pipeline = p`.
+    if ((valid_symbols[VAR_KEYWORD] || valid_symbols[PIPELINE_KEYWORD]
+         || valid_symbols[TRAIT_KEYWORD]) && !valid_symbols[ERROR_SENTINEL]) {
+        while (is_whitespace(lexer->lookahead)) {
+            lexer->advance(lexer, true);
+        }
+        int32_t c = lexer->lookahead;
+        if (c == 'v' || c == 'p' || c == 't') {
+            char word[12];
+            unsigned len = 0;
+            while (is_ident_part(lexer->lookahead)) {
+                if (len < sizeof(word)) {
+                    word[len] = (char)lexer->lookahead;
+                }
+                len++;
+                advance(lexer);
+            }
+            enum TokenType sym;
+            if (len == 3 && memcmp(word, "var", 3) == 0 && valid_symbols[VAR_KEYWORD]) {
+                sym = VAR_KEYWORD;
+            } else if (len == 8 && memcmp(word, "pipeline", 8) == 0
+                && valid_symbols[PIPELINE_KEYWORD]) {
+                sym = PIPELINE_KEYWORD;
+            } else if (len == 5 && memcmp(word, "trait", 5) == 0
+                && valid_symbols[TRAIT_KEYWORD]) {
+                sym = TRAIT_KEYWORD;
+            } else {
+                return false;
+            }
+            lexer->mark_end(lexer);
+            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                advance(lexer);
+            }
+            if (sym == PIPELINE_KEYWORD) {
+                if (lexer->lookahead != '{') {
+                    return false;
+                }
+            } else {
+                if (!is_ident_start(lexer->lookahead)) {
+                    return false;
+                }
+                len = 0;
+                while (is_ident_part(lexer->lookahead)) {
+                    if (len < sizeof(word)) {
+                        word[len] = (char)lexer->lookahead;
+                    }
+                    len++;
+                    advance(lexer);
+                }
+                if ((len == 2 && (memcmp(word, "in", 2) == 0 || memcmp(word, "as", 2) == 0))
+                    || (len == 10 && memcmp(word, "instanceof", 10) == 0)) {
+                    return false;
+                }
+            }
+            lexer->result_symbol = sym;
+            return true;
         }
     }
 

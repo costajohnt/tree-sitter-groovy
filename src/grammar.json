@@ -1472,7 +1472,12 @@
           ]
         },
         {
-          "type": "STRING",
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_trait_keyword"
+          },
+          "named": false,
           "value": "trait"
         },
         {
@@ -3767,7 +3772,12 @@
                     "value": "def"
                   },
                   {
-                    "type": "STRING",
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "_var_keyword"
+                    },
+                    "named": false,
                     "value": "var"
                   },
                   {
@@ -4038,7 +4048,12 @@
                         "value": "def"
                       },
                       {
-                        "type": "STRING",
+                        "type": "ALIAS",
+                        "content": {
+                          "type": "SYMBOL",
+                          "name": "_var_keyword"
+                        },
+                        "named": false,
                         "value": "var"
                       },
                       {
@@ -4378,7 +4393,12 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "STRING",
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_pipeline_keyword"
+          },
+          "named": false,
           "value": "pipeline"
         },
         {
@@ -4682,6 +4702,15 @@
                 {
                   "type": "STRING",
                   "value": "def"
+                },
+                {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_var_keyword"
+                  },
+                  "named": false,
+                  "value": "var"
                 },
                 {
                   "type": "FIELD",
@@ -9758,6 +9787,18 @@
     {
       "type": "SYMBOL",
       "name": "_command_name_argument"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_var_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_pipeline_keyword"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_trait_keyword"
     },
     {
       "type": "SYMBOL",
