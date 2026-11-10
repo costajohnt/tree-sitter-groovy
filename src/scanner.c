@@ -22,6 +22,7 @@ enum TokenType {
     COMMAND_LITERAL_START,
     COMMAND_CLOSURE_START,
     CALL_OPEN,
+    CAST_VALUE_START,
     ERROR_SENTINEL,
 };
 
@@ -117,6 +118,39 @@ bool tree_sitter_groovy_external_scanner_scan(
     const bool *valid_symbols
 ) {
     (void)payload;
+
+    // SPECIFICATION.md §5.15 — zero-width, after a cast's `)`: the value
+    // starts on the same line with a name (not `in`, `as` or `instanceof`,
+    // which continue a parenthesized expression), a string or a number.
+    if (valid_symbols[CAST_VALUE_START] && !valid_symbols[ERROR_SENTINEL]) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, true);
+        }
+        int32_t c = lexer->lookahead;
+        lexer->mark_end(lexer);
+        if (c == '\'' || c == '"' || (c >= '0' && c <= '9')) {
+            lexer->result_symbol = CAST_VALUE_START;
+            return true;
+        }
+        if (is_ident_start(c)) {
+            char word[12];
+            unsigned len = 0;
+            while (is_ident_part(lexer->lookahead)) {
+                if (len < sizeof(word)) {
+                    word[len] = (char)lexer->lookahead;
+                }
+                len++;
+                lexer->advance(lexer, false);
+            }
+            if ((len == 2 && (memcmp(word, "in", 2) == 0 || memcmp(word, "as", 2) == 0))
+                || (len == 10 && memcmp(word, "instanceof", 10) == 0)) {
+                return false;
+            }
+            lexer->result_symbol = CAST_VALUE_START;
+            return true;
+        }
+        return false;
+    }
 
     // SPECIFICATION.md §5.10 — a `[` on the current line continues the
     // expression (subscript or array type). Only spaces and tabs are

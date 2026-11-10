@@ -162,6 +162,8 @@ module.exports = grammar({
     // lists accept it too, since `String f(` is also a call `f(` after a
     // statement `String`.
     $._call_open,
+    // §5.15 — zero-width: a cast's value starts on the line of its `)`.
+    $._cast_value_start,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -1446,13 +1448,25 @@ module.exports = grammar({
     // `(Foo)(-x)` and the type binds to the rightward expression.
     // prec.dynamic: `(T) x.y` followed by `bar = 1` on the next line is a
     // cast and an assignment, not `(T)` and a declaration `x.y bar = 1`; it
-    // must outweigh the typed declaration's preference.
-    parenthesized_type_cast: $ => prec.right(PREC.UNARY, prec.dynamic(2, seq(
-      '(',
-      field('type', $._type),
-      ')',
-      field('value', $._expression),
-    ))),
+    // must outweigh the typed declaration's preference. Only when the value
+    // starts on the line of the `)` (`_cast_value_start`, zero width): after
+    // `x = (e.user)` a statement on the next line is not a cast's value, and
+    // that case keeps the plain, unpreferred form.
+    parenthesized_type_cast: $ => prec.right(PREC.UNARY, choice(
+      prec.dynamic(2, seq(
+        '(',
+        field('type', $._type),
+        ')',
+        $._cast_value_start,
+        field('value', $._expression),
+      )),
+      seq(
+        '(',
+        field('type', $._type),
+        ')',
+        field('value', $._expression),
+      ),
+    )),
 
     // §4 — `_type`. Supports unqualified type identifiers,
     // qualified types (`java.util.List`), array types

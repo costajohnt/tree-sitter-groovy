@@ -124,6 +124,13 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   the next line still depends on it.
 - Package and import declarations accept annotations
   (`@Grab('g:a:1') import x.Y`, package-info files).
+- A typed declaration after another statement stays one declaration
+  (`String t = z` is not `String` and `t = z`), and a cast whose value
+  starts on the line of its `)` is preferred over a split reading, checked
+  by a new zero-width scanner token, `_cast_value_start`.
+- After a comma in a command chain, the named-key scan no longer turns
+  the next identifier into a line comment when a newline and comment
+  follow (`assertEquals 'v', x` then `// note`).
 
 ## [0.3.0] - 2026-08-30
 
