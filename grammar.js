@@ -202,6 +202,10 @@ module.exports = grammar({
     // §4 — `@Field NAME` at statement level: after the annotations, the
     // identifier is the declarator name (`@Field NAME = 1`) or the type
     // (`@Field String NAME`). The next token decides.
+    //
+    // §4 — `@Shared NAME` in a class body: after the annotations, the
+    // identifier is the declarator name (`@Shared log = []`) or the type
+    // (`@Shared Sql sql`). The next token decides.
     [$.variable_declarator, $._type],
   ],
 
@@ -726,6 +730,9 @@ module.exports = grammar({
     // idiom. Gated behind `repeat1($._modifier)` (not `repeat`) so this
     // alternative can't match a bare, modifier-less identifier, which
     // would collide with a plain expression_statement.
+    //
+    // An annotated field may omit the type, as Spock's `@Shared log = []`
+    // does; the annotation marks it as a field declaration.
     field_declaration: $ => choice(
       seq(
         repeat($.annotation),
@@ -737,6 +744,11 @@ module.exports = grammar({
       seq(
         repeat($.annotation),
         repeat1($._modifier),
+        $.variable_declarator,
+        repeat(seq(',', $.variable_declarator)),
+      ),
+      seq(
+        repeat1($.annotation),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),

@@ -89,6 +89,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   `_command_literal_start`, so `foo` followed by `'x'` on the next line is
   now two statements rather than a command call.
 - `assert e, message` (comma separator) now parses alongside `assert e : message`.
+- An annotated field may omit its type, as in Spock's `@Shared log = []`.
 
 ## [0.3.0] - 2026-08-30
 

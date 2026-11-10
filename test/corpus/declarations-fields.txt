@@ -197,3 +197,41 @@ class Person {
         body: (block
           (expression_statement
             (string_literal (string_fragment))))))))
+
+==================
+Annotated field without a type
+==================
+
+class Spec {
+    @Shared log = []
+    @Shared static counter = 0
+    @Autowired
+    service
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (field_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        (variable_declarator
+          name: (identifier)
+          value: (list_literal)))
+      (field_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        (variable_declarator
+          name: (identifier)
+          value: (number_literal)))
+      (field_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        (variable_declarator
+          name: (identifier))))))
