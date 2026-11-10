@@ -2423,46 +2423,85 @@
                     ]
                   },
                   {
-                    "type": "FIELD",
-                    "name": "name",
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "_property_name"
-                    }
-                  },
-                  {
-                    "type": "FIELD",
-                    "name": "parameters",
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "formal_parameters"
-                    }
-                  },
-                  {
                     "type": "CHOICE",
                     "members": [
                       {
-                        "type": "SYMBOL",
-                        "name": "throws_clause"
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "FIELD",
+                            "name": "name",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "_property_name"
+                            }
+                          },
+                          {
+                            "type": "FIELD",
+                            "name": "parameters",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "formal_parameters"
+                            }
+                          },
+                          {
+                            "type": "CHOICE",
+                            "members": [
+                              {
+                                "type": "SYMBOL",
+                                "name": "throws_clause"
+                              },
+                              {
+                                "type": "BLANK"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "FIELD",
+                            "name": "body",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "block"
+                            }
+                          }
+                        ]
                       },
                       {
-                        "type": "BLANK"
-                      }
-                    ]
-                  },
-                  {
-                    "type": "CHOICE",
-                    "members": [
-                      {
-                        "type": "FIELD",
-                        "name": "body",
+                        "type": "PREC_DYNAMIC",
+                        "value": -1,
                         "content": {
-                          "type": "SYMBOL",
-                          "name": "block"
+                          "type": "SEQ",
+                          "members": [
+                            {
+                              "type": "FIELD",
+                              "name": "name",
+                              "content": {
+                                "type": "SYMBOL",
+                                "name": "_property_name"
+                              }
+                            },
+                            {
+                              "type": "FIELD",
+                              "name": "parameters",
+                              "content": {
+                                "type": "SYMBOL",
+                                "name": "formal_parameters"
+                              }
+                            },
+                            {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "throws_clause"
+                                },
+                                {
+                                  "type": "BLANK"
+                                }
+                              ]
+                            }
+                          ]
                         }
-                      },
-                      {
-                        "type": "BLANK"
                       }
                     ]
                   }
@@ -2492,46 +2531,85 @@
                     }
                   },
                   {
-                    "type": "FIELD",
-                    "name": "name",
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "_property_name"
-                    }
-                  },
-                  {
-                    "type": "FIELD",
-                    "name": "parameters",
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "formal_parameters"
-                    }
-                  },
-                  {
                     "type": "CHOICE",
                     "members": [
                       {
-                        "type": "SYMBOL",
-                        "name": "throws_clause"
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "FIELD",
+                            "name": "name",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "_property_name"
+                            }
+                          },
+                          {
+                            "type": "FIELD",
+                            "name": "parameters",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "formal_parameters"
+                            }
+                          },
+                          {
+                            "type": "CHOICE",
+                            "members": [
+                              {
+                                "type": "SYMBOL",
+                                "name": "throws_clause"
+                              },
+                              {
+                                "type": "BLANK"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "FIELD",
+                            "name": "body",
+                            "content": {
+                              "type": "SYMBOL",
+                              "name": "block"
+                            }
+                          }
+                        ]
                       },
                       {
-                        "type": "BLANK"
-                      }
-                    ]
-                  },
-                  {
-                    "type": "CHOICE",
-                    "members": [
-                      {
-                        "type": "FIELD",
-                        "name": "body",
+                        "type": "PREC_DYNAMIC",
+                        "value": -1,
                         "content": {
-                          "type": "SYMBOL",
-                          "name": "block"
+                          "type": "SEQ",
+                          "members": [
+                            {
+                              "type": "FIELD",
+                              "name": "name",
+                              "content": {
+                                "type": "SYMBOL",
+                                "name": "_property_name"
+                              }
+                            },
+                            {
+                              "type": "FIELD",
+                              "name": "parameters",
+                              "content": {
+                                "type": "SYMBOL",
+                                "name": "formal_parameters"
+                              }
+                            },
+                            {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "throws_clause"
+                                },
+                                {
+                                  "type": "BLANK"
+                                }
+                              ]
+                            }
+                          ]
                         }
-                      },
-                      {
-                        "type": "BLANK"
                       }
                     ]
                   }
