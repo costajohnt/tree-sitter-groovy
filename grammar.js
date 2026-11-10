@@ -1149,7 +1149,6 @@ module.exports = grammar({
           $.list_literal,
           $.map_literal,
           $.closure,
-          $.lambda_expression,
         )),
       ),
     )),

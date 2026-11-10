@@ -991,7 +991,7 @@ is on the line of the `)`: `x = (e.user)` followed by a statement on the
 next line is a parenthesized expression and a statement, not a cast. That
 alternative carries a dynamic precedence, so `(T) x.y` followed by
 `bar = 1` stays a cast and an assignment. Values starting otherwise
-(`(int) -1`, `(T) [a]`, `(Callable) () -> x`) take a plain alternative.
+(`(int) -1`, `(T) [a]`) take a plain alternative.
 
 ---
 
