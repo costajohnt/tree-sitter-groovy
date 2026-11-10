@@ -1057,9 +1057,11 @@ module.exports = grammar({
     // unique node kind so downstream tooling (`get_op_type()`) can
     // discriminate without tree-shape heuristics.
 
+    // `Collections.<String>emptyList()` passes explicit type arguments.
     field_access: $ => prec.left(PREC.ACCESS, seq(
       field('object', $._expression),
       '.',
+      optional(field('type_arguments', $.type_arguments)),
       field('field', $._property_name),
     )),
 
