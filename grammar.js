@@ -145,6 +145,11 @@ module.exports = grammar({
     // decides; the conflict keeps both alternatives alive until
     // then.
     [$.variable_declarator, $._property_name],
+
+    // §4 — `@Field NAME` at statement level: after the annotations, the
+    // identifier is the declarator name (`@Field NAME = 1`) or the type
+    // (`@Field String NAME`). The next token decides.
+    [$.variable_declarator, $._type],
   ],
 
   rules: {
@@ -721,6 +726,12 @@ module.exports = grammar({
     // would conflict with method_invocation `Type(x)` and is
     // disallowed in v1. Multiple declarators per statement
     // (`def a = 1, b = 2`) are supported in all three forms.
+    //
+    // A declaration led by annotations is the fourth form: `@Field String
+    // NAME = 'x'`, `@Field final Map m = [:]`, `@Field def x`, the script
+    // field idiom of every Jenkins shared library. The annotation already
+    // marks it as a declaration, so modifiers, an uninitialized declarator
+    // and an implicit type (`@Field NAME = 1`) are all allowed.
     local_variable_declaration: $ => prec.right(choice(
       seq(
         choice('def', 'var'),
@@ -731,6 +742,13 @@ module.exports = grammar({
         field('type', $._type),
         $._initialized_declarator,
         repeat(seq(',', $._initialized_declarator)),
+      ),
+      seq(
+        repeat1($.annotation),
+        repeat($._modifier),
+        optional(choice('def', 'var', field('type', $._type))),
+        $.variable_declarator,
+        repeat(seq(',', $.variable_declarator)),
       ),
     )),
 

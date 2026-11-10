@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Fixed
+
+- Annotated declarations now parse at statement level, including the
+  script field idiom `@Field String NAME = 'x'`, `@Field final Map m = [:]`,
+  `@Field def x` and `@Field NAME = 1`.
+
 ## [0.3.0] - 2026-08-30
 
 ### Changed

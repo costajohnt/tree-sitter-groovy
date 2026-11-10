@@ -6361,6 +6361,10 @@
       "required": false,
       "types": [
         {
+          "type": "annotation",
+          "named": true
+        },
+        {
           "type": "variable_declarator",
           "named": true
         }
