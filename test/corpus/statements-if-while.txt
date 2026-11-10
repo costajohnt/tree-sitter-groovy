@@ -241,3 +241,22 @@ def m = [class: 'a', for: 1]
         (map_entry
           key: (identifier)
           value: (number_literal))))))
+
+==================
+while with an empty body
+==================
+
+while (--x);
+while (it.next()) ;
+---
+
+(source_file
+  (while_statement
+    condition: (unary_update_expression
+      operand: (identifier)))
+  (while_statement
+    condition: (method_invocation
+      function: (field_access
+        object: (identifier)
+        field: (identifier))
+      arguments: (argument_list))))

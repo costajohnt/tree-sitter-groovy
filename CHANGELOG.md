@@ -184,6 +184,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - `catch (final E e)`, `try (final InputStream s = f())` and a bare
   variable as a resource, `try (parser) { }`.
 - `final def (a, b) = f()`.
+- A `while` loop may have an empty body: `while (--x);`.
 
 ## [0.3.0] - 2026-08-30
 
