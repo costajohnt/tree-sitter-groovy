@@ -145,6 +145,11 @@ module.exports = grammar({
     // decides; the conflict keeps both alternatives alive until
     // then.
     [$.variable_declarator, $._property_name],
+
+    // §4 — `@Shared NAME` in a class body: after the annotations, the
+    // identifier is the declarator name (`@Shared log = []`) or the type
+    // (`@Shared Sql sql`). The next token decides.
+    [$.variable_declarator, $._type],
   ],
 
   rules: {
@@ -573,12 +578,23 @@ module.exports = grammar({
     // more declarators (each with optional initializer). Method
     // declarations share the same prefix; `prec(2, …)` on
     // `method_declaration` and the trailing `(` discriminate.
-    field_declaration: $ => seq(
-      repeat($.annotation),
-      repeat($._modifier),
-      choice('def', field('type', $._type)),
-      $.variable_declarator,
-      repeat(seq(',', $.variable_declarator)),
+    //
+    // An annotated field may omit the type, as Spock's `@Shared log = []`
+    // does; the annotation marks it as a field declaration.
+    field_declaration: $ => choice(
+      seq(
+        repeat($.annotation),
+        repeat($._modifier),
+        choice('def', field('type', $._type)),
+        $.variable_declarator,
+        repeat(seq(',', $.variable_declarator)),
+      ),
+      seq(
+        repeat1($.annotation),
+        repeat($._modifier),
+        $.variable_declarator,
+        repeat(seq(',', $.variable_declarator)),
+      ),
     ),
 
     // §4 — `def name(params) body`. Typed return type (`String foo()
