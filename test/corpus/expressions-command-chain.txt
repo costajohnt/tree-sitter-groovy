@@ -273,10 +273,18 @@ assertEquals 'v', params['k']
 
 ==================
 Command chain with identifier arguments
-==================
+===========
+
 
 bind Foo, Bar
 that x, equalTo(42)
+=======
+Comment after a command chain's last argument
+==================
+
+assertEquals 'v', x
+// note
+assert y
 
 ---
 
@@ -293,7 +301,8 @@ that x, equalTo(42)
       arguments: (argument_list
         (number_literal)))))
 
-==================
+===========
+
 Command chain with a closure after a positional argument
 ==================
 
@@ -540,3 +549,9 @@ def f = new File
         arguments: (argument_list
           (string_literal
             (string_fragment)))))))
+=======
+    argument: (string_literal)
+    argument: (identifier))
+  (line_comment)
+  (assert_statement
+    (identifier)))
