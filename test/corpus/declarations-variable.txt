@@ -668,3 +668,97 @@ list.each {
             name: (identifier)))
         (expression_statement
           (identifier))))))
+
+==================
+var, pipeline and trait as names
+==================
+
+var.set(123)
+String var = x
+def f = { var -> var.name }
+final var = 2
+var y = 3
+for (var key : map.keySet()) { println key }
+Pipeline pipeline = redis.pipelined()
+pipeline.sync()
+pipeline {
+    agent any
+}
+trait.parentFile.mkdirs()
+trait Named { }
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (identifier)
+        field: (identifier))
+      arguments: (argument_list
+        (number_literal))))
+  (local_variable_declaration
+    type: (type_identifier)
+    name: (identifier)
+    value: (identifier))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier)))
+        (expression_statement
+          (field_access
+            object: (identifier)
+            field: (identifier))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (number_literal)))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (number_literal)))
+  (for_in_statement
+    variable: (identifier)
+    value: (method_invocation
+      function: (field_access
+        object: (identifier)
+        field: (identifier))
+      arguments: (argument_list))
+    body: (block
+      (expression_statement
+        (identifier))
+      (expression_statement
+        (identifier))))
+  (local_variable_declaration
+    type: (type_identifier)
+    name: (identifier)
+    value: (method_invocation
+      function: (field_access
+        object: (identifier)
+        field: (identifier))
+      arguments: (argument_list)))
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (identifier)
+        field: (identifier))
+      arguments: (argument_list)))
+  (pipeline_statement
+    body: (closure
+      (expression_statement
+        (identifier))
+      (expression_statement
+        (identifier))))
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (field_access
+          object: (identifier)
+          field: (identifier))
+        field: (identifier))
+      arguments: (argument_list)))
+  (trait_declaration
+    name: (identifier)
+    body: (class_body)))

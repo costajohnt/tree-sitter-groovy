@@ -199,6 +199,14 @@ module.exports = grammar({
     // §5.5 — the one argument of a command call on a dotted receiver when
     // the statement ends after it: `a.b key` (lexed like `_command_named_key`).
     $._command_name_argument,
+    // §4 — `var`, `pipeline` and `trait` are keywords only where the shape
+    // that follows makes them one: `var` and `trait` before a name on the
+    // same line, `pipeline` before a `{`. Anywhere else each is an
+    // identifier: `var.set(1)`, `{ var -> }`, `Pipeline pipeline = p`,
+    // `trait.parentFile`.
+    $._var_keyword,
+    $._pipeline_keyword,
+    $._trait_keyword,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -718,7 +726,7 @@ module.exports = grammar({
       repeat($.annotation),
       repeat($._modifier),
       optional(choice('sealed', token('non-sealed'))),
-      'trait',
+      alias($._trait_keyword, 'trait'),
       field('name', $.identifier),
       optional(field('type_parameters', $.type_parameters)),
       optional($.extends_interfaces),
@@ -1162,7 +1170,7 @@ module.exports = grammar({
     local_variable_declaration: $ => prec.right(choice(
       seq(
         optional('final'),
-        choice('def', 'var', seq('def', field('type', $._type))),
+        choice('def', alias($._var_keyword, 'var'), seq('def', field('type', $._type))),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
@@ -1201,7 +1209,7 @@ module.exports = grammar({
       seq(
         repeat1($.annotation),
         repeat($._modifier),
-        optional(choice('def', 'var', field('type', $._type))),
+        optional(choice('def', alias($._var_keyword, 'var'), field('type', $._type))),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
@@ -1282,7 +1290,7 @@ module.exports = grammar({
     // that's how Jenkins's DSL is shaped — `pipeline` is followed
     // by a closure literal with nested stages, steps, etc.
     pipeline_statement: $ => seq(
-      'pipeline',
+      alias($._pipeline_keyword, 'pipeline'),
       field('body', $.closure),
     ),
 
@@ -1352,7 +1360,7 @@ module.exports = grammar({
       'for',
       '(',
       optional('final'),
-      optional(choice('def', field('type', $._type))),
+      optional(choice('def', alias($._var_keyword, 'var'), field('type', $._type))),
       field('variable', $.identifier),
       choice('in', ':'),
       field('value', $._expression),
