@@ -749,15 +749,33 @@ module.exports = grammar({
     // the leading `def`; the no-`def` form `(a, b) = expr` lands
     // later (it shares a prefix with parenthesized_expression and
     // needs a conflict declaration).
+    //
+    // Each name may carry a type: `def (String foo, int bar) = ["foo", 42]`.
     multi_assignment_declaration: $ => seq(
       'def',
       '(',
-      $.variable_declarator,
-      repeat(seq(',', $.variable_declarator)),
+      $._multi_assignment_target,
+      repeat(seq(',', $._multi_assignment_target)),
       ')',
       '=',
       field('value', $._expression),
     ),
+
+    _multi_assignment_target: $ => seq(
+      optional(field('type', $._type)),
+      $.variable_declarator,
+    ),
+
+    // §3.2 — `(a, b) = [1, 2]` assigns existing variables; as an
+    // expression it may sit inside parentheses (`((a, b) = l) == l`).
+    multi_assignment_expression: $ => prec.right(PREC.ASSIGN, seq(
+      '(',
+      field('left', $.identifier),
+      repeat1(seq(',', field('left', $.identifier))),
+      ')',
+      '=',
+      field('right', $._expression),
+    )),
 
     // §4 / §10 row #37 — Jenkins-style `pipeline { … }` block.
     // Closes murtaza64 #37 (pipeline as a regular statement, not
@@ -820,6 +838,7 @@ module.exports = grammar({
       $.elvis_expression,
       $.logical_implication_expression,
       $.assignment_expression,
+      $.multi_assignment_expression,
       $.power_expression,
       $.subscript_expression,
       $.safe_subscript_expression,
