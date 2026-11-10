@@ -532,3 +532,139 @@ def f() {
             type: (type_identifier)
             value: (unary_expression
               operand: (number_literal))))))))
+
+==================
+A type and its declared name are on one line
+==================
+
+x
+bar = 1
+a.b
+bar(z) {
+    g()
+}
+v = (b)
+(a + b).c()
+if (c) return
+foo()
+---
+
+(source_file
+  (expression_statement
+    (identifier))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (number_literal)))
+  (expression_statement
+    (field_access
+      object: (identifier)
+      field: (identifier)))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (identifier))
+      closure: (closure
+        (expression_statement
+          (method_invocation
+            function: (identifier)
+            arguments: (argument_list))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (parenthesized_expression
+        (identifier))))
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (parenthesized_expression
+          (binary_expression
+            left: (identifier)
+            right: (identifier)))
+        field: (identifier))
+      arguments: (argument_list)))
+  (if_statement
+    condition: (identifier)
+    consequence: (return_statement))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list))))
+
+==================
+def with a type, and uninitialized generic locals
+==================
+
+def String s = 'x'
+List<String> names
+byte[] body
+class P {
+    def String name
+    def Closure<?> body
+    def Proxy proxy(Query q)
+}
+---
+
+(source_file
+  (local_variable_declaration
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal)))
+  (local_variable_declaration
+    type: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier)))
+    (variable_declarator
+      name: (identifier)))
+  (local_variable_declaration
+    type: (array_type
+      (type_identifier))
+    (variable_declarator
+      name: (identifier)))
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (field_declaration
+        type: (type_identifier)
+        (variable_declarator
+          name: (identifier)))
+      (field_declaration
+        type: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (wildcard)))
+        (variable_declarator
+          name: (identifier)))
+      (method_declaration
+        return_type: (type_identifier)
+        name: (identifier)
+        parameters: (formal_parameters
+          (formal_parameter
+            type: (type_identifier)
+            name: (identifier)))))))
+
+==================
+Closure parameters on the line after the brace
+==================
+
+list.each {
+    item ->
+    item
+}
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (identifier)
+        field: (identifier))
+      closure: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier)))
+        (expression_statement
+          (identifier))))))
