@@ -184,6 +184,9 @@ module.exports = grammar({
     // §5.7 — never emitted. Valid only inside a string body, where it tells
     // the scanner not to read `//` or `/*` as a comment: `"// x"`.
     $._string_body,
+    // §4 — `record` is a keyword only before a record's name and its `(` or
+    // `<`; anywhere else it's an identifier: `record { }`, `return record`.
+    $._record_keyword,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -1041,9 +1044,10 @@ module.exports = grammar({
     record_declaration: $ => prec.right(prec.dynamic(1, seq(
       repeat($.annotation),
       repeat(choice('public', 'protected', 'private', 'static')),
-      'record',
+      alias($._record_keyword, 'record'),
       field('name', $.identifier),
       field('components', $.record_components),
+      optional($.super_interfaces),
       optional(field('body', $.class_body)),
     ))),
 

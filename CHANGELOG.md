@@ -143,6 +143,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - Annotations may follow modifiers on a field or method: `final @Delegate Map target`.
 - A modifier may stand in for `def` before a quoted method name: `private "a feature"() { }`.
 - A GString interpolation may hold statements: `${x.replace 'a', 'b'}`, `${-> x}`, `${n += 1; n}`.
+- `record` is an identifier unless a record declaration follows (`record { }`, `record << x`), and a record may implement interfaces.
 
 ## [0.3.0] - 2026-08-30
 
