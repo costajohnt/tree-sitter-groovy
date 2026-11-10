@@ -1789,10 +1789,6 @@
           "named": true
         },
         {
-          "type": "method_declaration",
-          "named": true
-        },
-        {
           "type": "multi_assignment_declaration",
           "named": true
         },
@@ -2313,10 +2309,6 @@
         },
         {
           "type": "local_variable_declaration",
-          "named": true
-        },
-        {
-          "type": "method_declaration",
           "named": true
         },
         {

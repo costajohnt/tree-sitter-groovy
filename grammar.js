@@ -274,6 +274,40 @@ module.exports = grammar({
       $.command_chain,
     ),
 
+    // A method can only be declared at the top of a script or in a class
+    // body, so a block or closure body takes every statement but that.
+    // Leaving it out stops `(List) items.ids` followed by `if (ids) { … }`
+    // from also reading as a method named `if`.
+    _block_statement: $ => choice(
+      $.expression_statement,
+      $.if_statement,
+      $.while_statement,
+      $.synchronized_statement,
+      $.do_while_statement,
+      $.for_statement,
+      $.for_in_statement,
+      $.return_statement,
+      $.break_statement,
+      $.continue_statement,
+      $.throw_statement,
+      $.assert_statement,
+      $.yield_statement,
+      $.try_statement,
+      $.class_declaration,
+      $.trait_declaration,
+      $.interface_declaration,
+      $.annotation_type_declaration,
+      $.enum_declaration,
+      $.record_declaration,
+      $.package_declaration,
+      $.import_declaration,
+      $.local_variable_declaration,
+      $.multi_assignment_declaration,
+      $.pipeline_statement,
+      $.labeled_statement,
+      $.command_chain,
+    ),
+
     // §5.5 — command_chain is the parenthesis-free method-call
     // form (`println 'hello'`, `events 'a', 'b', 'c'`). v1 is
     // intentionally conservative: receiver is a bare identifier
@@ -393,7 +427,7 @@ module.exports = grammar({
     // are valid alternatives (e.g. the body slot of `if` / `while`).
     block: $ => prec(1, seq(
       '{',
-      repeat(choice($._statement, ';')),
+      repeat(choice($._block_statement, ';')),
       '}',
     )),
 
@@ -1359,15 +1393,12 @@ module.exports = grammar({
     // by tree-sitter's GLR; declared as a conflict if needed).
     // PREC.UNARY right-associative so `(Foo) -x` parses as
     // `(Foo)(-x)` and the type binds to the rightward expression.
-    // prec.dynamic: `(List) items.ids` followed by `if (ids) { … }` on the
-    // next line can also read as `(List)` and a method declaration
-    // `items.ids if(…) { … }`; the cast wins.
-    parenthesized_type_cast: $ => prec.right(PREC.UNARY, prec.dynamic(1, seq(
+    parenthesized_type_cast: $ => prec.right(PREC.UNARY, seq(
       '(',
       field('type', $._type),
       ')',
       field('value', $._expression),
-    ))),
+    )),
 
     // §4 — `_type`. Supports unqualified type identifiers,
     // qualified types (`java.util.List`), array types
@@ -1808,7 +1839,7 @@ module.exports = grammar({
     closure: $ => seq(
       '{',
       optional($.closure_parameters),
-      repeat(choice($._statement, ';')),
+      repeat(choice($._block_statement, ';')),
       '}',
     ),
 
