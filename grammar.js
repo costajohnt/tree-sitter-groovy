@@ -196,6 +196,9 @@ module.exports = grammar({
     // `x` and then `bar = 1` on the next line are two statements, never a
     // declaration `x bar = 1` typed by the line above.
     $._line_break,
+    // §5.5 — the one argument of a command call on a dotted receiver when
+    // the statement ends after it: `a.b key` (lexed like `_command_named_key`).
+    $._command_name_argument,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -434,6 +437,12 @@ module.exports = grammar({
         field('receiver', choice($.identifier, $.field_access)),
         field('argument', $._command_trailing_argument),
         repeat1($._command_later_argument),
+      ),
+      // `if (c) a.b key` then `else`: a name alone after a dotted receiver,
+      // with the statement ending after it.
+      seq(
+        field('receiver', $.field_access),
+        field('argument', alias($._command_name_argument, $.identifier)),
       ),
     ),
 

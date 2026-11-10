@@ -27,6 +27,7 @@ enum TokenType {
     RECORD_KEYWORD,
     COMMAND_VALUE_START,
     LINE_BREAK,
+    COMMAND_NAME_ARGUMENT,
     ERROR_SENTINEL,
 };
 
@@ -44,7 +45,11 @@ static inline bool is_ident_part(int32_t c) {
 // on the current line that is followed by `:` (not `::`), consuming
 // only the identifier. A newline before the key means a new statement
 // (a Spock `where:` label, say), so no match.
-static bool scan_command_named_key(TSLexer *lexer) {
+//
+// The same identifier is `_command_name_argument`, the one argument of a
+// command call on a dotted receiver (`a.b key`), when the statement ends
+// after it: a line break, `;`, `}`, a comment or the end of input.
+static bool scan_command_named_key(TSLexer *lexer, const bool *valid_symbols) {
     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
         lexer->advance(lexer, true);
     }
@@ -52,8 +57,9 @@ static bool scan_command_named_key(TSLexer *lexer) {
         return false;
     }
     // Keep the first few chars to reject `case:` / `default:`, which
-    // are switch labels, not keys.
-    char word[8];
+    // are switch labels, not keys, and the operators `as`, `in` and
+    // `instanceof`, which are not arguments.
+    char word[12];
     unsigned len = 0;
     while (is_ident_part(lexer->lookahead)) {
         if (len < sizeof(word)) {
@@ -70,14 +76,29 @@ static bool scan_command_named_key(TSLexer *lexer) {
     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
         lexer->advance(lexer, false);
     }
-    if (lexer->lookahead != ':') {
+    int32_t n = lexer->lookahead;
+    if (n == ':' && valid_symbols[COMMAND_NAMED_KEY]) {
+        lexer->advance(lexer, false);
+        if (lexer->lookahead == ':') {
+            return false;
+        }
+        lexer->result_symbol = COMMAND_NAMED_KEY;
+        return true;
+    }
+    if (!valid_symbols[COMMAND_NAME_ARGUMENT]
+        || (len == 2 && (memcmp(word, "as", 2) == 0 || memcmp(word, "in", 2) == 0))
+        || (len == 10 && memcmp(word, "instanceof", 10) == 0)) {
         return false;
     }
-    lexer->advance(lexer, false);
-    if (lexer->lookahead == ':') {
+    bool ends = lexer->eof(lexer) || n == '\n' || n == '\r' || n == ';' || n == '}';
+    if (n == '/') {
+        lexer->advance(lexer, false);
+        ends = lexer->lookahead == '/' || lexer->lookahead == '*';
+    }
+    if (!ends) {
         return false;
     }
-    lexer->result_symbol = COMMAND_NAMED_KEY;
+    lexer->result_symbol = COMMAND_NAME_ARGUMENT;
     return true;
 }
 
@@ -223,7 +244,8 @@ bool tree_sitter_groovy_external_scanner_scan(
         }
     }
 
-    if (valid_symbols[COMMAND_NAMED_KEY] && !valid_symbols[ERROR_SENTINEL]) {
+    if ((valid_symbols[COMMAND_NAMED_KEY] || valid_symbols[COMMAND_NAME_ARGUMENT])
+        && !valid_symbols[ERROR_SENTINEL]) {
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
             lexer->advance(lexer, true);
         }
@@ -233,7 +255,7 @@ bool tree_sitter_groovy_external_scanner_scan(
         // `foo a, b` and a newline made the comment branch emit `b` as a
         // line_comment, since mark_end had already been called.
         if (is_ident_start(lexer->lookahead)) {
-            return scan_command_named_key(lexer);
+            return scan_command_named_key(lexer, valid_symbols);
         }
     }
 

@@ -634,3 +634,40 @@ def z = c in d
       value: (membership_expression
         element: (identifier)
         collection: (identifier)))))
+
+==================
+Name argument after a dotted receiver
+==================
+
+if (c) a.b key
+else z()
+classes.setFrom validationClasses
+enableStricterValidation = true
+println x
+---
+
+(source_file
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (field_access
+        object: (identifier)
+        field: (identifier))
+      argument: (identifier))
+    alternative: (expression_statement
+      (method_invocation
+        function: (identifier)
+        arguments: (argument_list))))
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (identifier))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (boolean_literal)))
+  (expression_statement
+    (identifier))
+  (expression_statement
+    (identifier)))
