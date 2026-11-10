@@ -208,3 +208,29 @@ if (math [op]) { a[0][1] }
             object: (identifier)
             index: (number_literal))
           index: (number_literal))))))
+
+==================
+Subscript with several indexes
+==================
+
+def s = map['name', 'age']
+list[1, 2] = [3, 4]
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (subscript_expression
+        object: (identifier)
+        index: (string_literal)
+        index: (string_literal))))
+  (expression_statement
+    (assignment_expression
+      left: (subscript_expression
+        object: (identifier)
+        index: (number_literal)
+        index: (number_literal))
+      right: (list_literal
+        (number_literal)
+        (number_literal)))))
