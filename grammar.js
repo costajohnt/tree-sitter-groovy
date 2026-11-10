@@ -646,6 +646,7 @@ module.exports = grammar({
       repeat($.annotation),
       'enum',
       field('name', $.identifier),
+      optional($.super_interfaces),
       field('body', $.enum_body),
     ),
 

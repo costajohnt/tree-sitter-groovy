@@ -80,3 +80,24 @@ enum E { A, B; def f() { 1 } }
         name: (identifier)
         parameters: (formal_parameters)
         body: (block (expression_statement (number_literal)))))))
+
+==================
+Enum implementing interfaces
+==================
+
+enum MyFormat implements Named, Other {
+    A, B
+}
+---
+
+(source_file
+  (enum_declaration
+    name: (identifier)
+    (super_interfaces
+      (type_identifier)
+      (type_identifier))
+    body: (enum_body
+      (enum_constant
+        name: (identifier))
+      (enum_constant
+        name: (identifier)))))
