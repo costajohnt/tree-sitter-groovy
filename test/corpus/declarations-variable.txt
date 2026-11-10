@@ -408,3 +408,20 @@ assert ((x, y) = [3, 4]) == [3, 4]
       right: (list_literal
         (number_literal)
         (number_literal)))))
+
+==================
+Typed declaration with a cast of a string
+==================
+
+String t = (String) "y"
+
+---
+
+(source_file
+  (local_variable_declaration
+    type: (type_identifier)
+    name: (identifier)
+    value: (parenthesized_type_cast
+      type: (type_identifier)
+      value: (string_literal
+        (string_fragment)))))
