@@ -9068,7 +9068,7 @@
           "members": [
             {
               "type": "PATTERN",
-              "value": "[^\\/\\\\$\\n\\r]"
+              "value": "[^\\/\\\\$]"
             },
             {
               "type": "PATTERN",
@@ -9413,6 +9413,10 @@
                   {
                     "type": "STRING",
                     "value": ";"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_line_break"
                   }
                 ]
               }

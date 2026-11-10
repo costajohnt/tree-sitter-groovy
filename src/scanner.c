@@ -506,7 +506,14 @@ bool tree_sitter_groovy_external_scanner_scan(
     if (!wants_slashy) {
         return false;
     }
-    if (lexer->lookahead == '/' || is_whitespace(lexer->lookahead)) {
+    // Where an expression must start (after `=~`, `~`, `(`, `,` or an
+    // operator) and no statement or command argument could start instead,
+    // a `/` can't be division: the body may then start with whitespace
+    // (`=~ / X /`, `split(/ /)`) and run over several lines (`def s = /`).
+    bool lenient = !valid_symbols[LINE_BREAK] && !valid_symbols[COMMAND_LITERAL_START]
+        && !valid_symbols[COMMAND_NAMED_KEY] && !valid_symbols[COMMAND_VALUE_START]
+        && !valid_symbols[ERROR_SENTINEL];
+    if (lexer->lookahead == '/' || (is_whitespace(lexer->lookahead) && !lenient)) {
         return false;
     }
     // Look ahead (without consuming) to confirm a closing `/` exists
@@ -528,7 +535,7 @@ bool tree_sitter_groovy_external_scanner_scan(
             found_close = true;
             break;
         }
-        if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+        if ((lexer->lookahead == '\n' || lexer->lookahead == '\r') && !lenient) {
             break;
         }
         advance(lexer);

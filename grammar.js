@@ -2277,7 +2277,7 @@ module.exports = grammar({
     ),
 
     _slashy_text: _ => token.immediate(repeat1(choice(
-      /[^\/\\$\n\r]/,
+      /[^\/\\$]/,
       /\\[\s\S]/,
     ))),
 
@@ -2362,7 +2362,7 @@ module.exports = grammar({
       seq(
         token.immediate('${'),
         optional($.closure_parameters),
-        repeat(choice($.expression_statement, $.command_chain, $.if_statement, ';')),
+        repeat(choice($.expression_statement, $.command_chain, $.if_statement, ';', $._line_break)),
         '}',
       ),
     ),
