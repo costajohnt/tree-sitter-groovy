@@ -79,3 +79,44 @@ def a = Collections.<String>emptyList()
             (type_identifier))
           field: (identifier))
         arguments: (argument_list)))))
+
+==================
+dynamic member names
+==================
+
+openingCashBalances.(lastTimePeriodHistory.glAccountId) = accountMap
+assert this.("a" + "TestMethod")(5) == 5
+def v = x?.(name)
+---
+
+(source_file
+  (expression_statement
+    (assignment_expression
+      left: (field_access
+        object: (identifier)
+        field: (parenthesized_expression
+          (field_access
+            object: (identifier)
+            field: (identifier))))
+      right: (identifier)))
+  (assert_statement
+    (binary_expression
+      left: (method_invocation
+        function: (field_access
+          object: (identifier)
+          field: (parenthesized_expression
+            (binary_expression
+              left: (string_literal
+                (string_fragment))
+              right: (string_literal
+                (string_fragment)))))
+        arguments: (argument_list
+          (number_literal)))
+      right: (number_literal)))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (safe_navigation_expression
+        object: (identifier)
+        property: (parenthesized_expression
+          (identifier))))))
