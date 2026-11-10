@@ -173,3 +173,21 @@ if (x) return y
     condition: (identifier)
     consequence: (return_statement
       (identifier))))
+
+==================
+Assert with a comma before the message
+==================
+
+assert 1 + 2 == 3, "need to brush up my math"
+
+---
+
+(source_file
+  (assert_statement
+    (binary_expression
+      left: (binary_expression
+        left: (number_literal)
+        right: (number_literal))
+      right: (number_literal))
+    message: (string_literal
+      (string_fragment))))
