@@ -1314,9 +1314,11 @@ module.exports = grammar({
     // matching the Java/Groovy `case L -> expr;` arrow form. The `;`
     // is anonymous and absorbed here rather than by the switch block,
     // which has no statement-list of its own.
+    // Several labels share an arrow: `case 1, 2 -> …`.
     switch_arrow_case: $ => seq(
       'case',
       field('value', $._expression),
+      repeat(seq(',', field('value', $._expression))),
       '->',
       field('body', choice($.block, $._statement)),
       optional(';'),
