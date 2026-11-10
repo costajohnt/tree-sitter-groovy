@@ -31,9 +31,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   now two statements rather than a command call.
 - A `(` on the line after an expression starts a new statement instead of
   calling that expression (`println 'x'` then `(1..n).each { }`), via a new
-  scanner token, `_call_open`. A cast followed by a statement on the next
-  line (`(List) items.ids` then `if (ids) { … }`) stays a cast, since a
-  block or closure body no longer takes a method declaration.
+  scanner token, `_call_open`.
+- Records accept access modifiers and `static` (`private static record
+  Range(…) { … }`) and annotated components (`record P(@NotBlank String n)`).
 
 ## [0.3.0] - 2026-08-30
 

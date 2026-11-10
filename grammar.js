@@ -165,10 +165,6 @@ module.exports = grammar({
     // disambiguates.
     [$.for_in_statement, $._expression],
 
-    // §4 — a `{` body: a block takes no method declaration, a closure
-    // does; the statements inside decide which one it is.
-    [$._statement, $._block_statement],
-    [$.block, $.closure],
 
     // §4 — a record takes only some modifiers; until `record` the
     // modifiers may belong to any declaration.
@@ -227,41 +223,6 @@ module.exports = grammar({
       $.multi_assignment_declaration,
       $.pipeline_statement,
       $.method_declaration,
-      $.labeled_statement,
-      $.command_chain,
-    ),
-
-    // A method can only be declared at the top of a script or in a class
-    // body, so a block takes every statement but that. A closure keeps
-    // them, since an anonymous class body (`new Runnable() { void run()
-    // { … } }`) parses as a closure.
-    // Leaving it out stops `(List) items.ids` followed by `if (ids) { … }`
-    // from also reading as a method named `if`.
-    _block_statement: $ => choice(
-      $.expression_statement,
-      $.if_statement,
-      $.while_statement,
-      $.do_while_statement,
-      $.for_statement,
-      $.for_in_statement,
-      $.return_statement,
-      $.break_statement,
-      $.continue_statement,
-      $.throw_statement,
-      $.assert_statement,
-      $.yield_statement,
-      $.try_statement,
-      $.class_declaration,
-      $.trait_declaration,
-      $.interface_declaration,
-      $.annotation_type_declaration,
-      $.enum_declaration,
-      $.record_declaration,
-      $.package_declaration,
-      $.import_declaration,
-      $.local_variable_declaration,
-      $.multi_assignment_declaration,
-      $.pipeline_statement,
       $.labeled_statement,
       $.command_chain,
     ),
@@ -385,7 +346,7 @@ module.exports = grammar({
     // are valid alternatives (e.g. the body slot of `if` / `while`).
     block: $ => prec(1, seq(
       '{',
-      repeat(choice($._block_statement, ';')),
+      repeat(choice($._statement, ';')),
       '}',
     )),
 
@@ -816,14 +777,16 @@ module.exports = grammar({
     // keeps `record` usable as a plain identifier elsewhere.
     // Access modifiers and `static` only: `final record = x` declares a
     // variable named `record`.
-    record_declaration: $ => prec.right(seq(
+    // prec.dynamic: with modifiers, `private static record R(…) { … }` can
+    // also read as a method returning `record`; the record wins.
+    record_declaration: $ => prec.right(prec.dynamic(1, seq(
       repeat($.annotation),
       repeat(choice('public', 'protected', 'private', 'static')),
       'record',
       field('name', $.identifier),
       field('components', $.record_components),
       optional(field('body', $.class_body)),
-    )),
+    ))),
 
     record_components: $ => seq(
       choice('(', alias($._call_open, '(')),
@@ -877,13 +840,11 @@ module.exports = grammar({
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
-      // prec.dynamic: `String t = (String) "y"` is a declaration, not a
-      // statement `String`, an assignment `t = (String)` and a string.
-      prec.dynamic(1, seq(
+      seq(
         field('type', $._type),
         $._initialized_declarator,
         repeat(seq(',', $._initialized_declarator)),
-      )),
+      ),
     )),
 
     _initialized_declarator: $ => seq(
