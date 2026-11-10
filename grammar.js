@@ -862,11 +862,13 @@ module.exports = grammar({
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
-      seq(
+      // prec.dynamic: `String t = z` is one declaration, not `String` and
+      // `t = z` (statements need no separator in this grammar).
+      prec.dynamic(1, seq(
         field('type', $._type),
         $._initialized_declarator,
         repeat(seq(',', $._initialized_declarator)),
-      ),
+      )),
     )),
 
     _initialized_declarator: $ => seq(
@@ -1118,12 +1120,15 @@ module.exports = grammar({
     // by tree-sitter's GLR; declared as a conflict if needed).
     // PREC.UNARY right-associative so `(Foo) -x` parses as
     // `(Foo)(-x)` and the type binds to the rightward expression.
-    parenthesized_type_cast: $ => prec.right(PREC.UNARY, seq(
+    // prec.dynamic: `(T) x.y` followed by `bar = 1` on the next line is a
+    // cast and an assignment, not `(T)` and a declaration `x.y bar = 1`; it
+    // must outweigh the typed declaration's preference.
+    parenthesized_type_cast: $ => prec.right(PREC.UNARY, prec.dynamic(2, seq(
       '(',
       field('type', $._type),
       ')',
       field('value', $._expression),
-    )),
+    ))),
 
     // §4 — `_type`. Supports unqualified type identifiers,
     // qualified types (`java.util.List`), array types

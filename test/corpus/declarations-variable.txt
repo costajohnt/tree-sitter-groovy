@@ -198,3 +198,42 @@ String t = (String) "y"
       type: (type_identifier)
       value: (string_literal
         (string_fragment)))))
+
+==================
+Typed declaration after a statement, and a cast before an assignment
+==================
+
+def f() {
+    int n = 1
+    String t = z
+    v = (T) x.y
+    bar = 1
+}
+
+---
+
+(source_file
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters)
+    body: (block
+      (local_variable_declaration
+        type: (type_identifier)
+        name: (identifier)
+        value: (number_literal))
+      (local_variable_declaration
+        type: (type_identifier)
+        name: (identifier)
+        value: (identifier))
+      (expression_statement
+        (assignment_expression
+          left: (identifier)
+          right: (parenthesized_type_cast
+            type: (type_identifier)
+            value: (field_access
+              object: (identifier)
+              field: (identifier)))))
+      (expression_statement
+        (assignment_expression
+          left: (identifier)
+          right: (number_literal))))))
