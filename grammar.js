@@ -317,6 +317,11 @@ module.exports = grammar({
     // §5.5 — `assert x = cmd a, 'k': v`: a quoted named argument, or the
     // assert's message after `:`.
     [$._command_quoted_named_argument, $._expression],
+
+    // §5.8 — `{ a = 1` is a closure parameter with a default value or a
+    // closure body's assignment; `->` decides.
+    [$._expression, $.closure_parameter],
+    [$._value, $.closure_parameter],
   ],
 
   rules: {
@@ -2037,10 +2042,22 @@ module.exports = grammar({
     // prec: in `{ x -> x }` the `x` is the closure's parameter, not the
     // parameter of a lambda in the closure body.
     // `def` may stand in for the type: `{ def m -> }`.
-    closure_parameter: $ => prec(2, seq(
-      optional(choice('def', field('type', $._type))),
-      field('name', $.identifier),
-    )),
+    // A parameter may be varargs (`String... names`) and take a default
+    // value (`b = 1`), as a method's can.
+    // The default-value form has no static precedence, so `{ a = 1 }` stays
+    // open as a closure body holding an assignment until `->` or `}` decides.
+    closure_parameter: $ => choice(
+      prec(2, seq(
+        optional(choice('def', field('type', choice($._type, $.varargs_type)))),
+        field('name', $.identifier),
+      )),
+      prec.dynamic(-1, seq(
+        optional(field('type', $._type)),
+        field('name', $.identifier),
+        '=',
+        field('default', $._expression),
+      )),
+    ),
 
     // §5.8 — Java-style lambda (Groovy 3+): `x -> x + 1`, `() -> 42`,
     // `(a, b) -> { a + b }`, `(String s) -> s.trim()`. The body is a
