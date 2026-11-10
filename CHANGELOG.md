@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Fixed
+
+- `//` and `/*` inside a double-quoted or triple-double-quoted string are text, not the start of a comment: `"// x"`.
+
 ## [0.3.0] - 2026-08-30
 
 ### Changed

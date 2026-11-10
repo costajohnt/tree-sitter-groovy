@@ -69,6 +69,7 @@ function gstringPart($, textRule) {
     $.gstring_dollar_interpolation,
     $.gstring_brace_interpolation,
     alias($._gstring_literal_dollar, $.string_fragment),
+    $._string_body,
   );
 }
 
@@ -102,6 +103,9 @@ module.exports = grammar({
     $.line_comment,
     $.block_comment,
     $.groovydoc_comment,
+    // §5.7 — never emitted. Valid only inside a string body, where it tells
+    // the scanner not to read `//` or `/*` as a comment: `"// x"`.
+    $._string_body,
   ],
 
   conflicts: $ => [

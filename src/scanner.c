@@ -15,6 +15,7 @@ enum TokenType {
     LINE_COMMENT,
     BLOCK_COMMENT,
     GROOVYDOC_COMMENT,
+    STRING_BODY,
 };
 
 static inline void advance(TSLexer *lexer) {
@@ -58,6 +59,13 @@ bool tree_sitter_groovy_external_scanner_scan(
     const bool *valid_symbols
 ) {
     (void)payload;
+
+    // SPECIFICATION.md §5.7 — inside a string body `//` and `/*` are text,
+    // never a comment; the grammar's text tokens take them. A slashy string
+    // can't start there, so both being valid means error recovery.
+    if (valid_symbols[STRING_BODY] && !valid_symbols[SLASHY_STRING_START]) {
+        return false;
+    }
 
     // SPECIFICATION.md §6.6 — line / block / groovydoc comments
     // and §6.2 slashy strings. Both start with `/`; combining their

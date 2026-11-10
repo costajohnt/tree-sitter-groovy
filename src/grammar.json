@@ -6157,6 +6157,10 @@
                 },
                 "named": true,
                 "value": "string_fragment"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_string_body"
               }
             ]
           }
@@ -6298,6 +6302,10 @@
                 },
                 "named": true,
                 "value": "string_fragment"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_string_body"
               }
             ]
           }
@@ -6378,6 +6386,10 @@
                 },
                 "named": true,
                 "value": "string_fragment"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_string_body"
               }
             ]
           }
@@ -6504,6 +6516,10 @@
                 },
                 "named": true,
                 "value": "string_fragment"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_string_body"
               }
             ]
           }
@@ -6639,6 +6655,10 @@
     {
       "type": "SYMBOL",
       "name": "groovydoc_comment"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_string_body"
     }
   ],
   "inline": [],

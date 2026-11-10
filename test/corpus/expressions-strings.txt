@@ -559,3 +559,37 @@ a / b
     (binary_expression
       left: (identifier)
       right: (identifier))))
+
+==================
+Line and block comment markers inside a GString
+==================
+
+def a = "// empty"
+f("/* x */", "  // y $z // w")
+def b = """
+  // kept
+"""
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (string_fragment))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (string_literal
+          (string_fragment))
+        (string_literal
+          (string_fragment)
+          (gstring_dollar_interpolation
+            value: (identifier))
+          (string_fragment)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (string_fragment)))))
