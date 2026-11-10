@@ -150,6 +150,12 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - `x as A.B<C>` is a cast to a generic type, never a comparison chain.
 - `a.b key` on its own is a command call when the statement ends after it, so an `else` on the next line attaches.
 - A named argument of a parenthesis-free call may start on the line after a comma: `sh returnStdout: true,` then `script: 'x'`.
+- A command call's first argument may start with `new`, `null`, `true`,
+  `false`, `!`, `~` or a dotted name (`respond new Foo(), model: m`,
+  `assertNull null.x()`, `println it.name`, `if (c) reply m.reverse()`
+  then `else`), may be an operator expression or a list or map before a
+  comma (`assertTrue x instanceof Y, 'msg'`, `assertEquals [:], m`), and
+  the receiver may be `a?.b` or `a*.b` (`all*.exclude group: 'g'`).
 
 ## [0.3.0] - 2026-08-30
 

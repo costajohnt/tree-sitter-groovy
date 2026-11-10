@@ -715,3 +715,139 @@ when: x()
       (method_invocation
         function: (identifier)
         arguments: (argument_list)))))
+
+==================
+command calls with other first arguments
+==================
+
+respond new Test(name: "John"), model: [age: 20]
+assertNull null.encodeAsBase64()
+Assert.assertEquals true, x.y
+baseDir.eachFileMatch ~/fo.*/, { names << it.name }
+assertTrue !err.contains("x"), err
+println it.name
+if (c) reply message.reverse()
+else stop()
+shouldFailWithMessages foo + "x", "y"
+assertTrue sortedSet instanceof SortedSet, "msg"
+assertEquals [:], map
+session?.setAttribute Keys.LAST_USER, value
+all*.exclude group: 'g', module: 'm'
+x != y
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (object_creation_expression
+      type: (type_identifier)
+      arguments: (argument_list
+        (named_argument
+          key: (identifier)
+          value: (string_literal
+            (string_fragment)))))
+    argument: (named_argument
+      key: (identifier)
+      value: (map_literal
+        (map_entry
+          key: (identifier)
+          value: (number_literal)))))
+  (command_chain
+    receiver: (identifier)
+    argument: (method_invocation
+      function: (field_access
+        object: (null_literal)
+        field: (identifier))
+      arguments: (argument_list)))
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (boolean_literal)
+    argument: (field_access
+      object: (identifier)
+      field: (identifier)))
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (unary_expression
+      operand: (string_literal
+        (string_fragment)))
+    argument: (closure
+      (expression_statement
+        (binary_expression
+          left: (identifier)
+          right: (field_access
+            object: (identifier)
+            field: (identifier))))))
+  (command_chain
+    receiver: (identifier)
+    argument: (unary_expression
+      operand: (method_invocation
+        function: (field_access
+          object: (identifier)
+          field: (identifier))
+        arguments: (argument_list
+          (string_literal
+            (string_fragment)))))
+    argument: (identifier))
+  (command_chain
+    receiver: (identifier)
+    argument: (field_access
+      object: (identifier)
+      field: (identifier)))
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (identifier)
+      argument: (method_invocation
+        function: (field_access
+          object: (identifier)
+          field: (identifier))
+        arguments: (argument_list)))
+    alternative: (expression_statement
+      (method_invocation
+        function: (identifier)
+        arguments: (argument_list))))
+  (command_chain
+    receiver: (identifier)
+    argument: (binary_expression
+      left: (identifier)
+      right: (string_literal
+        (string_fragment)))
+    argument: (string_literal
+      (string_fragment)))
+  (command_chain
+    receiver: (identifier)
+    argument: (instanceof_expression
+      value: (identifier)
+      type: (type_identifier))
+    argument: (string_literal
+      (string_fragment)))
+  (command_chain
+    receiver: (identifier)
+    argument: (map_literal)
+    argument: (identifier))
+  (command_chain
+    receiver: (safe_navigation_expression
+      object: (identifier)
+      property: (identifier))
+    argument: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (identifier))
+  (command_chain
+    receiver: (spread_dot_expression
+      object: (identifier)
+      property: (identifier))
+    argument: (named_argument
+      key: (identifier)
+      value: (string_literal))
+    argument: (named_argument
+      key: (identifier)
+      value: (string_literal)))
+  (expression_statement
+    (binary_expression
+      left: (identifier)
+      right: (identifier))))

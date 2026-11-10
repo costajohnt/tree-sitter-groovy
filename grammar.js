@@ -215,6 +215,9 @@ module.exports = grammar({
     // comma decides, so both readings stay alive until then.
     [$.command_chain, $._expression],
     [$.command_chain, $._expression, $._type],
+    // §5.5 — `foo [:], m` (a command's list or map argument) or `foo[k]`.
+    [$.command_chain, $._expression, $._array_type_value, $._type],
+    [$.command_chain, $._expression, $._array_type_value],
     [$.command_chain, $._type],
     // See SPECIFICATION.md §7. Populated as rules accumulate.
     // (list_literal vs map_literal — tree-sitter resolves without
@@ -423,7 +426,13 @@ module.exports = grammar({
         repeat($._command_later_argument),
       )),
       prec(2, seq(
-        field('receiver', choice($.identifier, $.field_access)),
+        // also `session?.setAttribute k, v` and `all*.exclude group: 'g'`
+        field('receiver', choice(
+          $.identifier,
+          $.field_access,
+          $.safe_navigation_expression,
+          $.spread_dot_expression,
+        )),
         choice(
           seq($._command_literal_start, field('argument', choice(
             $._expression,
@@ -486,7 +495,35 @@ module.exports = grammar({
       $.field_access,
       $.method_invocation,
       $.subscript_expression,
+      // `shouldFail foo + 'x', msg`, `assertTrue x instanceof Y, msg`,
+      // `json.authors authors as Author[], { }`
+      $.binary_expression,
+      $.instanceof_expression,
+      $.cast_expression,
+      // `assertEquals [:], map`: a list or map whose `[` is on the
+      // receiver's line, which the comma after it tells from a subscript.
+      alias($._command_list_argument, $.list_literal),
+      alias($._command_map_argument, $.map_literal),
     ),
+
+    _command_list_argument: $ => seq(
+      alias($._subscript_open, '['),
+      optional(seq(
+        choice($._expression, $.spread_arguments),
+        repeat(seq(',', choice($._expression, $.spread_arguments))),
+        optional(','),
+      )),
+      ']',
+    ),
+
+    _command_map_argument: $ => {
+      const entry = choice($.map_entry, $.spread_map_entry);
+      return seq(
+        alias($._subscript_open, '['),
+        choice(':', seq(entry, repeat(seq(',', entry)), optional(','))),
+        ']',
+      );
+    },
 
     _command_argument: $ => choice(
       $.boolean_literal,

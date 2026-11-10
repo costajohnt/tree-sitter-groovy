@@ -2846,6 +2846,14 @@
           {
             "type": "identifier",
             "named": true
+          },
+          {
+            "type": "safe_navigation_expression",
+            "named": true
+          },
+          {
+            "type": "spread_dot_expression",
+            "named": true
           }
         ]
       }
