@@ -145,6 +145,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - A GString interpolation may hold statements: `${x.replace 'a', 'b'}`, `${-> x}`, `${n += 1; n}`.
 - `record` is an identifier unless a record declaration follows (`record { }`, `record << x`), and a record may implement interfaces.
 - A command call may be the value of a declaration or assignment: `def r = sh returnStdout: true, script: 'x'`, `x = foo bar`.
+- Closure parameters take default values and varargs: `{ a, b = 1 -> }`, `{ String... names -> }`.
 
 ## [0.3.0] - 2026-08-30
 
