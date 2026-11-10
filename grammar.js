@@ -962,6 +962,7 @@ module.exports = grammar({
         field('value', $._expression),
         field('operator', op),
         field('type', $._cast_type),
+        optional(field('name', $.identifier)),
       ))));
     },
 

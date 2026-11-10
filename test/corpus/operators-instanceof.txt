@@ -107,3 +107,47 @@ x
   (expression_statement
     (unary_expression
       operand: (identifier))))
+
+==================
+instanceof with a pattern variable
+==================
+
+if (x instanceof Foo f) { f.bar() }
+if (!(x instanceof Foo f)) { return }
+ok = a instanceof B b && b.c
+---
+
+(source_file
+  (if_statement
+    condition: (instanceof_expression
+      value: (identifier)
+      type: (type_identifier)
+      name: (identifier))
+    consequence: (block
+      (expression_statement
+        (method_invocation
+          function: (field_access
+            object: (identifier)
+            field: (identifier))
+          arguments: (argument_list)))))
+  (if_statement
+    condition: (unary_expression
+      operand: (parenthesized_expression
+        (instanceof_expression
+          value: (identifier)
+          type: (type_identifier)
+          name: (identifier))))
+    consequence: (block
+      (return_statement)))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (instanceof_expression
+        value: (identifier)
+        type: (type_identifier))))
+  (expression_statement
+    (binary_expression
+      left: (identifier)
+      right: (field_access
+        object: (identifier)
+        field: (identifier)))))
