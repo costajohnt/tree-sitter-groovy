@@ -206,6 +206,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   interface.
 - An interface or trait may declare `default` methods:
   `default Class<?> type() { Object }`, `default name(x) { }`.
+- An enum constant may be annotated and may have both arguments and a
+  body when a `,` follows: `@GraphQL(deprecated = true) X,`,
+  `THREE() { String f() { '3' } },`.
 
 ## [0.3.0] - 2026-08-30
 

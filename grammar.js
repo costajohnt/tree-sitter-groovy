@@ -360,6 +360,12 @@ module.exports = grammar({
     [$.closure],
     [$.block, $.closure],
     [$.enum_body],
+    // §4 — in an enum, `E() {` starts a constant with a body or a
+    // constructor; a `,` after the body makes it a constant.
+    [$.formal_parameters, $.argument_list],
+    // §4 — `@A X` in an enum: an annotated constant, or an annotated field.
+    [$.enum_constant, $.variable_declarator],
+    [$.enum_constant, $.variable_declarator, $._type],
 
     // §4 — `List<String> x` declares `x` with no value; `List<String> x = 1`
     // is the initialized form. The token after the name decides.
@@ -1171,8 +1177,8 @@ module.exports = grammar({
       '{',
       optional($._line_break),
       optional(seq(
-        $.enum_constant,
-        repeat(seq(',', optional($._line_break), $.enum_constant)),
+        $._enum_item,
+        repeat(seq(',', optional($._line_break), $._enum_item)),
         optional(','),
       )),
       repeat(choice($._class_member, ';', $._line_break)),
@@ -1182,11 +1188,27 @@ module.exports = grammar({
     // A constant may have a body: `ONE { String f() { 'a' } }`. Not after
     // arguments, where `E() { … }` is a constructor.
     enum_constant: $ => seq(
+      repeat($.annotation),
       field('name', $.identifier),
       optional(choice(
         field('arguments', $.argument_list),
         field('body', $.class_body),
       )),
+    ),
+
+    // `THREE() { … },`: arguments and a body, which a following `,` tells
+    // apart from a constructor. prec.dynamic: where both fit, the
+    // constructor wins as before.
+    _enum_constant_with_body: $ => prec.dynamic(-1, seq(
+      repeat($.annotation),
+      field('name', $.identifier),
+      field('arguments', $.argument_list),
+      field('body', $.class_body),
+    )),
+
+    _enum_item: $ => choice(
+      $.enum_constant,
+      alias($._enum_constant_with_body, $.enum_constant),
     ),
 
     // §4 — record (Groovy 4+). `record Name(Type a, Type b) [{ body }]`.

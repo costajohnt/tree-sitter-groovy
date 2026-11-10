@@ -3929,7 +3929,7 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "enum_constant"
+                  "name": "_enum_item"
                 },
                 {
                   "type": "REPEAT",
@@ -3954,7 +3954,7 @@
                       },
                       {
                         "type": "SYMBOL",
-                        "name": "enum_constant"
+                        "name": "_enum_item"
                       }
                     ]
                   }
@@ -4008,6 +4008,13 @@
       "type": "SEQ",
       "members": [
         {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "annotation"
+          }
+        },
+        {
           "type": "FIELD",
           "name": "name",
           "content": {
@@ -4043,6 +4050,64 @@
               "type": "BLANK"
             }
           ]
+        }
+      ]
+    },
+    "_enum_constant_with_body": {
+      "type": "PREC_DYNAMIC",
+      "value": -1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "SYMBOL",
+              "name": "annotation"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "name",
+            "content": {
+              "type": "SYMBOL",
+              "name": "identifier"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "arguments",
+            "content": {
+              "type": "SYMBOL",
+              "name": "argument_list"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "body",
+            "content": {
+              "type": "SYMBOL",
+              "name": "class_body"
+            }
+          }
+        ]
+      }
+    },
+    "_enum_item": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "enum_constant"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_enum_constant_with_body"
+          },
+          "named": true,
+          "value": "enum_constant"
         }
       ]
     },
@@ -10868,6 +10933,19 @@
     ],
     [
       "enum_body"
+    ],
+    [
+      "formal_parameters",
+      "argument_list"
+    ],
+    [
+      "enum_constant",
+      "variable_declarator"
+    ],
+    [
+      "enum_constant",
+      "variable_declarator",
+      "_type"
     ],
     [
       "local_variable_declaration",
