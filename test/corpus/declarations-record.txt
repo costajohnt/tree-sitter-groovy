@@ -110,3 +110,32 @@ private static record Range(int start, int end) {
               arguments: (argument_list
                 (identifier)
                 (identifier)))))))))
+
+==================
+A variable named record, and annotated record components
+==================
+
+def record = records.last()
+record Product(@NotBlank String name) { }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (field_access
+          object: (identifier)
+          field: (identifier))
+        arguments: (argument_list))))
+  (record_declaration
+    name: (identifier)
+    components: (record_components
+      (record_component
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        type: (type_identifier)
+        name: (identifier)))
+    body: (class_body)))

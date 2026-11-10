@@ -147,10 +147,10 @@ bool tree_sitter_groovy_external_scanner_scan(
         }
     }
 
-    // SPECIFICATION.md §5.5 — a zero-width marker before the first argument
-    // of a command call on a dotted receiver: matches only when a string or
-    // number starts on the current line, so `a.b` followed by `'x'` on the
-    // next line stays two statements.
+    // SPECIFICATION.md §5.5 — a zero-width marker before a command call's
+    // first argument: matches only when a string or number starts on the
+    // current line, so `a.b` followed by `'x'` on the next line stays two
+    // statements.
     if (valid_symbols[COMMAND_LITERAL_START] && !valid_symbols[ERROR_SENTINEL]) {
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
             lexer->advance(lexer, true);
