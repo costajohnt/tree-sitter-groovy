@@ -52,6 +52,10 @@ static inline bool is_ident_part(int32_t c) {
 // The same identifier is `_command_name_argument`, the one argument of a
 // command call on a dotted receiver (`a.b key`), when the statement ends
 // after it: a line break, `;`, `}`, a comment or the end of input.
+static bool finish_command_named_key(TSLexer *lexer, const bool *valid_symbols,
+                                     const char *word, unsigned len);
+static unsigned read_word(TSLexer *lexer, char *word, unsigned size);
+
 static bool scan_command_named_key(TSLexer *lexer, const bool *valid_symbols) {
     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
         lexer->advance(lexer, true);
@@ -63,14 +67,27 @@ static bool scan_command_named_key(TSLexer *lexer, const bool *valid_symbols) {
     // are switch labels, not keys, and the operators `as`, `in` and
     // `instanceof`, which are not arguments.
     char word[12];
+    unsigned len = read_word(lexer, word, sizeof(word));
+    return finish_command_named_key(lexer, valid_symbols, word, len);
+}
+
+// Reads an identifier into `word` (its first `size` chars) and returns its
+// length.
+static unsigned read_word(TSLexer *lexer, char *word, unsigned size) {
     unsigned len = 0;
     while (is_ident_part(lexer->lookahead)) {
-        if (len < sizeof(word)) {
+        if (len < size) {
             word[len] = (char)lexer->lookahead;
         }
         len++;
         lexer->advance(lexer, false);
     }
+    return len;
+}
+
+// The rest of `scan_command_named_key`, once the identifier is read.
+static bool finish_command_named_key(TSLexer *lexer, const bool *valid_symbols,
+                                     const char *word, unsigned len) {
     if ((len == 4 && memcmp(word, "case", 4) == 0)
         || (len == 7 && memcmp(word, "default", 7) == 0)) {
         return false;
@@ -227,10 +244,64 @@ bool tree_sitter_groovy_external_scanner_scan(
             lexer->advance(lexer, true);
         }
         int32_t c = lexer->lookahead;
-        if (c == '\'' || c == '"' || (c >= '0' && c <= '9')) {
+        if (c == '\'' || c == '"' || (c >= '0' && c <= '9') || c == '~') {
             lexer->mark_end(lexer);
             lexer->result_symbol = COMMAND_LITERAL_START;
             return true;
+        }
+        // `!x`, not `!=`, `!in` or `!instanceof`, which continue the receiver.
+        if (c == '!') {
+            lexer->mark_end(lexer);
+            advance(lexer);
+            if (lexer->lookahead == '=') {
+                return false;
+            }
+            if (lexer->lookahead == 'i') {
+                char word[12];
+                unsigned len = read_word(lexer, word, sizeof(word));
+                if ((len == 2 && memcmp(word, "in", 2) == 0)
+                    || (len == 10 && memcmp(word, "instanceof", 10) == 0)) {
+                    return false;
+                }
+            }
+            lexer->result_symbol = COMMAND_LITERAL_START;
+            return true;
+        }
+        // `new`, `null`, `true` and `false` start an argument too, since none
+        // can be a declaration's name: `respond new Foo(), model: m`,
+        // `assertNull null.x()`. So does a name followed by `.` or `?.` and
+        // another name, since a declared name has no dot: `println it.name`,
+        // `reply message.reverse()`. Any other name is left to the
+        // named-key branch.
+        if (is_ident_start(c)) {
+            lexer->mark_end(lexer);
+            char word[12];
+            unsigned len = read_word(lexer, word, sizeof(word));
+            if ((len == 3 && memcmp(word, "new", 3) == 0)
+                || (len == 4 && memcmp(word, "null", 4) == 0)
+                || (len == 4 && memcmp(word, "true", 4) == 0)
+                || (len == 5 && memcmp(word, "false", 5) == 0)) {
+                lexer->result_symbol = COMMAND_LITERAL_START;
+                return true;
+            }
+            if (lexer->lookahead == '.' || lexer->lookahead == '?') {
+                bool safe = lexer->lookahead == '?';
+                advance(lexer);
+                if (!safe || lexer->lookahead == '.') {
+                    if (safe) {
+                        advance(lexer);
+                    }
+                    if (is_ident_start(lexer->lookahead)) {
+                        lexer->result_symbol = COMMAND_LITERAL_START;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            if (valid_symbols[COMMAND_NAMED_KEY] || valid_symbols[COMMAND_NAME_ARGUMENT]) {
+                return finish_command_named_key(lexer, valid_symbols, word, len);
+            }
+            return false;
         }
     }
 

@@ -154,6 +154,12 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   follows (`var x`, `pipeline {`, `trait T`); elsewhere they are names:
   `var.set(1)`, `{ var -> }`, `Pipeline pipeline = p`, `trait.parentFile`.
 - `instanceof` binds a pattern variable: `if (x instanceof Foo f) { f.bar() }`.
+- A command call's first argument may start with `new`, `null`, `true`,
+  `false`, `!`, `~` or a dotted name (`respond new Foo(), model: m`,
+  `assertNull null.x()`, `println it.name`, `if (c) reply m.reverse()`
+  then `else`), may be an operator expression or a list or map before a
+  comma (`assertTrue x instanceof Y, 'msg'`, `assertEquals [:], m`), and
+  the receiver may be `a?.b` or `a*.b` (`all*.exclude group: 'g'`).
 
 ## [0.3.0] - 2026-08-30
 
