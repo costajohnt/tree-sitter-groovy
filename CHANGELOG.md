@@ -148,6 +148,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - Closure parameters take default values and varargs: `{ a, b = 1 -> }`, `{ String... names -> }`.
 - A statement ends at a line break before a name or `(`: `x` then `bar = 1` on the next line are two statements, not a declaration typed by `x`. `def String name` and uninitialized `List<String> x` locals are declarations.
 - `x as A.B<C>` is a cast to a generic type, never a comparison chain.
+- `a.b key` on its own is a command call when the statement ends after it, so an `else` on the next line attaches.
 
 ## [0.3.0] - 2026-08-30
 

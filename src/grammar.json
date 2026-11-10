@@ -348,6 +348,32 @@
               }
             }
           ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "receiver",
+              "content": {
+                "type": "SYMBOL",
+                "name": "field_access"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "argument",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_command_name_argument"
+                },
+                "named": true,
+                "value": "identifier"
+              }
+            }
+          ]
         }
       ]
     },
@@ -9728,6 +9754,10 @@
     {
       "type": "SYMBOL",
       "name": "_line_break"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_command_name_argument"
     },
     {
       "type": "SYMBOL",
