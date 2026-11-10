@@ -196,3 +196,85 @@ Closure with generic-typed parameter
               (type_identifier)))
           name: (identifier)))
       (expression_statement (identifier)))))
+
+==================
+Lambda expressions
+==================
+
+def f = () -> 42
+def g = x -> x + 1
+def h = (a, b) -> { a + b }
+names.stream().filter((String n) -> n.length() > 5)
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (lambda_expression
+        parameters: (formal_parameters)
+        body: (number_literal))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (lambda_expression
+        parameters: (formal_parameter)
+        body: (binary_expression
+          left: (identifier)
+          right: (number_literal)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (lambda_expression
+        parameters: (formal_parameters
+          (formal_parameter
+            name: (identifier))
+          (formal_parameter
+            name: (identifier)))
+        body: (block
+          (expression_statement
+            (binary_expression
+              left: (identifier)
+              right: (identifier)))))))
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (method_invocation
+          function: (field_access
+            object: (identifier)
+            field: (identifier))
+          arguments: (argument_list))
+        field: (identifier))
+      arguments: (argument_list
+        (lambda_expression
+          parameters: (formal_parameters
+            (formal_parameter
+              type: (type_identifier)
+              name: (identifier)))
+          body: (binary_expression
+            left: (method_invocation
+              function: (field_access
+                object: (identifier)
+                field: (identifier))
+              arguments: (argument_list))
+            right: (number_literal)))))))
+
+==================
+Closure parameter declared with def
+==================
+
+def c = { def m -> m }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier)))
+        (expression_statement
+          (identifier))))))

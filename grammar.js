@@ -145,6 +145,11 @@ module.exports = grammar({
     // decides; the conflict keeps both alternatives alive until
     // then.
     [$.variable_declarator, $._property_name],
+
+    // §5.8 — `(a, b) -> …` and `x -> …` share a prefix with parenthesized
+    // expressions, casts and plain identifiers until the arrow decides.
+    [$.formal_parameter, $._expression],
+    [$.formal_parameter, $._expression, $._type],
   ],
 
   rules: {
@@ -810,6 +815,7 @@ module.exports = grammar({
       $.list_literal,
       $.map_literal,
       $.closure,
+      $.lambda_expression,
       $.binary_expression,
       $.range_expression,
       $.identity_expression,
@@ -1389,10 +1395,26 @@ module.exports = grammar({
       '->',
     ),
 
-    closure_parameter: $ => seq(
-      optional(field('type', $._type)),
+    // prec: in `{ x -> x }` the `x` is the closure's parameter, not the
+    // parameter of a lambda in the closure body.
+    // `def` may stand in for the type: `{ def m -> }`.
+    closure_parameter: $ => prec(2, seq(
+      optional(choice('def', field('type', $._type))),
       field('name', $.identifier),
-    ),
+    )),
+
+    // §5.8 — Java-style lambda (Groovy 3+): `x -> x + 1`, `() -> 42`,
+    // `(a, b) -> { a + b }`, `(String s) -> s.trim()`. The body is a
+    // block or an expression. prec.dynamic: `{ x -> x }` stays a closure
+    // with a parameter, not a closure holding a lambda.
+    lambda_expression: $ => prec.right(PREC.ASSIGN, prec.dynamic(-1, seq(
+      field('parameters', choice(
+        alias($.identifier, $.formal_parameter),
+        $.formal_parameters,
+      )),
+      '->',
+      field('body', choice($.block, $._expression)),
+    ))),
 
     // §3.2 PRIMARY / §5.13 — list literal with trailing-comma support.
     // Empty list is `[]`; the empty map literal is the distinct `[:]`

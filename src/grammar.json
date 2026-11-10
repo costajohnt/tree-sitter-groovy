@@ -2780,6 +2780,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "lambda_expression"
+        },
+        {
+          "type": "SYMBOL",
           "name": "binary_expression"
         },
         {
@@ -5779,33 +5783,102 @@
       ]
     },
     "closure_parameter": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "CHOICE",
+      "type": "PREC",
+      "value": 2,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "def"
+                  },
+                  {
+                    "type": "FIELD",
+                    "name": "type",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "_type"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "FIELD",
+            "name": "name",
+            "content": {
+              "type": "SYMBOL",
+              "name": "identifier"
+            }
+          }
+        ]
+      }
+    },
+    "lambda_expression": {
+      "type": "PREC_RIGHT",
+      "value": 1,
+      "content": {
+        "type": "PREC_DYNAMIC",
+        "value": -1,
+        "content": {
+          "type": "SEQ",
           "members": [
             {
               "type": "FIELD",
-              "name": "type",
+              "name": "parameters",
               "content": {
-                "type": "SYMBOL",
-                "name": "_type"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "identifier"
+                    },
+                    "named": true,
+                    "value": "formal_parameter"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "formal_parameters"
+                  }
+                ]
               }
             },
             {
-              "type": "BLANK"
+              "type": "STRING",
+              "value": "->"
+            },
+            {
+              "type": "FIELD",
+              "name": "body",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "block"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_expression"
+                  }
+                ]
+              }
             }
           ]
-        },
-        {
-          "type": "FIELD",
-          "name": "name",
-          "content": {
-            "type": "SYMBOL",
-            "name": "identifier"
-          }
         }
-      ]
+      }
     },
     "list_literal": {
       "type": "SEQ",
@@ -6620,6 +6693,15 @@
     [
       "variable_declarator",
       "_property_name"
+    ],
+    [
+      "formal_parameter",
+      "_expression"
+    ],
+    [
+      "formal_parameter",
+      "_expression",
+      "_type"
     ]
   ],
   "precedences": [],

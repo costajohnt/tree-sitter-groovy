@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Fixed
+
+- Java-style lambdas parse as the new `lambda_expression`: `x -> x + 1`,
+  `() -> 42`, `(a, b) -> { a + b }`, `(String s) -> s.trim()`. A closure
+  parameter may be declared with `def` (`{ def m -> }`).
+
 ## [0.3.0] - 2026-08-30
 
 ### Changed
