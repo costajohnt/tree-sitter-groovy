@@ -1311,11 +1311,8 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "STRING",
-            "value": "<"
-          }
+          "type": "STRING",
+          "value": "<"
         },
         {
           "type": "SYMBOL",
