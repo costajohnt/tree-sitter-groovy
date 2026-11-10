@@ -986,7 +986,7 @@ line is two statements, as in Groovy. Parameter lists and record
 components accept it as well as the in-grammar `(`, since `String f(`
 also reads as a statement `String` followed by a call `f(`.
 
-### 6.11 CAST_VALUE_START — implementation contract
+### 6.12 CAST_VALUE_START — implementation contract
 
 Zero width, after a cast's `)`, never during error recovery. Skips spaces
 and tabs but not newlines, then emits when the next token starts with a
