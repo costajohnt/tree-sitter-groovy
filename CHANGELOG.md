@@ -195,6 +195,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   `this.('a' + 'b')(5)`.
 - A varargs parameter may omit its type: `static parser(... args) { }`.
 - Identifiers may use any Unicode letter: `def âøñè = 1`, `[név: 'x']`.
+- A decimal may start at its point: `.5`, `.05D`, `.123f`.
 
 ## [0.3.0] - 2026-08-30
 
