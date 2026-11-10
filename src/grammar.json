@@ -4309,6 +4309,60 @@
         {
           "type": "SYMBOL",
           "name": "switch_expression"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_array_type_value"
+          },
+          "named": true,
+          "value": "array_type"
+        }
+      ]
+    },
+    "_array_type_value": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "identifier"
+              },
+              "named": true,
+              "value": "type_identifier"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "qualified_type"
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_array_type_value"
+              },
+              "named": true,
+              "value": "array_type"
+            }
+          ]
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_subscript_open"
+          },
+          "named": false,
+          "value": "["
+        },
+        {
+          "type": "STRING",
+          "value": "]"
         }
       ]
     },
@@ -8764,6 +8818,19 @@
     [
       "_annotation_type_element",
       "_property_name"
+    ],
+    [
+      "_expression",
+      "_array_type_value",
+      "_type"
+    ],
+    [
+      "_expression",
+      "_array_type_value"
+    ],
+    [
+      "_array_type_value",
+      "_type"
     ]
   ],
   "precedences": [],
