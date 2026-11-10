@@ -120,7 +120,6 @@ module.exports = grammar({
     // argument, or the start of a trailing method_invocation's function
     // expression; only `(` would make it the latter.
     [$._command_argument, $._expression],
-    [$._command_literal_argument, $._expression],
     // `foo bar, baz` is a call; `foo bar` alone is two statements. The
     // comma decides, so both readings stay alive until then.
     [$.command_chain, $._expression],
@@ -227,31 +226,32 @@ module.exports = grammar({
     // land later. Closes a subset of murtaza64 #5.
     //
     // The receiver may also be a dotted path (`script.writeFile file: f`,
-    // `response.setHeader 'k', v`). Its first argument must start on the
-    // receiver's line and is a string, a number or a named argument; not a
-    // closure, since `list.each { … }` is a method_invocation. An identifier, dotted
-    // or call-shaped first argument needs a comma after it (`bind Foo, Bar`),
-    // because `foo bar` alone is two statements or a declaration.
-    // That last form carries no precedence, so the parser keeps both readings
-    // until the comma (or its absence) decides.
+    // `response.setHeader 'k', v`). A first argument that starts with a
+    // string or a number may be any expression (`log.warn '*' * 80`,
+    // `myActor 10 as BigDecimal`); the zero-width `_command_literal_start`
+    // only matches when it starts on the receiver's line. A dotted receiver
+    // takes no closure, since `list.each { … }` is a method_invocation. An
+    // identifier, dotted or call-shaped first argument needs a comma after
+    // it (`bind Foo, Bar`), because `foo bar` alone is two statements or a
+    // declaration. That last form carries no precedence, so the parser
+    // keeps both readings until the comma (or its absence) decides.
     command_chain: $ => choice(
       prec(2, seq(
         field('receiver', $.identifier),
-        field('argument', choice($._command_argument, alias($._command_named_argument, $.named_argument))),
+        field('argument', $._command_argument),
         repeat($._command_later_argument),
       )),
-      seq(
-        field('receiver', $.field_access),
+      prec(2, seq(
+        field('receiver', choice($.identifier, $.field_access)),
         choice(
           seq($._command_literal_start, field('argument', choice(
-            $.string_literal,
-            $.number_literal,
-            alias($._command_named_argument, $.named_argument),
+            $._expression,
+            alias($._command_quoted_named_argument, $.named_argument),
           ))),
           field('argument', alias($._command_named_argument, $.named_argument)),
         ),
         repeat($._command_later_argument),
-      ),
+      )),
       seq(
         field('receiver', choice($.identifier, $.field_access)),
         field('argument', $._command_trailing_argument),
@@ -265,6 +265,7 @@ module.exports = grammar({
     _command_later_argument: $ => seq(',', field('argument', choice(
       $._expression,
       alias($._command_named_argument, $.named_argument),
+      alias($._command_quoted_named_argument, $.named_argument),
     ))),
 
     // §5.5 item 3 — named arguments in a parenthesis-free call:
@@ -273,9 +274,16 @@ module.exports = grammar({
     // lexed by the external scanner only when `:` follows on the same
     // line, so `Type name = …` and a bare statement followed by a Spock
     // label on the next line are unaffected.
-    // A quoted key works too: `attributes 'Main-Class': main`.
     _command_named_argument: $ => seq(
-      field('key', choice(alias($._command_named_key, $.identifier), $.string_literal)),
+      field('key', alias($._command_named_key, $.identifier)),
+      ':',
+      field('value', $._expression),
+    ),
+
+    // A quoted key works too, `attributes 'Main-Class': main`, where a
+    // string may start an argument: after `_command_literal_start` or a comma.
+    _command_quoted_named_argument: $ => seq(
+      field('key', $.string_literal),
       ':',
       field('value', $._expression),
     ),
@@ -294,15 +302,9 @@ module.exports = grammar({
     ),
 
     _command_argument: $ => choice(
-      $._command_literal_argument,
-      $.closure,
-    ),
-
-    _command_literal_argument: $ => choice(
-      $.string_literal,
-      $.number_literal,
       $.boolean_literal,
       $.null_literal,
+      $.closure,
     ),
 
     // §5.3 — `label: stmt`. Required only at statement-start

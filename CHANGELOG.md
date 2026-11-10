@@ -22,10 +22,13 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - More parenthesis-free call shapes parse: an identifier or call as the
   first of several arguments (`bind Foo, Bar`, `foo bar, { }`), quoted
   named-argument keys (`attributes 'Main-Class': main`), dotted receivers
-  (`script.writeFile file: f`, `response.setHeader 'k', v`) and any
-  expression after the first argument. A dotted receiver's first string or
-  number argument must start on the receiver's line, checked by a new
-  zero-width scanner token, `_command_literal_start`.
+  (`script.writeFile file: f`, `response.setHeader 'k', v`), a first
+  argument that is any expression starting with a string or number
+  (`log.warn '*' * 80`, `myActor 10 as BigDecimal`) and any expression
+  after the first argument. That literal-led first argument must start on
+  the receiver's line, checked by a new zero-width scanner token,
+  `_command_literal_start`, so `foo` followed by `'x'` on the next line is
+  now two statements rather than a command call.
 
 ## [0.3.0] - 2026-08-30
 
