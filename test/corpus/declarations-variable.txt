@@ -251,3 +251,109 @@ x
         (variable_declarator
           name: (identifier)
           value: (number_literal))))))
+
+==================
+Annotated typed script variable (@Field)
+==================
+
+@Field String STEP_NAME = 'build'
+
+---
+
+(source_file
+  (local_variable_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal))))
+
+==================
+Annotated script variable with modifier and qualified annotation
+==================
+
+@groovy.transform.Field
+final Map config = [:]
+
+---
+
+(source_file
+  (local_variable_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)
+        (identifier)
+        (identifier)))
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier)
+      value: (map_literal))))
+
+==================
+Annotated def and implicitly typed script variables
+==================
+
+@Field def counter = 1
+@Field KEYS = ['a', 'b']
+@Field String name
+
+---
+
+(source_file
+  (local_variable_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    (variable_declarator
+      name: (identifier)
+      value: (number_literal)))
+  (local_variable_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    (variable_declarator
+      name: (identifier)
+      value: (list_literal
+        (string_literal)
+        (string_literal))))
+  (local_variable_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier))))
+
+==================
+Annotated script variable before a method declaration
+==================
+
+@Field String X = 'a'
+@NonCPS
+def call(Map args) { X }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal)))
+  (method_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    name: (identifier)
+    parameters: (formal_parameters
+      (formal_parameter
+        type: (type_identifier)
+        name: (identifier)))
+    body: (block
+      (expression_statement
+        (identifier)))))

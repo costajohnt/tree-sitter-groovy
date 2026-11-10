@@ -188,6 +188,10 @@ module.exports = grammar({
     // field_declaration/method_declaration's `_type` (`static Foo
     // bar`). The next token (`=`/`,`/`;` vs a second identifier)
     // disambiguates.
+    //
+    // §4 — `@Field NAME` at statement level: after the annotations, the
+    // identifier is the declarator name (`@Field NAME = 1`) or the type
+    // (`@Field String NAME`). The next token decides.
     [$.variable_declarator, $._type],
   ],
 
@@ -835,6 +839,12 @@ module.exports = grammar({
     // `final` is the one modifier Groovy (like Java) allows on a local.
     // `final x = 1` with no type or `def` is the modifier-only form;
     // the variable is dynamically typed, as with `def`.
+    //
+    // A declaration led by annotations is another form: `@Field String
+    // NAME = 'x'`, `@Field final Map m = [:]`, `@Field def x`, the script
+    // field idiom of every Jenkins shared library. The annotation already
+    // marks it as a declaration, so modifiers, an uninitialized declarator
+    // and an implicit type (`@Field NAME = 1`) are all allowed.
     local_variable_declaration: $ => prec.right(choice(
       seq(
         optional('final'),
@@ -850,6 +860,13 @@ module.exports = grammar({
       ),
       seq(
         'final',
+        $.variable_declarator,
+        repeat(seq(',', $.variable_declarator)),
+      ),
+      seq(
+        repeat1($.annotation),
+        repeat($._modifier),
+        optional(choice('def', 'var', field('type', $._type))),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
