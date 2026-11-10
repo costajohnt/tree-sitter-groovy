@@ -5085,8 +5085,41 @@
                 "type": "FIELD",
                 "name": "value",
                 "content": {
-                  "type": "SYMBOL",
-                  "name": "_expression"
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "unary_expression"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "unary_update_expression"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "parenthesized_expression"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "parenthesized_type_cast"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "list_literal"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "map_literal"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "closure"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "lambda_expression"
+                    }
+                  ]
                 }
               }
             ]
