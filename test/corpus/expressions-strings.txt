@@ -559,3 +559,20 @@ a / b
     (binary_expression
       left: (identifier)
       right: (identifier))))
+
+==================
+escaped dollar after a quote in a triple-quoted GString
+==================
+
+def s = """
+for x in "\${pid[@]}"; do
+  y=""\${a[@]}""
+"""
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (string_fragment)))))

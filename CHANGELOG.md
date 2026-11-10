@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 
 ## [Unreleased]
 
+### Fixed
+
+- In a `"""` string, `\$` right after a `"` stays escaped:
+  `"""for x in "\${pid[@]}"; do"""` is text, not an interpolation.
+
 ## [0.3.0] - 2026-08-30
 
 ### Changed
