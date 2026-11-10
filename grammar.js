@@ -1500,7 +1500,7 @@ module.exports = grammar({
     method_reference_expression: $ => prec.left(PREC.ACCESS, seq(
       field('target', $._expression),
       '::',
-      field('name', choice($.identifier, 'new')),
+      field('name', choice($.identifier, alias($.string_literal, $.quoted_identifier), 'new')),
     )),
 
     // §3.2 — postfix `++` / `--`. Distinct node kind from the

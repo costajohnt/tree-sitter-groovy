@@ -111,6 +111,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   (`String value() default 'x'`, in the new `default` field).
 - `synchronized (lock) { … }` parses as the new `synchronized_statement`.
 - `?.@` and `*.@` attribute access parse as `direct_field_access_expression`.
+- A method reference may name its method with a string: `System::'print'`.
 
 ## [0.3.0] - 2026-08-30
 

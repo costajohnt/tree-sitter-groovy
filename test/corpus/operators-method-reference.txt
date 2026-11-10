@@ -57,3 +57,22 @@ list.stream(String::length)
         (method_reference_expression
           target: (identifier)
           name: (identifier))))))
+
+==================
+Method reference with a quoted name
+==================
+
+[].forEach(System::'print')
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (list_literal)
+        field: (identifier))
+      arguments: (argument_list
+        (method_reference_expression
+          target: (identifier)
+          name: (quoted_identifier))))))

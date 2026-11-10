@@ -9332,6 +9332,10 @@
           {
             "type": "new",
             "named": false
+          },
+          {
+            "type": "quoted_identifier",
+            "named": true
           }
         ]
       },
