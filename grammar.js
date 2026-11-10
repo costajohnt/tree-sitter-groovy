@@ -1624,6 +1624,8 @@ module.exports = grammar({
       /0[xX][0-9a-fA-F_]+[GgLlIi]?/,
       /0[bB][01_]+[GgLlIi]?/,
       /[0-9][0-9_]*\.[0-9][0-9_]*([eE][+-]?[0-9][0-9_]*)?[GgFfDd]?/,
+      // no digits before the point: `.5`, `.05D`
+      /\.[0-9][0-9_]*([eE][+-]?[0-9][0-9_]*)?[GgFfDd]?/,
       /[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*[GgFfDd]?/,
       /[0-9][0-9_]*[GgLlIiDdFf]?/,
     )),
