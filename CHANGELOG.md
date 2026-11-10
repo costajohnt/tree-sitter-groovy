@@ -204,6 +204,8 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - An annotation stands in for a modifier before a method without a
   return type: `@Unroll "a feature"() { }`, `@Option flag()` in an
   interface.
+- An interface or trait may declare `default` methods:
+  `default Class<?> type() { Object }`, `default name(x) { }`.
 
 ## [0.3.0] - 2026-08-30
 
