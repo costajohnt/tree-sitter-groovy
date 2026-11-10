@@ -827,6 +827,7 @@ enum TokenType {
   BLOCK_COMMENT,          // single-token block comment incl. /**/ and /***/
   GROOVYDOC_COMMENT,      // single-token /** ... */ comment
   COMMAND_NAMED_KEY,      // §5.5 — `name` of `name:` in a parenthesis-free call
+  COMMAND_LITERAL_START,  // §5.5 — zero-width, before a dotted receiver's first argument
   ERROR_SENTINEL,         // never in a rule; valid only during error recovery
 };
 ```
@@ -948,6 +949,16 @@ Keeping the key scanner-side gives the parser a distinct lookahead token,
 so `Type name = …` stays a declaration without a precedence change, and a
 bare statement followed by a label on the next line (Spock's `where:`)
 stays two statements.
+
+### 6.8 COMMAND_LITERAL_START — implementation contract
+
+Zero width. Valid only after a dotted command receiver
+(`response.setHeader 'k', v`), and never during error recovery. Skips
+spaces and tabs but not newlines, then emits when the next character is a
+quote or a digit, the start of a string or number argument (or a quoted
+named-argument key). A string or number on the next line therefore stays
+a separate statement instead of becoming the argument of the dotted
+expression above it.
 
 ---
 

@@ -270,3 +270,139 @@ assertEquals 'v', params['k']
     argument: (subscript_expression
       object: (identifier)
       index: (string_literal))))
+
+==================
+Command chain with identifier arguments
+==================
+
+bind Foo, Bar
+that x, equalTo(42)
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (identifier)
+    argument: (identifier))
+  (command_chain
+    receiver: (identifier)
+    argument: (identifier)
+    argument: (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (number_literal)))))
+
+==================
+Command chain with a closure after a positional argument
+==================
+
+foo bar, { }
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (identifier)
+    argument: (closure)))
+
+==================
+Command chain with a quoted named-argument key
+==================
+
+attributes 'Main-Class': main, 'Archive': 'true'
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (named_argument
+      key: (string_literal)
+      value: (identifier))
+    argument: (named_argument
+      key: (string_literal)
+      value: (string_literal))))
+
+==================
+Command chain on a dotted receiver
+==================
+
+script.writeFile file: path, text: content
+response.setHeader 'Content-Type', type
+helper.registerAllowedMethod 'fileExists', [String], { s -> s == 'a' }
+
+---
+
+(source_file
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (named_argument
+      key: (identifier)
+      value: (identifier))
+    argument: (named_argument
+      key: (identifier)
+      value: (identifier)))
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (string_literal)
+    argument: (identifier))
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (string_literal)
+    argument: (list_literal
+      (identifier))
+    argument: (closure
+      (closure_parameters
+        (closure_parameter
+          name: (identifier)))
+      (expression_statement
+        (binary_expression
+          left: (identifier)
+          right: (string_literal))))))
+
+==================
+Dotted expression and a literal on the next line stay two statements
+==================
+
+a.b
+'x'
+c.d
+42
+
+---
+
+(source_file
+  (expression_statement
+    (field_access
+      object: (identifier)
+      field: (identifier)))
+  (expression_statement
+    (string_literal))
+  (expression_statement
+    (field_access
+      object: (identifier)
+      field: (identifier)))
+  (expression_statement
+    (number_literal)))
+
+==================
+Identifier without a following comma is not a command argument
+==================
+
+println x
+
+---
+
+(source_file
+  (expression_statement
+    (identifier))
+  (expression_statement
+    (identifier)))

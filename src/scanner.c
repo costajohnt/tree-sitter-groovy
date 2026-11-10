@@ -18,6 +18,7 @@ enum TokenType {
     BLOCK_COMMENT,
     GROOVYDOC_COMMENT,
     COMMAND_NAMED_KEY,
+    COMMAND_LITERAL_START,
     ERROR_SENTINEL,
 };
 
@@ -113,6 +114,22 @@ bool tree_sitter_groovy_external_scanner_scan(
     const bool *valid_symbols
 ) {
     (void)payload;
+
+    // SPECIFICATION.md §5.5 — a zero-width marker before the first argument
+    // of a command call on a dotted receiver: matches only when a string or
+    // number starts on the current line, so `a.b` followed by `'x'` on the
+    // next line stays two statements.
+    if (valid_symbols[COMMAND_LITERAL_START] && !valid_symbols[ERROR_SENTINEL]) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, true);
+        }
+        int32_t c = lexer->lookahead;
+        if (c == '\'' || c == '"' || (c >= '0' && c <= '9')) {
+            lexer->mark_end(lexer);
+            lexer->result_symbol = COMMAND_LITERAL_START;
+            return true;
+        }
+    }
 
     if (valid_symbols[COMMAND_NAMED_KEY] && !valid_symbols[ERROR_SENTINEL]) {
         if (lexer->lookahead == ' ' || lexer->lookahead == '\t'
