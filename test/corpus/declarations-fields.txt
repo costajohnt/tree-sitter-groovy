@@ -235,3 +235,41 @@ class Spec {
             (identifier)))
         (variable_declarator
           name: (identifier))))))
+
+==================
+Annotated typed field followed by a comment and a method
+==================
+
+class Vehicle {
+    @Inject Engine engine // <1>
+
+    void start() {
+        engine.start()
+    }
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (field_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        type: (type_identifier)
+        (variable_declarator
+          name: (identifier)))
+      (line_comment)
+      (method_declaration
+        return_type: (type_identifier)
+        name: (identifier)
+        parameters: (formal_parameters)
+        body: (block
+          (expression_statement
+            (method_invocation
+              function: (field_access
+                object: (identifier)
+                field: (identifier))
+              arguments: (argument_list))))))))
