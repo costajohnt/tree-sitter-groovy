@@ -15622,6 +15622,10 @@
         "required": true,
         "types": [
           {
+            "type": ";",
+            "named": false
+          },
+          {
             "type": "annotation_type_declaration",
             "named": true
           },

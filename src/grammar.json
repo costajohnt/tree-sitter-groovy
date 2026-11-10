@@ -425,6 +425,10 @@
               {
                 "type": "SYMBOL",
                 "name": "_statement"
+              },
+              {
+                "type": "STRING",
+                "value": ";"
               }
             ]
           }

@@ -271,7 +271,7 @@ module.exports = grammar({
       '(',
       field('condition', $._expression),
       ')',
-      field('body', choice($.block, $._statement)),
+      field('body', choice($.block, $._statement, ';')),
     ),
 
     // §4 — C-style for. init / condition / update slots all
