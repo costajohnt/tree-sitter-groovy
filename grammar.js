@@ -84,13 +84,13 @@ function gstringPart($, textRule) {
 function methodNameToBody($) {
   return choice(
     seq(
-      field('name', $._property_name),
+      field('name', $._method_name),
       field('parameters', $.formal_parameters),
       optional($.throws_clause),
       field('body', $.block),
     ),
     prec.dynamic(-1, seq(
-      field('name', $._property_name),
+      field('name', $._method_name),
       field('parameters', $.formal_parameters),
       optional($.throws_clause),
     )),
@@ -103,6 +103,22 @@ module.exports = grammar({
   // Placeholder for the real implementation. SPECIFICATION.md §3-§7
   // is the contract this rule set will fulfil.
   word: $ => $.identifier,
+
+  // §5.2 — Groovy's statement keywords are never identifiers, except as a
+  // property name after a dot (`x.class`) and as a map or named-argument
+  // key (`[default: 1]`). Without this, a statement keyword after a newline
+  // could lex as an identifier on one parse path: `List ids = (List) a.b`
+  // followed by `if (ids) { … }` also read as `(List)` and a method named
+  // `if` returning `a.b`.
+  reserved: {
+    global: _ => [
+      'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'return',
+      'break', 'continue', 'throw', 'try', 'catch', 'finally', 'assert',
+      'synchronized', 'new', 'class', 'interface', 'enum', 'import',
+      'package',
+    ],
+    properties: _ => [],
+  },
 
   extras: $ => [
     /\s/,
@@ -225,6 +241,12 @@ module.exports = grammar({
     // decides; the conflict keeps both alternatives alive until
     // then.
     [$.variable_declarator, $._property_name],
+
+    // §5.2 — a map key may be a statement keyword (`[class: x]`); the
+    // reserved-free key path and the expression path merge at the `:`.
+    [$._annotation_type_element, $._method_name],
+    [$.variable_declarator, $._method_name],
+    [$._expression, $.map_entry],
 
     // §4 — `static NAME` inside a class body: after one or more
     // modifiers and one identifier, that identifier could be the
@@ -1041,12 +1063,14 @@ module.exports = grammar({
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
-      seq(
+      // prec.dynamic: `String t = z` is one declaration, not `String` and
+      // `t = z` (statements need no separator in this grammar).
+      prec.dynamic(1, seq(
         optional('final'),
         field('type', $._type),
         $._initialized_declarator,
         repeat(seq(',', $._initialized_declarator)),
-      ),
+      )),
       seq(
         'final',
         $.variable_declarator,
@@ -1418,12 +1442,15 @@ module.exports = grammar({
     // by tree-sitter's GLR; declared as a conflict if needed).
     // PREC.UNARY right-associative so `(Foo) -x` parses as
     // `(Foo)(-x)` and the type binds to the rightward expression.
-    parenthesized_type_cast: $ => prec.right(PREC.UNARY, seq(
+    // prec.dynamic: `(T) x.y` followed by `bar = 1` on the next line is a
+    // cast and an assignment, not `(T)` and a declaration `x.y bar = 1`; it
+    // must outweigh the typed declaration's preference.
+    parenthesized_type_cast: $ => prec.right(PREC.UNARY, prec.dynamic(2, seq(
       '(',
       field('type', $._type),
       ')',
       field('value', $._expression),
-    )),
+    ))),
 
     // §4 — `_type`. Supports unqualified type identifiers,
     // qualified types (`java.util.List`), array types
@@ -1547,8 +1574,15 @@ module.exports = grammar({
     // *quoted identifier*: a string literal that escapes spaces,
     // keywords, or special chars. `map."key with spaces"` and
     // `def "abstract"() { … }` both rely on this.
-    _property_name: $ => choice(
+    // A declared method's name: reserved words excluded (a statement keyword
+    // on the next line is never a method name), or a quoted name.
+    _method_name: $ => choice(
       $.identifier,
+      alias($.string_literal, $.quoted_identifier),
+    ),
+
+    _property_name: $ => choice(
+      reserved('properties', $.identifier),
       alias($.string_literal, $.quoted_identifier),
     ),
 
@@ -1947,7 +1981,7 @@ module.exports = grammar({
     },
 
     map_entry: $ => seq(
-      field('key', $._expression),
+      field('key', choice($._expression, reserved('properties', $.identifier))),
       ':',
       field('value', $._expression),
     ),
