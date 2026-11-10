@@ -2585,8 +2585,25 @@
           {
             "type": "REPEAT",
             "content": {
-              "type": "SYMBOL",
-              "name": "_modifier"
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "public"
+                },
+                {
+                  "type": "STRING",
+                  "value": "protected"
+                },
+                {
+                  "type": "STRING",
+                  "value": "private"
+                },
+                {
+                  "type": "STRING",
+                  "value": "static"
+                }
+              ]
             }
           },
           {
@@ -2691,6 +2708,13 @@
     "record_component": {
       "type": "SEQ",
       "members": [
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "annotation"
+          }
+        },
         {
           "type": "FIELD",
           "name": "type",
@@ -7087,6 +7111,10 @@
     [
       "block",
       "closure"
+    ],
+    [
+      "_modifier",
+      "record_declaration"
     ],
     [
       "variable_declarator",

@@ -170,6 +170,10 @@ module.exports = grammar({
     [$._statement, $._block_statement],
     [$.block, $.closure],
 
+    // §4 — a record takes only some modifiers; until `record` the
+    // modifiers may belong to any declaration.
+    [$._modifier, $.record_declaration],
+
     // §5.2 — `def identifier` could either be a
     // local_variable_declaration (variable_declarator with no
     // initializer) or the start of a method_declaration
@@ -810,9 +814,11 @@ module.exports = grammar({
     // §4 — record (Groovy 4+). `record Name(Type a, Type b) [{ body }]`.
     // `record` is a contextual keyword — tree-sitter's word: directive
     // keeps `record` usable as a plain identifier elsewhere.
+    // Access modifiers and `static` only: `final record = x` declares a
+    // variable named `record`.
     record_declaration: $ => prec.right(seq(
       repeat($.annotation),
-      repeat($._modifier),
+      repeat(choice('public', 'protected', 'private', 'static')),
       'record',
       field('name', $.identifier),
       field('components', $.record_components),
@@ -829,6 +835,7 @@ module.exports = grammar({
     ),
 
     record_component: $ => seq(
+      repeat($.annotation),
       field('type', $._type),
       field('name', $.identifier),
     ),
