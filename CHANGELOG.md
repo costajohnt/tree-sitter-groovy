@@ -90,6 +90,10 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   now two statements rather than a command call.
 - `assert e, message` (comma separator) now parses alongside `assert e : message`.
 - An annotated field may omit its type, as in Spock's `@Shared log = []`.
+- A `(` on the line after an expression starts a new statement instead of
+  calling that expression (`println 'x'` then `(1..n).each { }`), via a new
+  scanner token, `_call_open`. A cast followed by a statement on the next
+  line (`(List) items.ids` then `if (ids) { … }`) stays a cast.
 
 ## [0.3.0] - 2026-08-30
 

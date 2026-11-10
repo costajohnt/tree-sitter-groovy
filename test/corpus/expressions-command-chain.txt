@@ -469,3 +469,55 @@ thrownException { f() } instanceof IllegalStateException
             function: (identifier)
             arguments: (argument_list))))
       type: (type_identifier))))
+
+==================
+Parenthesis on the next line is not a call
+==================
+
+sleep 1000
+(0..<h).each(f)
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (number_literal))
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (parenthesized_expression
+          (range_expression
+            start: (number_literal)
+            end: (identifier)))
+        field: (identifier))
+      arguments: (argument_list
+        (identifier)))))
+
+==================
+Cast followed by a statement on the next line
+==================
+
+List ids = (List) items.ids
+if (ids) {
+    g()
+}
+
+---
+
+(source_file
+  (local_variable_declaration
+    type: (type_identifier)
+    name: (identifier)
+    value: (parenthesized_type_cast
+      type: (type_identifier)
+      value: (field_access
+        object: (identifier)
+        field: (identifier))))
+  (if_statement
+    condition: (identifier)
+    consequence: (block
+      (expression_statement
+        (method_invocation
+          function: (identifier)
+          arguments: (argument_list))))))
