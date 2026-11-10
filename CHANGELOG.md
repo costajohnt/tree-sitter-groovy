@@ -168,6 +168,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   `ArrayList<Job>.class`, `Mono<String>.fromCallable { }`; `i<n` stays a
   comparison. A cast or `instanceof` type may also be a dotted generic or
   array type: `x as java.util.concurrent.Callable<T>`, `[] as A.B[]`.
+- Where an expression must start, a slashy string may begin with
+  whitespace or span lines: `msg =~ / X /`, `s.split(/ /)`, `def r = /`
+  with the body on the following lines. `a / b / c` is still division.
 
 ## [0.3.0] - 2026-08-30
 
