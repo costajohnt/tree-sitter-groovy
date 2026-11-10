@@ -406,3 +406,47 @@ println x
     (identifier))
   (expression_statement
     (identifier)))
+
+==================
+Command argument led by a literal may be any expression
+==================
+
+log.warn '*' * 80
+myActor 10 as BigDecimal
+println 'hello'[1]
+
+---
+
+(source_file
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (binary_expression
+      left: (string_literal)
+      right: (number_literal)))
+  (command_chain
+    receiver: (identifier)
+    argument: (cast_expression
+      value: (number_literal)
+      type: (type_identifier)))
+  (command_chain
+    receiver: (identifier)
+    argument: (subscript_expression
+      object: (string_literal)
+      index: (number_literal))))
+
+==================
+String on the line after a bare identifier is a new statement
+==================
+
+foo
+'x'
+
+---
+
+(source_file
+  (expression_statement
+    (identifier))
+  (expression_statement
+    (string_literal)))

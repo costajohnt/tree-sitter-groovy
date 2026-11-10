@@ -186,22 +186,8 @@
                 "type": "FIELD",
                 "name": "argument",
                 "content": {
-                  "type": "CHOICE",
-                  "members": [
-                    {
-                      "type": "SYMBOL",
-                      "name": "_command_argument"
-                    },
-                    {
-                      "type": "ALIAS",
-                      "content": {
-                        "type": "SYMBOL",
-                        "name": "_command_named_argument"
-                      },
-                      "named": true,
-                      "value": "named_argument"
-                    }
-                  ]
+                  "type": "SYMBOL",
+                  "name": "_command_argument"
                 }
               },
               {
@@ -215,77 +201,86 @@
           }
         },
         {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "receiver",
-              "content": {
-                "type": "SYMBOL",
-                "name": "field_access"
-              }
-            },
-            {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "SEQ",
+          "type": "PREC",
+          "value": 2,
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "receiver",
+                "content": {
+                  "type": "CHOICE",
                   "members": [
                     {
                       "type": "SYMBOL",
-                      "name": "_command_literal_start"
+                      "name": "identifier"
                     },
                     {
-                      "type": "FIELD",
-                      "name": "argument",
-                      "content": {
-                        "type": "CHOICE",
-                        "members": [
-                          {
-                            "type": "SYMBOL",
-                            "name": "string_literal"
-                          },
-                          {
-                            "type": "SYMBOL",
-                            "name": "number_literal"
-                          },
-                          {
-                            "type": "ALIAS",
-                            "content": {
-                              "type": "SYMBOL",
-                              "name": "_command_named_argument"
-                            },
-                            "named": true,
-                            "value": "named_argument"
-                          }
-                        ]
-                      }
+                      "type": "SYMBOL",
+                      "name": "field_access"
                     }
                   ]
-                },
-                {
-                  "type": "FIELD",
-                  "name": "argument",
-                  "content": {
-                    "type": "ALIAS",
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "_command_named_argument"
-                    },
-                    "named": true,
-                    "value": "named_argument"
-                  }
                 }
-              ]
-            },
-            {
-              "type": "REPEAT",
-              "content": {
-                "type": "SYMBOL",
-                "name": "_command_later_argument"
+              },
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "SYMBOL",
+                        "name": "_command_literal_start"
+                      },
+                      {
+                        "type": "FIELD",
+                        "name": "argument",
+                        "content": {
+                          "type": "CHOICE",
+                          "members": [
+                            {
+                              "type": "SYMBOL",
+                              "name": "_expression"
+                            },
+                            {
+                              "type": "ALIAS",
+                              "content": {
+                                "type": "SYMBOL",
+                                "name": "_command_quoted_named_argument"
+                              },
+                              "named": true,
+                              "value": "named_argument"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "FIELD",
+                    "name": "argument",
+                    "content": {
+                      "type": "ALIAS",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "_command_named_argument"
+                      },
+                      "named": true,
+                      "value": "named_argument"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "REPEAT",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_command_later_argument"
+                }
               }
-            }
-          ]
+            ]
+          }
         },
         {
           "type": "SEQ",
@@ -351,6 +346,15 @@
                 },
                 "named": true,
                 "value": "named_argument"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_command_quoted_named_argument"
+                },
+                "named": true,
+                "value": "named_argument"
               }
             ]
           }
@@ -364,22 +368,38 @@
           "type": "FIELD",
           "name": "key",
           "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "_command_named_key"
-                },
-                "named": true,
-                "value": "identifier"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "string_literal"
-              }
-            ]
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_command_named_key"
+            },
+            "named": true,
+            "value": "identifier"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ":"
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_expression"
+          }
+        }
+      ]
+    },
+    "_command_quoted_named_argument": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "key",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_literal"
           }
         },
         {
@@ -422,32 +442,15 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "_command_literal_argument"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "closure"
-        }
-      ]
-    },
-    "_command_literal_argument": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "string_literal"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "number_literal"
-        },
-        {
-          "type": "SYMBOL",
           "name": "boolean_literal"
         },
         {
           "type": "SYMBOL",
           "name": "null_literal"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "closure"
         }
       ]
     },
@@ -7172,10 +7175,6 @@
     ],
     [
       "_command_argument",
-      "_expression"
-    ],
-    [
-      "_command_literal_argument",
       "_expression"
     ],
     [
