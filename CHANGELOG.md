@@ -213,6 +213,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   `Map <String, List<String>> m = [:]`, `Collection <T> items() { }`,
   `AbstractFolder < ? > f = x`, `new TreeSet <String>()`. Comparisons
   such as `a < b && c > d` are unaffected.
+- Try resources may be separated by a line break instead of `;`.
 
 ## [0.3.0] - 2026-08-30
 
