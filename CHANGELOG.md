@@ -135,6 +135,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - A spread map is an argument: `f(*: m)`.
 - Annotation type declarations take modifiers: `public @interface Foo { }`.
 - An enum may implement interfaces: `enum E implements Named { … }`.
+- An enum constant may have a class body: `PLUS { int apply() { 1 } }`.
 
 ## [0.3.0] - 2026-08-30
 

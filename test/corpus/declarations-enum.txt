@@ -210,3 +210,41 @@ enum MyFormat implements Named, Other {
         name: (identifier))
       (enum_constant
         name: (identifier)))))
+
+==================
+Enum constants with bodies
+==================
+
+enum Op {
+    PLUS {
+        int apply(int a, int b) { a + b }
+    },
+    NONE {}
+}
+---
+
+(source_file
+  (enum_declaration
+    name: (identifier)
+    body: (enum_body
+      (enum_constant
+        name: (identifier)
+        body: (class_body
+          (method_declaration
+            return_type: (type_identifier)
+            name: (identifier)
+            parameters: (formal_parameters
+              (formal_parameter
+                type: (type_identifier)
+                name: (identifier))
+              (formal_parameter
+                type: (type_identifier)
+                name: (identifier)))
+            body: (block
+              (expression_statement
+                (binary_expression
+                  left: (identifier)
+                  right: (identifier)))))))
+      (enum_constant
+        name: (identifier)
+        body: (class_body)))))
