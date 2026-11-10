@@ -860,6 +860,7 @@ module.exports = grammar({
     _class_member: $ => choice(
       $.method_declaration,
       alias($._bodiless_untyped_method, $.method_declaration),
+      alias($._default_method, $.method_declaration),
       $.field_declaration,
       $.constructor_declaration,
       $.static_initializer,
@@ -990,6 +991,17 @@ module.exports = grammar({
         optional($.throws_clause),
         field('body', $.block),
       ),
+    )),
+
+    // An interface or trait's `default` method, a class member only:
+    // `default Class<?> type() { Object }`.
+    _default_method: $ => prec.right(seq(
+      ...memberModifiers($),
+      'default',
+      repeat($._modifier),
+      optional(field('type_parameters', $.method_type_parameters)),
+      optional(field('return_type', $._type)),
+      methodNameToBody($),
     )),
 
     // `abstract setVersion(version)`: modifiers, no return type, no body.

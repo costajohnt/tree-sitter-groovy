@@ -457,3 +457,54 @@ class S {
             label: (identifier)
             statement: (expression_statement
               (boolean_literal))))))))
+
+==================
+default methods
+==================
+
+interface Config {
+    default Class<?> type() { Object }
+    default configurationFor(String s) { s }
+    default WatchEvent.Kind<Path>[] events(String e) { null }
+}
+---
+
+(source_file
+  (interface_declaration
+    name: (identifier)
+    body: (class_body
+      (method_declaration
+        return_type: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (wildcard)))
+        name: (identifier)
+        parameters: (formal_parameters)
+        body: (block
+          (expression_statement
+            (identifier))))
+      (method_declaration
+        name: (identifier)
+        parameters: (formal_parameters
+          (formal_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        body: (block
+          (expression_statement
+            (identifier))))
+      (method_declaration
+        return_type: (array_type
+          (generic_type
+            base: (qualified_type
+              (type_identifier)
+              (type_identifier))
+            arguments: (type_arguments
+              (type_identifier))))
+        name: (identifier)
+        parameters: (formal_parameters
+          (formal_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        body: (block
+          (expression_statement
+            (null_literal)))))))
