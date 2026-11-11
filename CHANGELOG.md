@@ -233,6 +233,11 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   (`if (valueOf findProperty(s, 'x'))`) or a parenthesized first argument
   before a comma (`assertEquals (-1), x`); a call with one name argument
   is an argument (`visibilityOf(el modalBy)`).
+- Groovy 5 and 6 forms: `for await (x in xs)`, an index variable in a
+  for-in loop (`for (int i, v in list)`), a type pattern with an optional
+  guard in an arrow case (`case Integer i when i > 0 ->`, node
+  `type_pattern`), the null-coalescing `??` and `??=`. A class may put
+  annotations after its modifiers (`static @Immutable class X`).
 
 ## [0.3.0] - 2026-08-30
 

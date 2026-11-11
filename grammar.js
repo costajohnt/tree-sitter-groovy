@@ -806,9 +806,11 @@ module.exports = grammar({
     // anonymous token (token('non-sealed')) so the dash doesn't
     // get lexed as subtraction.
     // `def` may lead the modifiers: `def class X`, `def static class X`.
+    // Annotations may also follow modifiers: `static @Immutable class X`.
     class_declaration: $ => seq(
       repeat($.annotation),
       optional('def'),
+      optional(seq(repeat1($._modifier), repeat1($.annotation))),
       repeat($._modifier),
       optional(choice('sealed', token('non-sealed'))),
       'class',
@@ -1499,9 +1501,18 @@ module.exports = grammar({
     // delimiter, not the membership_expression operator or a
     // labelled_statement colon — context disambiguates because the
     // for-header is not an expression position.
+    //
+    // Groovy 5 adds `for await (x in xs)` and an index variable before the
+    // loop variable: `for (int i, v in list)`.
     for_in_statement: $ => seq(
       'for',
+      optional('await'),
       '(',
+      optional(seq(
+        optional(field('index_type', $._type)),
+        field('index', $.identifier),
+        ',',
+      )),
       optional('final'),
       optional(choice('def', alias($._var_keyword, 'var'), field('type', $._type))),
       field('variable', $.identifier),
@@ -1636,13 +1647,21 @@ module.exports = grammar({
     // is anonymous and absorbed here rather than by the switch block,
     // which has no statement-list of its own.
     // Several labels share an arrow: `case 1, 2 -> …`.
+    // A Groovy 5 type pattern binds a name, with an optional guard:
+    // `case Integer i when i > 0 -> …`.
     switch_arrow_case: $ => seq(
       'case',
-      field('value', $._expression),
+      field('value', choice($._expression, $.type_pattern)),
       repeat(seq(',', field('value', $._expression))),
       '->',
       field('body', choice($.block, $._statement)),
       optional(';'),
+    ),
+
+    type_pattern: $ => seq(
+      field('type', $._type),
+      field('name', $.identifier),
+      optional(seq('when', field('guard', $._expression))),
     ),
 
     switch_default: $ => seq(
@@ -2183,6 +2202,8 @@ module.exports = grammar({
         '<<=', '>>=', '>>>=',
         '&=', '^=', '|=',
         '?=',
+        // Groovy 6 null-coalescing assignment.
+        '??=',
       ];
       return choice(...ops.map(op => prec.right(PREC.ASSIGN, seq(
         field('left', $._expression),
@@ -2325,6 +2346,8 @@ module.exports = grammar({
         // LOGICAL — §3.1 levels 12, 13 (&& tighter than ||).
         ['&&',  PREC.LOGICAL_AND],
         ['||',  PREC.LOGICAL_OR],
+        // Groovy 6 null-coalescing, at the Elvis operator's level.
+        ['??',  PREC.CONDITIONAL],
       ];
       /* eslint-enable no-multi-spaces */
       return choice(...ops.map(([op, p]) => prec.left(p, seq(

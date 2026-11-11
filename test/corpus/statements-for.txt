@@ -249,3 +249,79 @@ for (final line in lines) { }
     variable: (identifier)
     value: (identifier)
     body: (block)))
+
+==================
+Groovy 5 and 6: for await, an index variable, type patterns, null-coalescing
+==================
+
+for await (value in channel) { }
+for (int i, var v in list) { }
+def d = switch (obj) {
+    case Integer i when i > 0 -> "positive"
+    case String s -> s
+    default -> 'other'
+}
+x = a ?? 3
+a.b ??= true
+class A {
+    static @Immutable class B { }
+}
+---
+
+(source_file
+  (for_in_statement
+    variable: (identifier)
+    value: (identifier)
+    body: (block))
+  (for_in_statement
+    index_type: (type_identifier)
+    index: (identifier)
+    variable: (identifier)
+    value: (identifier)
+    body: (block))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (switch_expression
+        value: (identifier)
+        body: (switch_block
+          (switch_arrow_case
+            value: (type_pattern
+              type: (type_identifier)
+              name: (identifier)
+              guard: (binary_expression
+                left: (identifier)
+                right: (number_literal)))
+            body: (expression_statement
+              (string_literal
+                (string_fragment))))
+          (switch_arrow_case
+            value: (type_pattern
+              type: (type_identifier)
+              name: (identifier))
+            body: (expression_statement
+              (identifier)))
+          (switch_default
+            body: (expression_statement
+              (string_literal)))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (binary_expression
+        left: (identifier)
+        right: (number_literal))))
+  (expression_statement
+    (assignment_expression
+      left: (field_access
+        object: (identifier)
+        field: (identifier))
+      right: (boolean_literal)))
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (class_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        name: (identifier)
+        body: (class_body)))))
