@@ -141,6 +141,8 @@ module.exports = grammar({
     /\s/,
     // A backslash at the end of a line continues the statement on the next.
     /\\\r?\n/,
+    // A byte order mark (some files start with two) is no token.
+    /\uFEFF/,
     $.line_comment,
     $.block_comment,
     $.groovydoc_comment,
@@ -2722,13 +2724,22 @@ module.exports = grammar({
 
     // §5.7 / §6.3 — `${expression}` interpolation. The body is a closure
     // body: statements (`${x.replace 'a', 'b'}`, `${if (k) { 'a' } else
-    // { 'b' }}`, `${n += 1; n}`) and the lazy form `${-> x}`.
+    // { 'b' }}`, `${n += 1; n}`, `${assert ok; x}`, labels as in
+    // `${group:name:version}`) and the lazy form `${-> x}`.
     gstring_brace_interpolation: $ => choice(
       prec(1, seq(token.immediate('${'), field('value', $._expression), '}')),
       seq(
         token.immediate('${'),
         optional($.closure_parameters),
-        repeat(choice($.expression_statement, $.command_chain, $.if_statement, ';', $._line_break)),
+        repeat(choice(
+          $.expression_statement,
+          $.command_chain,
+          $.if_statement,
+          $.assert_statement,
+          $.labeled_statement,
+          ';',
+          $._line_break,
+        )),
         '}',
       ),
     ),

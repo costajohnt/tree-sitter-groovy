@@ -557,3 +557,39 @@ foo new: 1
     argument: (named_argument
       key: (identifier)
       value: (number_literal))))
+
+==================
+byte order mark, statements in an interpolation, a number argument with no leading digit
+==================
+
+﻿/* a byte order mark before this comment */
+x = "${assert ok; v} ${group:name:version}"
+assert (x .42 == 1)
+---
+
+(source_file
+  (block_comment)
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (string_literal
+        (gstring_brace_interpolation
+          (assert_statement
+            (identifier))
+          (expression_statement
+            (identifier)))
+        (string_fragment)
+        (gstring_brace_interpolation
+          (labeled_statement
+            label: (identifier)
+            statement: (labeled_statement
+              label: (identifier)
+              statement: (expression_statement
+                (identifier))))))))
+  (assert_statement
+    (parenthesized_expression
+      (command_chain
+        receiver: (identifier)
+        argument: (binary_expression
+          left: (number_literal)
+          right: (number_literal))))))
