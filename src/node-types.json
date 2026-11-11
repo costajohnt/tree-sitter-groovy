@@ -78,6 +78,10 @@
           "named": true
         },
         {
+          "type": "array_initializer",
+          "named": true
+        },
+        {
           "type": "array_type",
           "named": true
         },
@@ -326,6 +330,10 @@
       "types": [
         {
           "type": "array_creation_expression",
+          "named": true
+        },
+        {
+          "type": "array_initializer",
           "named": true
         },
         {

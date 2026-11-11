@@ -241,6 +241,10 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - More spaced and annotated type arguments: `(List <T>) x`,
   `Closure <V> value)` as a parameter, `Arrays. < T > asList(a)`,
   `Consumer<@T1 String @T2 []>`, and `implements @A Consumer<T>`.
+- An array initializer may nest initializers that hold a comma
+  (`new String[][] { {'a', 'b'}, {'c', 'd'} }`), and an annotation value may
+  be a Java array in braces (`@Target({TYPE, METHOD})`); `{x}` with one
+  value stays a closure.
 
 ## [0.3.0] - 2026-08-30
 

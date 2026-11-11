@@ -350,6 +350,9 @@ module.exports = grammar({
     [$._expression, $._array_type_value, $._type],
     [$._expression, $._array_type_value],
     [$._array_type_value, $._type],
+    // `{ a [], b }`: a closure's command `a([], b)`, or an array initializer
+    // whose first value is the type `a[]`; the `}` or `,` path decides.
+    [$._command_list_argument, $._array_type_value],
 
     // §5.5 — `assert x = cmd a, 'k': v`: a quoted named argument, or the
     // assert's message after `:`.
@@ -1468,8 +1471,10 @@ module.exports = grammar({
 
     // A generic type is a value here, `@Scaffold(Foo<User>)`; outside
     // annotations `f(a<b)` keeps `<` an operator.
+    // A Java array of values in braces is one too: `@Target({TYPE, METHOD})`.
     _annotation_argument: $ => choice(
       $._argument,
+      alias($._brace_array, $.array_initializer),
       $.generic_type,
       $.annotation,
       alias($._annotation_list, $.list_literal),
@@ -1811,8 +1816,8 @@ module.exports = grammar({
 
     dimension: $ => seq(alias($._subscript_open, '['), ']'),
 
-    // Elements are expressions; a nested initializer (`{{1, 2}, {3}}`)
-    // would collide with closures and is not supported.
+    // Elements are expressions, or nested initializers with a comma
+    // (`{{1, 2}, {3, 4}}`); a nested `{x}` is a closure.
     array_initializer: $ => seq(
       '{',
       optional(seq(
@@ -1823,7 +1828,19 @@ module.exports = grammar({
       '}',
     ),
 
-    _array_initializer_element: $ => $._expression,
+    _array_initializer_element: $ => choice(
+      $._expression,
+      alias($._brace_array, $.array_initializer),
+    ),
+
+    // `{a, b}`: the comma tells it from a closure.
+    _brace_array: $ => seq(
+      '{',
+      $._array_initializer_element,
+      repeat1(seq(',', $._array_initializer_element)),
+      optional(','),
+      '}',
+    ),
 
     // §5.15 — C-style cast `(Foo) x`. Distinct from
     // `parenthesized_expression` followed by something (resolved

@@ -5362,6 +5362,15 @@
           "name": "_argument"
         },
         {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_brace_array"
+          },
+          "named": true,
+          "value": "array_initializer"
+        },
+        {
           "type": "SYMBOL",
           "name": "generic_type"
         },
@@ -7022,8 +7031,67 @@
       ]
     },
     "_array_initializer_element": {
-      "type": "SYMBOL",
-      "name": "_expression"
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_expression"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_brace_array"
+          },
+          "named": true,
+          "value": "array_initializer"
+        }
+      ]
+    },
+    "_brace_array": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_array_initializer_element"
+        },
+        {
+          "type": "REPEAT1",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": ","
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_array_initializer_element"
+              }
+            ]
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ","
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
     },
     "parenthesized_type_cast": {
       "type": "PREC_RIGHT",
@@ -11584,6 +11652,10 @@
     [
       "_array_type_value",
       "_type"
+    ],
+    [
+      "_command_list_argument",
+      "_array_type_value"
     ],
     [
       "_command_quoted_named_argument",
