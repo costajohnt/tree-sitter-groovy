@@ -219,6 +219,10 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - A comparison right after a name where type arguments could also start
   is a comparison when no balanced, type-shaped `<…>` follows:
   `i<n ? a : b`, `(i<a.size())`, `if ((value>0)&&(value<99))`.
+- `def` may lead a class or interface declaration's modifiers
+  (`def class X`, `def static class X`, `def interface X`),
+  `final` after `def` declares a local (`def final x = 1`), and a
+  parameter may put `def` before its type (`def Object x`).
 
 ## [0.3.0] - 2026-08-30
 

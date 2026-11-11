@@ -792,8 +792,10 @@ module.exports = grammar({
     // and `permits` clause. The `non-sealed` form is a single
     // anonymous token (token('non-sealed')) so the dash doesn't
     // get lexed as subtraction.
+    // `def` may lead the modifiers: `def class X`, `def static class X`.
     class_declaration: $ => seq(
       repeat($.annotation),
+      optional('def'),
       repeat($._modifier),
       optional(choice('sealed', token('non-sealed'))),
       'class',
@@ -821,6 +823,7 @@ module.exports = grammar({
 
     interface_declaration: $ => seq(
       ...memberModifiers($),
+      optional('def'),
       optional(choice('sealed', token('non-sealed'))),
       'interface',
       field('name', $.identifier),
@@ -1150,9 +1153,11 @@ module.exports = grammar({
     // marker (`Type... name`), and optional default value
     // (`name = expr`).
     // `final` is the one modifier a parameter takes, as in Java.
+    // `def` may stand before the type, or for it: `def Object x`, `def x`.
     formal_parameter: $ => seq(
       repeat($.annotation),
       optional('final'),
+      optional('def'),
       optional(field('type', choice($._type, $.varargs_type))),
       field('name', $.identifier),
       optional(seq('=', field('default', $._expression))),
@@ -1292,7 +1297,8 @@ module.exports = grammar({
     local_variable_declaration: $ => prec.right(choice(
       seq(
         optional('final'),
-        choice('def', alias($._var_keyword, 'var'), seq('def', field('type', $._type))),
+        // `def final x = 1` puts the modifier after `def`.
+        choice('def', seq('def', 'final'), alias($._var_keyword, 'var'), seq('def', field('type', $._type))),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
