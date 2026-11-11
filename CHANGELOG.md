@@ -216,6 +216,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - Try resources may be separated by a line break instead of `;`.
 - In a slashy string only `\/` is an escape; any other backslash is a
   character of its own, so `~/:\\/\\/.+/` no longer ends at the first `/`.
+- A comparison right after a name where type arguments could also start
+  is a comparison when no balanced, type-shaped `<…>` follows:
+  `i<n ? a : b`, `(i<a.size())`, `if ((value>0)&&(value<99))`.
 
 ## [0.3.0] - 2026-08-30
 
