@@ -1051,3 +1051,60 @@ assertEquals (-1), invoke('s', tokens, 1)
         (string_literal)
         (identifier)
         (number_literal)))))
+
+==================
+a call chained onto a call
+==================
+
+isOrIsCausedBy(e, A) or(
+    isOrIsCausedBy(e, B) or(isOrIsCausedBy(e, C)))
+assert !(page.optionList 0 isEmpty())
+foo(1)
+bar(2)
+---
+
+(source_file
+  (command_chain
+    receiver: (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (identifier)
+        (identifier)))
+    argument: (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (command_chain
+          receiver: (method_invocation
+            function: (identifier)
+            arguments: (argument_list
+              (identifier)
+              (identifier)))
+          argument: (method_invocation
+            function: (identifier)
+            arguments: (argument_list
+              (method_invocation
+                function: (identifier)
+                arguments: (argument_list
+                  (identifier)
+                  (identifier)))))))))
+  (assert_statement
+    (unary_expression
+      operand: (parenthesized_expression
+        (command_chain
+          receiver: (field_access
+            object: (identifier)
+            field: (identifier))
+          argument: (number_literal)
+          argument: (method_invocation
+            function: (identifier)
+            arguments: (argument_list))))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (number_literal))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (number_literal)))))

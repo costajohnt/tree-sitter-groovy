@@ -430,6 +430,10 @@
           ]
         },
         {
+          "type": "SYMBOL",
+          "name": "_call_chain"
+        },
+        {
           "type": "SEQ",
           "members": [
             {
@@ -456,6 +460,39 @@
           ]
         }
       ]
+    },
+    "_call_chain": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "receiver",
+            "content": {
+              "type": "SYMBOL",
+              "name": "method_invocation"
+            }
+          },
+          {
+            "type": "REPEAT1",
+            "content": {
+              "type": "FIELD",
+              "name": "argument",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_name_call"
+                },
+                "named": true,
+                "value": "method_invocation"
+              }
+            }
+          }
+        ]
+      }
     },
     "_command_later_argument": {
       "type": "SEQ",
@@ -8361,6 +8398,15 @@
           "type": "ALIAS",
           "content": {
             "type": "SYMBOL",
+            "name": "_call_chain"
+          },
+          "named": true,
+          "value": "command_chain"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
             "name": "map_entry"
           },
           "named": true,
@@ -10897,6 +10943,22 @@
             "type": "SYMBOL",
             "name": "_command_later_argument"
           }
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "FIELD",
+            "name": "argument",
+            "content": {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_name_call"
+              },
+              "named": true,
+              "value": "method_invocation"
+            }
+          }
         }
       ]
     },
@@ -11673,6 +11735,10 @@
     [
       "_type",
       "_argument_command"
+    ],
+    [
+      "_call_chain",
+      "_expression"
     ],
     [
       "enum_constant",
