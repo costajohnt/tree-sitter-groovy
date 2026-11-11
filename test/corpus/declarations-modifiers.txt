@@ -162,3 +162,38 @@ class A {
         body: (block
           (expression_statement
             (null_literal)))))))
+
+==================
+def before a type declaration, a final local and a parameter type
+==================
+
+def class A {
+  def static class D { }
+  void f(def Object o) { }
+}
+def interface Shell { }
+def final LOG = 1
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (class_declaration
+        name: (identifier)
+        body: (class_body))
+      (method_declaration
+        return_type: (type_identifier)
+        name: (identifier)
+        parameters: (formal_parameters
+          (formal_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        body: (block))))
+  (interface_declaration
+    name: (identifier)
+    body: (class_body))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (number_literal))))
