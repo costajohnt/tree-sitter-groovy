@@ -102,6 +102,10 @@
           "named": true
         },
         {
+          "type": "command_chain",
+          "named": true
+        },
+        {
           "type": "direct_field_access_expression",
           "named": true
         },
@@ -2927,6 +2931,10 @@
           },
           {
             "type": "spread_dot_expression",
+            "named": true
+          },
+          {
+            "type": "string_literal",
             "named": true
           }
         ]

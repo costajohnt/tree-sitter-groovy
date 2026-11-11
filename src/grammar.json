@@ -325,6 +325,10 @@
                     {
                       "type": "SYMBOL",
                       "name": "spread_dot_expression"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "string_literal"
                     }
                   ]
                 }
@@ -596,6 +600,37 @@
           },
           "named": true,
           "value": "map_literal"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_command_parenthesized_argument"
+          },
+          "named": true,
+          "value": "parenthesized_expression"
+        }
+      ]
+    },
+    "_command_parenthesized_argument": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_call_open"
+          },
+          "named": false,
+          "value": "("
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_expression"
+        },
+        {
+          "type": "STRING",
+          "value": ")"
         }
       ]
     },
@@ -4971,6 +5006,15 @@
                   },
                   "named": true,
                   "value": "named_argument"
+                },
+                {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_command_quoted_named_argument"
+                  },
+                  "named": true,
+                  "value": "named_argument"
                 }
               ]
             }
@@ -7913,6 +7957,15 @@
           "type": "ALIAS",
           "content": {
             "type": "SYMBOL",
+            "name": "_argument_command"
+          },
+          "named": true,
+          "value": "command_chain"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
             "name": "map_entry"
           },
           "named": true,
@@ -7927,6 +7980,31 @@
           "name": "spread_map_entry"
         }
       ]
+    },
+    "_argument_command": {
+      "type": "PREC_DYNAMIC",
+      "value": -1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "receiver",
+            "content": {
+              "type": "SYMBOL",
+              "name": "identifier"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "argument",
+            "content": {
+              "type": "SYMBOL",
+              "name": "identifier"
+            }
+          }
+        ]
+      }
     },
     "spread_arguments": {
       "type": "SEQ",
@@ -10318,6 +10396,19 @@
                 "type": "SYMBOL",
                 "name": "identifier"
               }
+            },
+            {
+              "type": "FIELD",
+              "name": "argument",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_name_call"
+                },
+                "named": true,
+                "value": "method_invocation"
+              }
             }
           ]
         },
@@ -10326,6 +10417,27 @@
           "content": {
             "type": "SYMBOL",
             "name": "_command_later_argument"
+          }
+        }
+      ]
+    },
+    "_name_call": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "function",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "arguments",
+          "content": {
+            "type": "SYMBOL",
+            "name": "argument_list"
           }
         }
       ]
@@ -11066,6 +11178,10 @@
     [
       "_type",
       "_parenthesized_command"
+    ],
+    [
+      "_type",
+      "_argument_command"
     ],
     [
       "enum_constant",

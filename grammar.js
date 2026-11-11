@@ -242,6 +242,7 @@ module.exports = grammar({
     // §5.5 — `(el x)` is a command call; `(String s) -> …` a lambda's
     // parameter list. The `->` decides.
     [$._type, $._parenthesized_command],
+    [$._type, $._argument_command],
     // See SPECIFICATION.md §7. Populated as rules accumulate.
     // (list_literal vs map_literal — tree-sitter resolves without
     //  an explicit conflict because `:` after the first element
@@ -470,12 +471,15 @@ module.exports = grammar({
         repeat($._command_later_argument),
       )),
       prec(2, seq(
-        // also `session?.setAttribute k, v` and `all*.exclude group: 'g'`
+        // also `session?.setAttribute k, v` and `all*.exclude group: 'g'`,
+        // and a quoted name as builder and ruleset DSLs write it:
+        // `'x:title' lang: 'en', 'text'`, `'CatchThrowable' priority: 1`.
         field('receiver', choice(
           $.identifier,
           $.field_access,
           $.safe_navigation_expression,
           $.spread_dot_expression,
+          $.string_literal,
         )),
         choice(
           seq($._command_literal_start, field('argument', choice(
@@ -548,6 +552,15 @@ module.exports = grammar({
       // receiver's line, which the comma after it tells from a subscript.
       alias($._command_list_argument, $.list_literal),
       alias($._command_map_argument, $.map_literal),
+      // `assertEquals (-1), x`: a parenthesized first argument, which the
+      // comma after it tells from an argument list.
+      alias($._command_parenthesized_argument, $.parenthesized_expression),
+    ),
+
+    _command_parenthesized_argument: $ => seq(
+      alias($._call_open, '('),
+      $._expression,
+      ')',
     ),
 
     _command_list_argument: $ => seq(
@@ -1370,6 +1383,7 @@ module.exports = grammar({
       field('argument', choice(
         $._expression,
         alias($._command_named_argument, $.named_argument),
+        alias($._command_quoted_named_argument, $.named_argument),
       )),
       repeat($._command_later_argument),
     )),
@@ -2085,13 +2099,22 @@ module.exports = grammar({
       optional(','),
     ),
 
-    // A spread map is an argument too: `f(*: m)`.
+    // A spread map is an argument too: `f(*: m)`. So is a command call with
+    // one name argument, as Geb page objects write it: `visibilityOf(el x)`.
     _argument: $ => choice(
       $._expression,
+      alias($._argument_command, $.command_chain),
       alias($.map_entry, $.named_argument),
       $.spread_arguments,
       $.spread_map_entry,
     ),
+
+    // prec.dynamic: in an enum, `E(A b` may also start a constructor's
+    // parameters; where both parse, the parameter wins.
+    _argument_command: $ => prec.dynamic(-1, seq(
+      field('receiver', $.identifier),
+      field('argument', $.identifier),
+    )),
 
     // §5.11 — `*expr` only inside argument list / list literal.
     // Distinct from a binary `*` because the LHS is absent.
@@ -2464,8 +2487,15 @@ module.exports = grammar({
         ))),
         field('argument', alias($._command_named_argument, $.named_argument)),
         field('argument', $.identifier),
+        // `if (valueOf findProperty(s, 'x'))`
+        field('argument', alias($._name_call, $.method_invocation)),
       ),
       repeat($._command_later_argument),
+    ),
+
+    _name_call: $ => seq(
+      field('function', $.identifier),
+      field('arguments', $.argument_list),
     ),
 
     // §3.2 — single `unary_expression` node kind but two precedence
