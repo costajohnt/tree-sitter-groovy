@@ -245,6 +245,8 @@ module.exports = grammar({
     // parameter list. The `->` decides.
     [$._type, $._parenthesized_command],
     [$._type, $._argument_command],
+    // `a(x) or(y)`: a call chained onto a call, or a call then a new name.
+    [$._call_chain, $._expression],
     // See SPECIFICATION.md §7. Populated as rules accumulate.
     // (list_literal vs map_literal — tree-sitter resolves without
     //  an explicit conflict because `:` after the first element
@@ -501,6 +503,9 @@ module.exports = grammar({
         field('argument', $._command_trailing_argument),
         repeat1($._command_later_argument),
       ),
+      // A call chained onto a call on the same line, as Groovy's command
+      // chains allow: `isOrIsCausedBy(e, A) or(isOrIsCausedBy(e, B))`.
+      $._call_chain,
       // `if (c) a.b key` then `else`: a name alone after a dotted receiver,
       // with the statement ending after it.
       seq(
@@ -508,6 +513,12 @@ module.exports = grammar({
         field('argument', alias($._command_name_argument, $.identifier)),
       ),
     ),
+
+    // Also an argument: `f(a(x) or(b(y)))`.
+    _call_chain: $ => prec.right(seq(
+      field('receiver', $.method_invocation),
+      repeat1(field('argument', alias($._name_call, $.method_invocation))),
+    )),
 
     // After the first argument has made the statement a command chain,
     // a later argument is any expression or a named argument:
@@ -2179,6 +2190,7 @@ module.exports = grammar({
     _argument: $ => choice(
       $._expression,
       alias($._argument_command, $.command_chain),
+      alias($._call_chain, $.command_chain),
       alias($.map_entry, $.named_argument),
       $.spread_arguments,
       $.spread_map_entry,
@@ -2571,6 +2583,8 @@ module.exports = grammar({
         field('argument', alias($._name_call, $.method_invocation)),
       ),
       repeat($._command_later_argument),
+      // `(page.optionList 0 isEmpty())`: a call chained after the argument.
+      repeat(field('argument', alias($._name_call, $.method_invocation))),
     ),
 
     _name_call: $ => seq(

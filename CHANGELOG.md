@@ -254,6 +254,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   `${group:name:version}`), a byte order mark is skipped like whitespace
   (a file may start with two), and a command argument may be a number
   with no digit before the point (`x .42`).
+- A call may chain onto a call on the same line, as a statement or an
+  argument (`isOrIsCausedBy(e, A) or(isOrIsCausedBy(e, B))`), and onto a
+  command's argument inside parentheses (`(page.optionList 0 isEmpty())`).
 
 ## [0.3.0] - 2026-08-30
 

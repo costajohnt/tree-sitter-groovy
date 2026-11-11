@@ -2749,7 +2749,7 @@
     "fields": {
       "argument": {
         "multiple": true,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "array_creation_expression",
@@ -2943,6 +2943,10 @@
           },
           {
             "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "method_invocation",
             "named": true
           },
           {
