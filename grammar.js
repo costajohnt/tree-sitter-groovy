@@ -2482,9 +2482,14 @@ module.exports = grammar({
       token.immediate('/'),
     ),
 
+    // `\/` is the one escape in a slashy string; any other backslash is a
+    // character of its own, so `:\\/\\/` holds two escaped slashes and
+    // doesn't end the string at the first `/`. `\$` stays a pair, so the
+    // `$` after it starts no interpolation.
     _slashy_text: _ => token.immediate(repeat1(choice(
       /[^\/\\$]/,
-      /\\[\s\S]/,
+      /\\[\/$]/,
+      /\\/,
     ))),
 
     _single_quoted_string: _ => token(seq(

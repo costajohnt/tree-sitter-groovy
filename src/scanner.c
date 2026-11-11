@@ -775,9 +775,10 @@ bool tree_sitter_groovy_external_scanner_scan(
     lexer->mark_end(lexer);
     bool found_close = false;
     while (!lexer->eof(lexer)) {
+        // `\/` is an escaped slash; any other backslash is one character.
         if (lexer->lookahead == '\\') {
             advance(lexer);
-            if (!lexer->eof(lexer)) {
+            if (lexer->lookahead == '/') {
                 advance(lexer);
             }
             continue;

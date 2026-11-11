@@ -10279,7 +10279,11 @@
             },
             {
               "type": "PATTERN",
-              "value": "\\\\[\\s\\S]"
+              "value": "\\\\[\\/$]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "\\\\"
             }
           ]
         }
