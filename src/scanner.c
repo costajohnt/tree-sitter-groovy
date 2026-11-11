@@ -198,6 +198,10 @@ bool tree_sitter_groovy_external_scanner_scan(
             && lexer->lookahead != '<' && lexer->lookahead != '.';
         unsigned depth = 1;
         bool after_name = false;
+        // No space just inside the outer `<` and `>`, as in `<V>` but not in
+        // the comparisons `x < y, z > w`.
+        bool tight = lexer->lookahead != ' ' && lexer->lookahead != '\t';
+        bool prev_space = false;
         for (unsigned steps = 0; depth > 0; steps++) {
             int32_t c = lexer->lookahead;
             if (steps > 400 || lexer->eof(lexer)) {
@@ -208,11 +212,14 @@ bool tree_sitter_groovy_external_scanner_scan(
             }
             if (c == ' ' || c == '\t') {
                 advance(lexer);
+                prev_space = true;
+                continue;
             } else if (is_ident_start(c)) {
                 while (is_ident_part(lexer->lookahead)) {
                     advance(lexer);
                 }
                 after_name = true;
+                prev_space = false;
                 continue;
             } else if (c == '.') {
                 advance(lexer);
@@ -233,10 +240,14 @@ bool tree_sitter_groovy_external_scanner_scan(
             } else if (c == '>') {
                 advance(lexer);
                 depth--;
+                if (depth == 0 && prev_space) {
+                    tight = false;
+                }
             } else {
                 goto not_type;
             }
             after_name = false;
+            prev_space = false;
         }
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
             advance(lexer);
@@ -244,7 +255,8 @@ bool tree_sitter_groovy_external_scanner_scan(
         int32_t c = lexer->lookahead;
         bool ok = c == ')' || c == ',' || c == ']';
         if (spaced) {
-            ok = c == '(';
+            // A cast `(List <T>) x`, or a call `new TreeSet <String>()`.
+            ok = c == '(' || (c == ')' && tight);
             if (is_ident_start(c)) {
                 while (is_ident_part(lexer->lookahead)) {
                     advance(lexer);
@@ -253,7 +265,9 @@ bool tree_sitter_groovy_external_scanner_scan(
                     advance(lexer);
                 }
                 c = lexer->lookahead;
-                ok = c == ';' || c == '(' || c == '\n' || c == '\r' || lexer->eof(lexer);
+                // `Closure <V> value)`, `Map <K, V> m, …`: a parameter.
+                ok = c == ';' || c == '(' || ((c == ')' || c == ',') && tight)
+                    || c == '\n' || c == '\r' || lexer->eof(lexer);
                 if (c == '=') {
                     advance(lexer);
                     ok = lexer->lookahead != '=' && lexer->lookahead != '~';
