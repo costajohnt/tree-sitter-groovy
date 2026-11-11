@@ -307,8 +307,10 @@ bool tree_sitter_groovy_external_scanner_scan(
                 len++;
                 lexer->advance(lexer, false);
             }
-            if ((len == 2 && (memcmp(word, "in", 2) == 0 || memcmp(word, "as", 2) == 0))
-                || (len == 10 && memcmp(word, "instanceof", 10) == 0)) {
+            // ... unless a dot follows, as in a variable named `in`: `(T) in.x`.
+            if (((len == 2 && (memcmp(word, "in", 2) == 0 || memcmp(word, "as", 2) == 0))
+                 || (len == 10 && memcmp(word, "instanceof", 10) == 0))
+                && lexer->lookahead != '.') {
                 return false;
             }
             lexer->result_symbol = CAST_VALUE_START;
@@ -409,6 +411,16 @@ bool tree_sitter_groovy_external_scanner_scan(
                 || (len == 4 && memcmp(word, "null", 4) == 0)
                 || (len == 4 && memcmp(word, "true", 4) == 0)
                 || (len == 5 && memcmp(word, "false", 5) == 0)) {
+                // `foo new: 1` names an argument `new`.
+                if (lexer->lookahead == ':' && valid_symbols[COMMAND_NAMED_KEY]) {
+                    lexer->mark_end(lexer);
+                    advance(lexer);
+                    if (lexer->lookahead != ':') {
+                        lexer->result_symbol = COMMAND_NAMED_KEY;
+                        return true;
+                    }
+                    return false;
+                }
                 lexer->result_symbol = COMMAND_LITERAL_START;
                 return true;
             }
@@ -537,7 +549,9 @@ bool tree_sitter_groovy_external_scanner_scan(
                     "as", "in", "instanceof", "throws", "extends",
                     "implements", "permits",
                 };
-                for (unsigned i = 0; i < sizeof(continuing) / sizeof(continuing[0]); i++) {
+                // `in.property`: a name before a dot starts a statement.
+                bool dotted = lexer->lookahead == '.';
+                for (unsigned i = 0; i < sizeof(continuing) / sizeof(continuing[0]) && !dotted; i++) {
                     if (strlen(continuing[i]) == len && memcmp(word, continuing[i], len) == 0) {
                         return false;
                     }

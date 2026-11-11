@@ -900,6 +900,16 @@
     "type": "assignment_expression",
     "named": true,
     "fields": {
+      "field": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "field_access",
+            "named": true
+          }
+        ]
+      },
       "left": {
         "multiple": false,
         "required": true,
@@ -1078,6 +1088,16 @@
           },
           {
             "type": "update_expression",
+            "named": true
+          }
+        ]
+      },
+      "object": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
             "named": true
           }
         ]
@@ -4418,7 +4438,7 @@
     "fields": {
       "field": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "identifier",
@@ -4436,7 +4456,7 @@
       },
       "object": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "array_creation_expression",
@@ -4626,6 +4646,24 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "parenthesized_expression",
+          "named": true
+        },
+        {
+          "type": "quoted_identifier",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -9556,9 +9594,13 @@
     "named": true,
     "fields": {
       "arguments": {
-        "multiple": false,
+        "multiple": true,
         "required": false,
         "types": [
+          {
+            "type": "(",
+            "named": false
+          },
           {
             "type": "argument_list",
             "named": true
