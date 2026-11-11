@@ -227,6 +227,12 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   (`[new: 1]`, `f(switch: "on")`, `foo new: 1`); `in` before a dot is a
   name at the start of a statement or a cast's value (`in.property`,
   `(T) in.x`); and `static.x = v` and `yield()` are statements.
+- A command call may have a quoted name (`'x:title' lang: 'en', 'text'`,
+  `'CatchThrowable' priority: 1`), a quoted named argument as a value
+  (`def api = toApi 'A': src`), a call argument inside an `if`
+  (`if (valueOf findProperty(s, 'x'))`) or a parenthesized first argument
+  before a comma (`assertEquals (-1), x`); a call with one name argument
+  is an argument (`visibilityOf(el modalBy)`).
 
 ## [0.3.0] - 2026-08-30
 

@@ -946,3 +946,108 @@ w = (String s) -> s
             type: (type_identifier)
             name: (identifier)))
         body: (identifier)))))
+
+==================
+quoted command names, quoted named value, command arguments in parentheses
+==================
+
+f { ->
+    'CatchThrowable' priority:1, enabled:false
+    'x:title' lang: 'en', 'Everyday French'
+    'x:author' 'Some person'
+    'x:year' 2001
+    'in' 'id', [a.id, b.id]
+    'S' characterBeforeColonRegex: /\S|\s*/, characterAfterColonRegex: /\s/, d: '.*Spec.groovy'
+}
+def api = toApi 'A': """
+x
+"""
+if (valueOf findProperty(settings, 'x')) { }
+waitForElementVisible(el daysToKeepExecsBy)
+assertEquals (-1), invoke('s', tokens, 1)
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (closure
+      (closure_parameters)
+      (command_chain
+        receiver: (string_literal)
+        argument: (named_argument
+          key: (identifier)
+          value: (number_literal))
+        argument: (named_argument
+          key: (identifier)
+          value: (boolean_literal)))
+      (command_chain
+        receiver: (string_literal)
+        argument: (named_argument
+          key: (identifier)
+          value: (string_literal))
+        argument: (string_literal))
+      (command_chain
+        receiver: (string_literal)
+        argument: (string_literal))
+      (command_chain
+        receiver: (string_literal)
+        argument: (number_literal))
+      (command_chain
+        receiver: (string_literal)
+        argument: (string_literal)
+        argument: (list_literal
+          (field_access
+            object: (identifier)
+            field: (identifier))
+          (field_access
+            object: (identifier)
+            field: (identifier))))
+      (command_chain
+        receiver: (string_literal)
+        argument: (named_argument
+          key: (identifier)
+          value: (string_literal
+            (string_fragment)))
+        argument: (named_argument
+          key: (identifier)
+          value: (string_literal
+            (string_fragment)))
+        argument: (named_argument
+          key: (identifier)
+          value: (string_literal)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (command_chain
+        receiver: (identifier)
+        argument: (named_argument
+          key: (string_literal)
+          value: (string_literal
+            (string_fragment))))))
+  (if_statement
+    condition: (command_chain
+      receiver: (identifier)
+      argument: (method_invocation
+        function: (identifier)
+        arguments: (argument_list
+          (identifier)
+          (string_literal))))
+    consequence: (block))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (command_chain
+          receiver: (identifier)
+          argument: (identifier)))))
+  (command_chain
+    receiver: (identifier)
+    argument: (parenthesized_expression
+      (unary_expression
+        operand: (number_literal)))
+    argument: (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (string_literal)
+        (identifier)
+        (number_literal)))))
