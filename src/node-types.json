@@ -6275,6 +6275,10 @@
       "required": false,
       "types": [
         {
+          "type": "assert_statement",
+          "named": true
+        },
+        {
           "type": "closure_parameters",
           "named": true
         },
@@ -6288,6 +6292,10 @@
         },
         {
           "type": "if_statement",
+          "named": true
+        },
+        {
+          "type": "labeled_statement",
           "named": true
         }
       ]

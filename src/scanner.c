@@ -128,8 +128,9 @@ static inline void advance(TSLexer *lexer) {
     lexer->advance(lexer, false);
 }
 
+// A byte order mark counts too: a file may start with two of them.
 static inline bool is_whitespace(int32_t c) {
-    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == 0xFEFF;
 }
 
 void *tree_sitter_groovy_external_scanner_create(void) {
@@ -392,6 +393,16 @@ bool tree_sitter_groovy_external_scanner_scan(
             lexer->mark_end(lexer);
             lexer->result_symbol = COMMAND_LITERAL_START;
             return true;
+        }
+        // A number with no digits before the point: `x .42` calls `x(.42)`.
+        if (c == '.') {
+            lexer->mark_end(lexer);
+            advance(lexer);
+            if (lexer->lookahead >= '0' && lexer->lookahead <= '9') {
+                lexer->result_symbol = COMMAND_LITERAL_START;
+                return true;
+            }
+            return false;
         }
         // `!x`, not `!=`, `!in` or `!instanceof`, which continue the receiver.
         if (c == '!') {

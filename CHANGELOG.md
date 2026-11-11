@@ -250,6 +250,10 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   (`Object a = f(), b`), a multiple assignment's name may take the rest
   (`def (head, *tail) = l`), and a subscript index may be spread
   (`(1..5)[*1..3]`).
+- An interpolation may hold an `assert` or labels (`${assert ok; v}`,
+  `${group:name:version}`), a byte order mark is skipped like whitespace
+  (a file may start with two), and a command argument may be a number
+  with no digit before the point (`x .42`).
 
 ## [0.3.0] - 2026-08-30
 
