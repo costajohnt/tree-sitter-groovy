@@ -245,6 +245,11 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   (`new String[][] { {'a', 'b'}, {'c', 'd'} }`), and an annotation value may
   be a Java array in braces (`@Target({TYPE, METHOD})`); `{x}` with one
   value stays a closure.
+- A script variable may take modifiers (`public static final long IM = 1`),
+  a typed declaration's later declarators may go without a value
+  (`Object a = f(), b`), a multiple assignment's name may take the rest
+  (`def (head, *tail) = l`), and a subscript index may be spread
+  (`(1..5)[*1..3]`).
 
 ## [0.3.0] - 2026-08-30
 
