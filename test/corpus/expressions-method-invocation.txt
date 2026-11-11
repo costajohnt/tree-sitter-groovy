@@ -24,7 +24,8 @@ f(x)
   (expression_statement
     (method_invocation
       function: (identifier)
-      arguments: (argument_list (identifier)))))
+      arguments: (argument_list
+        (identifier)))))
 
 ==================
 Call with multiple arguments
@@ -107,7 +108,9 @@ f(a, key: value, b)
       function: (identifier)
       arguments: (argument_list
         (identifier)
-        (named_argument key: (identifier) value: (identifier))
+        (named_argument
+          key: (identifier)
+          value: (identifier))
         (identifier)))))
 
 ==================
@@ -140,7 +143,8 @@ stepImplementations[Platform](ctx)
       function: (subscript_expression
         object: (identifier)
         index: (identifier))
-      arguments: (argument_list (identifier)))))
+      arguments: (argument_list
+        (identifier)))))
 
 ==================
 Call with expression arguments
@@ -175,7 +179,8 @@ f(a) + b
     (binary_expression
       left: (method_invocation
         function: (identifier)
-        arguments: (argument_list (identifier)))
+        arguments: (argument_list
+          (identifier)))
       right: (identifier))))
 
 ==================
@@ -193,7 +198,8 @@ f(g(x))
       arguments: (argument_list
         (method_invocation
           function: (identifier)
-          arguments: (argument_list (identifier)))))))
+          arguments: (argument_list
+            (identifier)))))))
 
 ==================
 Spread map argument

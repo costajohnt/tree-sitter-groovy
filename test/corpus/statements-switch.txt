@@ -13,7 +13,8 @@ switch (x) { case 1: foo }
       body: (switch_block
         (switch_case
           value: (number_literal)
-          (expression_statement (identifier)))))))
+          (expression_statement
+            (identifier)))))))
 
 ==================
 Classic switch with default
@@ -30,9 +31,11 @@ switch (x) { case 1: foo default: bar }
       body: (switch_block
         (switch_case
           value: (number_literal)
-          (expression_statement (identifier)))
+          (expression_statement
+            (identifier)))
         (switch_default
-          (expression_statement (identifier)))))))
+          (expression_statement
+            (identifier)))))))
 
 ==================
 Arrow switch single case
@@ -49,7 +52,8 @@ switch (x) { case 1 -> foo }
       body: (switch_block
         (switch_arrow_case
           value: (number_literal)
-          body: (expression_statement (identifier)))))))
+          body: (expression_statement
+            (identifier)))))))
 
 ==================
 Arrow switch multiple cases
@@ -70,13 +74,16 @@ switch (c) {
       body: (switch_block
         (switch_arrow_case
           value: (string_literal)
-          body: (expression_statement (number_literal)))
+          body: (expression_statement
+            (number_literal)))
         (switch_arrow_case
           value: (string_literal)
-          body: (expression_statement (number_literal)))
+          body: (expression_statement
+            (number_literal)))
         (switch_arrow_case
           value: (string_literal)
-          body: (expression_statement (number_literal)))))))
+          body: (expression_statement
+            (number_literal)))))))
 
 ==================
 Arrow switch with block body
@@ -114,9 +121,11 @@ switch (x) { case 1 -> a default -> b }
       body: (switch_block
         (switch_arrow_case
           value: (number_literal)
-          body: (expression_statement (identifier)))
+          body: (expression_statement
+            (identifier)))
         (switch_default
-          body: (expression_statement (identifier)))))))
+          body: (expression_statement
+            (identifier)))))))
 
 ==================
 Empty switch body
@@ -152,12 +161,14 @@ switch (c) {
           value: (field_access
             object: (identifier)
             field: (identifier))
-          body: (expression_statement (string_literal)))
+          body: (expression_statement
+            (string_literal)))
         (switch_arrow_case
           value: (field_access
             object: (identifier)
             field: (identifier))
-          body: (expression_statement (string_literal)))))))
+          body: (expression_statement
+            (string_literal)))))))
 
 ==================
 Arrow case with several labels

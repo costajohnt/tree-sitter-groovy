@@ -88,8 +88,10 @@ def f = { x -> x }
       name: (identifier)
       value: (closure
         (closure_parameters
-          (closure_parameter name: (identifier)))
-        (expression_statement (identifier))))))
+          (closure_parameter
+            name: (identifier)))
+        (expression_statement
+          (identifier))))))
 
 ==================
 Multi-assignment (murtaza64 #22 anchor)
@@ -101,8 +103,10 @@ def (a, b) = [1, 2]
 
 (source_file
   (multi_assignment_declaration
-    (variable_declarator name: (identifier))
-    (variable_declarator name: (identifier))
+    (variable_declarator
+      name: (identifier))
+    (variable_declarator
+      name: (identifier))
     value: (list_literal
       (number_literal)
       (number_literal))))
@@ -117,9 +121,12 @@ def (a, b, c) = source
 
 (source_file
   (multi_assignment_declaration
-    (variable_declarator name: (identifier))
-    (variable_declarator name: (identifier))
-    (variable_declarator name: (identifier))
+    (variable_declarator
+      name: (identifier))
+    (variable_declarator
+      name: (identifier))
+    (variable_declarator
+      name: (identifier))
     value: (identifier)))
 
 ==================

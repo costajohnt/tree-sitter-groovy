@@ -21,7 +21,8 @@ try { risky() } catch (Exception e) { handle(e) }
         (expression_statement
           (method_invocation
             function: (identifier)
-            arguments: (argument_list (identifier))))))))
+            arguments: (argument_list
+              (identifier))))))))
 
 ==================
 Try catch with untyped parameter (implicit Exception)
@@ -45,7 +46,8 @@ try { risky() } catch (e) { handle(e) }
         (expression_statement
           (method_invocation
             function: (identifier)
-            arguments: (argument_list (identifier))))))))
+            arguments: (argument_list
+              (identifier))))))))
 
 ==================
 Try finally
@@ -159,7 +161,8 @@ try { risky() } catch (IOException | RuntimeException e) { handle(e) }
         (expression_statement
           (method_invocation
             function: (identifier)
-            arguments: (argument_list (identifier))))))))
+            arguments: (argument_list
+              (identifier))))))))
 
 ==================
 Multi-catch three types
@@ -207,7 +210,8 @@ try (Foo f = open()) { f }
           function: (identifier)
           arguments: (argument_list))))
     body: (block
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Try with multiple resources
@@ -233,7 +237,8 @@ try (Foo a = mk(); Bar b = mk()) { a }
           function: (identifier)
           arguments: (argument_list))))
     body: (block
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Try with resource and catch
@@ -256,7 +261,8 @@ try (Foo f = open()) { use(f) } catch (E e) { handle(e) }
       (expression_statement
         (method_invocation
           function: (identifier)
-          arguments: (argument_list (identifier)))))
+          arguments: (argument_list
+            (identifier)))))
     (catch_clause
       parameter: (catch_formal_parameter
         type: (type_identifier)
@@ -265,7 +271,8 @@ try (Foo f = open()) { use(f) } catch (E e) { handle(e) }
         (expression_statement
           (method_invocation
             function: (identifier)
-            arguments: (argument_list (identifier))))))))
+            arguments: (argument_list
+              (identifier))))))))
 
 ==================
 final catch parameters and resources

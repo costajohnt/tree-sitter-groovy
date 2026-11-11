@@ -51,5 +51,9 @@ Spaceship inside list literal
 (source_file
   (expression_statement
     (list_literal
-      (spaceship_expression left: (identifier) right: (identifier))
-      (spaceship_expression left: (identifier) right: (identifier)))))
+      (spaceship_expression
+        left: (identifier)
+        right: (identifier))
+      (spaceship_expression
+        left: (identifier)
+        right: (identifier)))))

@@ -58,7 +58,8 @@ obj.method(arg)
       function: (field_access
         object: (identifier)
         field: (identifier))
-      arguments: (argument_list (identifier)))))
+      arguments: (argument_list
+        (identifier)))))
 
 ==================
 Call with explicit type arguments

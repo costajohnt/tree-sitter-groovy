@@ -18,7 +18,8 @@ return x
 ---
 
 (source_file
-  (return_statement (identifier)))
+  (return_statement
+    (identifier)))
 
 ==================
 Return with expression
@@ -144,7 +145,8 @@ do { foo } while (cond)
 (source_file
   (do_while_statement
     body: (block
-      (expression_statement (identifier)))
+      (expression_statement
+        (identifier)))
     condition: (identifier)))
 
 ==================
@@ -157,7 +159,8 @@ do foo while (cond)
 
 (source_file
   (do_while_statement
-    body: (expression_statement (identifier))
+    body: (expression_statement
+      (identifier))
     condition: (identifier)))
 
 ==================

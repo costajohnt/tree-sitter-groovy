@@ -7,7 +7,8 @@ Plain single-quoted string
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Empty single-quoted string
@@ -18,7 +19,8 @@ Empty single-quoted string
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Single-quoted with escaped quote
@@ -29,7 +31,8 @@ Single-quoted with escaped quote
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Single-quoted with backslash escape
@@ -40,7 +43,8 @@ Single-quoted with backslash escape
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Single-quoted with newline escape
@@ -51,7 +55,8 @@ Single-quoted with newline escape
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Single-quoted with unicode escape
@@ -62,7 +67,8 @@ Single-quoted with unicode escape
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Triple-single-quoted empty
@@ -73,7 +79,8 @@ Triple-single-quoted empty
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Triple-single-quoted single line
@@ -84,7 +91,8 @@ Triple-single-quoted single line
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Triple-single-quoted multi-line
@@ -97,7 +105,8 @@ third'''
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Triple-single-quoted with one internal quote
@@ -108,7 +117,8 @@ Triple-single-quoted with one internal quote
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Triple-single-quoted with two internal quotes
@@ -119,7 +129,8 @@ Triple-single-quoted with two internal quotes
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Triple-single-quoted with escape sequences
@@ -130,7 +141,8 @@ Triple-single-quoted with escape sequences
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Plain double-quoted string
@@ -141,7 +153,9 @@ Plain double-quoted string
 ---
 
 (source_file
-  (expression_statement (string_literal (string_fragment))))
+  (expression_statement
+    (string_literal
+      (string_fragment))))
 
 ==================
 Empty double-quoted string
@@ -152,7 +166,8 @@ Empty double-quoted string
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Double-quoted with escaped quote
@@ -163,7 +178,9 @@ Double-quoted with escaped quote
 ---
 
 (source_file
-  (expression_statement (string_literal (string_fragment))))
+  (expression_statement
+    (string_literal
+      (string_fragment))))
 
 ==================
 Double-quoted with backslash escape
@@ -174,7 +191,9 @@ Double-quoted with backslash escape
 ---
 
 (source_file
-  (expression_statement (string_literal (string_fragment))))
+  (expression_statement
+    (string_literal
+      (string_fragment))))
 
 ==================
 Double-quoted with dollar interpolation
@@ -266,7 +285,8 @@ Triple-double-quoted empty
 ---
 
 (source_file
-  (expression_statement (string_literal)))
+  (expression_statement
+    (string_literal)))
 
 ==================
 Triple-double-quoted single line
@@ -277,7 +297,9 @@ Triple-double-quoted single line
 ---
 
 (source_file
-  (expression_statement (string_literal (string_fragment))))
+  (expression_statement
+    (string_literal
+      (string_fragment))))
 
 ==================
 Triple-double-quoted multi-line
@@ -290,7 +312,9 @@ third"""
 ---
 
 (source_file
-  (expression_statement (string_literal (string_fragment))))
+  (expression_statement
+    (string_literal
+      (string_fragment))))
 
 ==================
 Triple-double-quoted with internal one quote
@@ -301,7 +325,9 @@ Triple-double-quoted with internal one quote
 ---
 
 (source_file
-  (expression_statement (string_literal (string_fragment))))
+  (expression_statement
+    (string_literal
+      (string_fragment))))
 
 ==================
 Triple-double-quoted with two internal quotes
@@ -312,7 +338,9 @@ Triple-double-quoted with two internal quotes
 ---
 
 (source_file
-  (expression_statement (string_literal (string_fragment))))
+  (expression_statement
+    (string_literal
+      (string_fragment))))
 
 ==================
 Triple-double-quoted with interpolation

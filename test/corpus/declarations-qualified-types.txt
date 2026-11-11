@@ -52,4 +52,5 @@ def consume(java.util.List xs) { xs }
           (type_identifier))
         name: (identifier)))
     body: (block
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))

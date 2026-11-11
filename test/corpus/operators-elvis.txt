@@ -71,5 +71,9 @@ Elvis inside list literal
 (source_file
   (expression_statement
     (list_literal
-      (elvis_expression value: (identifier) default: (identifier))
-      (elvis_expression value: (identifier) default: (identifier)))))
+      (elvis_expression
+        value: (identifier)
+        default: (identifier))
+      (elvis_expression
+        value: (identifier)
+        default: (identifier)))))

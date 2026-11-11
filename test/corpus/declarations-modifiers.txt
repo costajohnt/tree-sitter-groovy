@@ -55,7 +55,8 @@ class C {
         name: (identifier)
         parameters: (formal_parameters)
         body: (block
-          (expression_statement (number_literal)))))))
+          (expression_statement
+            (number_literal)))))))
 
 ==================
 Private final method with type
@@ -76,7 +77,8 @@ class C {
         name: (identifier)
         parameters: (formal_parameters)
         body: (block
-          (expression_statement (string_literal)))))))
+          (expression_statement
+            (string_literal)))))))
 
 ==================
 Public static void main
@@ -99,7 +101,8 @@ public static void main(String[] args) { foo(args) }
       (expression_statement
         (method_invocation
           function: (identifier)
-          arguments: (argument_list (identifier)))))))
+          arguments: (argument_list
+            (identifier)))))))
 
 ==================
 Modifiers after annotations
@@ -113,12 +116,14 @@ public final String toString() { name }
 (source_file
   (method_declaration
     (annotation
-      name: (qualified_name (identifier)))
+      name: (qualified_name
+        (identifier)))
     return_type: (type_identifier)
     name: (identifier)
     parameters: (formal_parameters)
     body: (block
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Annotations after modifiers

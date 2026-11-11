@@ -62,7 +62,8 @@ times { x }
   (command_chain
     receiver: (identifier)
     argument: (closure
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Subscript still parses as subscript
@@ -88,8 +89,10 @@ bar
 ---
 
 (source_file
-  (expression_statement (identifier))
-  (expression_statement (identifier)))
+  (expression_statement
+    (identifier))
+  (expression_statement
+    (identifier)))
 
 ==================
 Command chain with multiple string arguments

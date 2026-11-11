@@ -1,7 +1,3 @@
-; Apache precedence tiebreaks per SPECIFICATION.md §8.1.
-; Each case below pins the cross-tier parse where two operators
-; with the same level (or adjacent levels) compete.
-
 ==================
 Range and shift share the same level — left assoc wins
 ==================

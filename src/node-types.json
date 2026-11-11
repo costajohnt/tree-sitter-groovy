@@ -2267,6 +2267,10 @@
           "named": true
         },
         {
+          "type": "block",
+          "named": true
+        },
+        {
           "type": "class_declaration",
           "named": true
         },
@@ -2280,10 +2284,6 @@
         },
         {
           "type": "field_declaration",
-          "named": true
-        },
-        {
-          "type": "instance_initializer",
           "named": true
         },
         {
@@ -7175,22 +7175,6 @@
           "named": true
         }
       ]
-    }
-  },
-  {
-    "type": "instance_initializer",
-    "named": true,
-    "fields": {
-      "body": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "block",
-            "named": true
-          }
-        ]
-      }
     }
   },
   {
@@ -12551,6 +12535,16 @@
         "types": [
           {
             "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "type_parameters": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "type_parameters",
             "named": true
           }
         ]

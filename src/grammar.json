@@ -2642,7 +2642,7 @@
               },
               {
                 "type": "SYMBOL",
-                "name": "instance_initializer"
+                "name": "block"
               },
               {
                 "type": "STRING",
@@ -2799,14 +2799,6 @@
           }
         }
       ]
-    },
-    "instance_initializer": {
-      "type": "FIELD",
-      "name": "body",
-      "content": {
-        "type": "SYMBOL",
-        "name": "block"
-      }
     },
     "field_declaration": {
       "type": "CHOICE",
@@ -4305,11 +4297,11 @@
       ]
     },
     "record_declaration": {
-      "type": "PREC_RIGHT",
-      "value": 0,
+      "type": "PREC_DYNAMIC",
+      "value": 1,
       "content": {
-        "type": "PREC_DYNAMIC",
-        "value": 1,
+        "type": "PREC_RIGHT",
+        "value": 0,
         "content": {
           "type": "SEQ",
           "members": [
@@ -4323,25 +4315,8 @@
             {
               "type": "REPEAT",
               "content": {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "STRING",
-                    "value": "public"
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "protected"
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "private"
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "static"
-                  }
-                ]
+                "type": "SYMBOL",
+                "name": "_modifier"
               }
             },
             {
@@ -4360,6 +4335,22 @@
                 "type": "SYMBOL",
                 "name": "identifier"
               }
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "FIELD",
+                  "name": "type_parameters",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "type_parameters"
+                  }
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
             },
             {
               "type": "FIELD",
@@ -8096,7 +8087,7 @@
             "type": "SYMBOL",
             "name": "identifier"
           },
-          "context_name": "properties"
+          "context_name": "property"
         },
         {
           "type": "ALIAS",
@@ -10814,7 +10805,7 @@
                   "type": "SYMBOL",
                   "name": "identifier"
                 },
-                "context_name": "properties"
+                "context_name": "property"
               },
               {
                 "type": "ALIAS",
@@ -11848,15 +11839,6 @@
       "_expression"
     ],
     [
-      "_modifier",
-      "record_declaration"
-    ],
-    [
-      "_modifier",
-      "record_declaration",
-      "local_variable_declaration"
-    ],
-    [
       "variable_declarator",
       "_property_name"
     ],
@@ -12138,6 +12120,6 @@
         "value": "else"
       }
     ],
-    "properties": []
+    "property": []
   }
 }

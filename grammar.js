@@ -7,12 +7,12 @@
  * SPECIFICATION.md at the repository root. Every rule below maps to
  * a section there. Read the spec before making non-trivial changes.
  *
- * The external scanner (src/scanner.c) handles four context-sensitive
+ * The external scanner (src/scanner.c) handles three context-sensitive
  * lexing situations that pure grammar rules cannot disambiguate:
  *   - Slashy-string-start vs. division
- *   - Automatic-semicolon (newline-as-terminator)
- *   - Labelled-statement colon
- *   - Block-comment / Groovydoc single-token emit
+ *   - Line / block / Groovydoc comment single-token emit
+ *   - The contextual `record` keyword, emitted only before a record
+ *     header so the word stays an identifier everywhere else
  * See SPECIFICATION.md §6.
  */
 
@@ -134,7 +134,7 @@ module.exports = grammar({
       'synchronized', 'new', 'class', 'interface', 'enum', 'import',
       'package', 'else',
     ],
-    properties: _ => [],
+    property: _ => [],
   },
 
   extras: $ => [
@@ -302,10 +302,6 @@ module.exports = grammar({
     [$.for_in_statement, $._expression],
 
 
-    // §4 — a record takes only some modifiers; until `record` the
-    // modifiers may belong to any declaration.
-    [$._modifier, $.record_declaration],
-    [$._modifier, $.record_declaration, $.local_variable_declaration],
 
     // §5.2 — `def identifier` could either be a
     // local_variable_declaration (variable_declarator with no
@@ -627,9 +623,9 @@ module.exports = grammar({
       field('statement', $._statement),
     )),
 
-    // §4 — block of statements, used in control-flow bodies and
-    // (eventually) method bodies. Shares `{ ... }` syntax with
-    // closure (§5.8). A `prec(1, …)` keeps block preferred at use
+    // §4 — block of statements: control-flow, method and constructor
+    // bodies, static / instance initializers. Shares `{ ... }` syntax
+    // with closure (§5.8). A `prec(1, …)` keeps block preferred at use
     // sites where both `block` and a closure-bearing `_statement`
     // are valid alternatives (e.g. the body slot of `if` / `while`).
     block: $ => prec(1, seq(
@@ -988,9 +984,14 @@ module.exports = grammar({
     // way statement lists do (§5.10): a field or abstract method is
     // commonly written `int x = 1;` / `void f();`, and a stray `;` is
     // a no-op member. `;` is anonymous, so it never appears in the AST.
+    //
+    // A bare `block` is an instance initializer, as in the "double brace"
+    // idiom `new HashMap() {{ put('a', 1) }}`. It sits in the member
+    // repeat rather than in `_class_member`, which `enum_body` also uses
+    // after its constants, where `A() {` would then be ambiguous.
     class_body: $ => seq(
       '{',
-      repeat(choice($._class_member, $.instance_initializer, ';', $._line_break)),
+      repeat(choice($._class_member, $.block, ';', $._line_break)),
       '}',
     ),
 
@@ -1037,10 +1038,6 @@ module.exports = grammar({
       'static',
       field('body', $.block),
     ),
-
-    // §4 — `{ … }` as a class member runs for each new instance; the
-    // "double brace" idiom `new HashMap() {{ put('a', 1) }}` is one.
-    instance_initializer: $ => field('body', $.block),
 
     // §4 — class / interface / trait field. Java-style shape: optional
     // annotations, optional modifiers, `def` or a `_type`, then one or
@@ -1267,18 +1264,37 @@ module.exports = grammar({
       alias($._enum_constant_with_body, $.enum_constant),
     ),
 
-    // §4 — record (Groovy 4+). `record Name(Type a, Type b) [{ body }]`.
-    // `record` is a contextual keyword — tree-sitter's word: directive
-    // keeps `record` usable as a plain identifier elsewhere.
-    // Access modifiers and `static` only: `final record = x` declares a
-    // variable named `record`.
-    // prec.dynamic: with modifiers, `private static record R(…) { … }` can
-    // also read as a method returning `record`; the record wins.
-    record_declaration: $ => prec.right(prec.dynamic(1, seq(
+    // §4 — record (Groovy 4+), after Apache's `classDeclaration`:
+    // `[modifiers] record Name[<T>](Type a, Type b) [implements I] [{ body }]`.
+    // Records cannot `extends`, and the body is optional here where
+    // Groovy requires it.
+    // §5.2 / §6.7 — `record` is a contextual keyword. The keyword
+    // comes from the external scanner, which emits it only when a
+    // name follows on the same line and `(` or `<` after that; in
+    // every other position the word lexes as `identifier`. A grammar literal
+    // cannot do this: keyword extraction yields the keyword wherever
+    // it has an action, which made `record.key()` at statement start,
+    // and `private Record record` once record_declaration became a
+    // class member, errors. The alias keeps the anonymous `record`
+    // node that the queries capture.
+    //
+    // The dynamic precedence settles a GLR tie the scanner creates.
+    // After `private Record`, the `[variable_declarator, _type]`
+    // conflict forks on the next word: `record` is the field's name
+    // in one branch and a type in the other. When a record header
+    // follows on the next line, the first branch lexes its `record`
+    // as the keyword and the second as that field's name, and both
+    // survive (`private Record` / `record record` / constructor
+    // `Inner(int x) { }` is a valid member list). Without a weight,
+    // which tree wins depends on tree shape, and a comment between
+    // the two lines flipped it. Favouring the record declaration is
+    // right whenever both parse.
+    record_declaration: $ => prec.dynamic(1, prec.right(seq(
       repeat($.annotation),
-      repeat(choice('public', 'protected', 'private', 'static')),
+      repeat($._modifier),
       alias($._record_keyword, 'record'),
       field('name', $.identifier),
+      optional(field('type_parameters', $.type_parameters)),
       field('components', $.record_components),
       optional($.super_interfaces),
       optional(field('body', $.class_body)),
@@ -2108,7 +2124,7 @@ module.exports = grammar({
     ),
 
     _property_name: $ => choice(
-      reserved('properties', $.identifier),
+      reserved('property', $.identifier),
       alias($.string_literal, $.quoted_identifier),
       $.parenthesized_expression,
     ),
@@ -2562,7 +2578,7 @@ module.exports = grammar({
     map_entry: $ => seq(
       field('key', choice(
         $._expression,
-        reserved('properties', $.identifier),
+        reserved('property', $.identifier),
         alias('new', $.identifier),
         alias('switch', $.identifier),
       )),

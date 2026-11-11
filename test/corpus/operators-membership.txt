@@ -87,7 +87,8 @@ a
 ---
 
 (source_file
-  (expression_statement (identifier))
+  (expression_statement
+    (identifier))
   (expression_statement
     (unary_expression
       operand: (identifier))))

@@ -48,7 +48,8 @@ pipeline {
       (expression_statement
         (method_invocation
           function: (identifier)
-          arguments: (argument_list (identifier))))
+          arguments: (argument_list
+            (identifier))))
       (expression_statement
         (method_invocation
           function: (identifier)
@@ -68,7 +69,8 @@ pipeline {
                               (expression_statement
                                 (method_invocation
                                   function: (identifier)
-                                  arguments: (argument_list (string_literal)))))))))))))))))))
+                                  arguments: (argument_list
+                                    (string_literal)))))))))))))))))))
 
 ==================
 Pipeline between other statements

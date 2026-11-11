@@ -41,7 +41,8 @@ Annotation type with annotation on the type itself
 (source_file
   (annotation_type_declaration
     (annotation
-      name: (qualified_name (identifier)))
+      name: (qualified_name
+        (identifier)))
     name: (identifier)
     body: (class_body)))
 

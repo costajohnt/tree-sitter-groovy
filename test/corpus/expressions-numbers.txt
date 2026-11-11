@@ -7,7 +7,8 @@ Decimal integer
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Decimal zero
@@ -18,7 +19,8 @@ Decimal zero
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Decimal int with underscores
@@ -29,7 +31,8 @@ Decimal int with underscores
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Long literal with suffix L
@@ -40,7 +43,8 @@ Long literal with suffix L
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Integer suffix I
@@ -51,7 +55,8 @@ Integer suffix I
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 BigInteger suffix G
@@ -62,7 +67,8 @@ BigInteger suffix G
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Hex literal
@@ -73,7 +79,8 @@ Hex literal
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Hex with separators and suffix
@@ -84,7 +91,8 @@ Hex with separators and suffix
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Binary literal
@@ -95,7 +103,8 @@ Binary literal
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Float literal with dot
@@ -106,7 +115,8 @@ Float literal with dot
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Float with explicit D suffix
@@ -117,7 +127,8 @@ Float with explicit D suffix
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Float with F suffix
@@ -128,7 +139,8 @@ Float with F suffix
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 BigDecimal G suffix
@@ -139,7 +151,8 @@ BigDecimal G suffix
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Scientific without dot
@@ -150,7 +163,8 @@ Scientific without dot
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Scientific with dot and signed exponent
@@ -161,7 +175,8 @@ Scientific with dot and signed exponent
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 Underscores around scientific
@@ -172,7 +187,8 @@ Underscores around scientific
 ---
 
 (source_file
-  (expression_statement (number_literal)))
+  (expression_statement
+    (number_literal)))
 
 ==================
 decimals without an integer part

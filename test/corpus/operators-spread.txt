@@ -11,7 +11,8 @@ f(*args)
     (method_invocation
       function: (identifier)
       arguments: (argument_list
-        (spread_arguments value: (identifier))))))
+        (spread_arguments
+          value: (identifier))))))
 
 ==================
 Spread arguments mixed with positional
@@ -27,7 +28,8 @@ f(a, *rest)
       function: (identifier)
       arguments: (argument_list
         (identifier)
-        (spread_arguments value: (identifier))))))
+        (spread_arguments
+          value: (identifier))))))
 
 ==================
 Spread arguments with list literal value
@@ -59,7 +61,8 @@ Spread map entry single
 (source_file
   (expression_statement
     (map_literal
-      (spread_map_entry value: (identifier)))))
+      (spread_map_entry
+        value: (identifier)))))
 
 ==================
 Spread map entry mixed with regular entries
@@ -72,8 +75,11 @@ Spread map entry mixed with regular entries
 (source_file
   (expression_statement
     (map_literal
-      (spread_map_entry value: (identifier))
-      (map_entry key: (identifier) value: (identifier)))))
+      (spread_map_entry
+        value: (identifier))
+      (map_entry
+        key: (identifier)
+        value: (identifier)))))
 
 ==================
 Spread dot is still distinct

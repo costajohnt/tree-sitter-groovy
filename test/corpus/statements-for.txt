@@ -33,7 +33,8 @@ for (i in [1, 2, 3]) print(i)
     body: (expression_statement
       (method_invocation
         function: (identifier)
-        arguments: (argument_list (identifier))))))
+        arguments: (argument_list
+          (identifier))))))
 
 ==================
 For-in with range
@@ -52,7 +53,8 @@ for (i in 0..<n) f(i)
     body: (expression_statement
       (method_invocation
         function: (identifier)
-        arguments: (argument_list (identifier))))))
+        arguments: (argument_list
+          (identifier))))))
 
 ==================
 For-in with block body
@@ -70,7 +72,8 @@ for (item in items) { process(item) }
       (expression_statement
         (method_invocation
           function: (identifier)
-          arguments: (argument_list (identifier)))))))
+          arguments: (argument_list
+            (identifier)))))))
 
 ==================
 For-in with Java-compatible typed enhanced-for colon syntax
@@ -89,7 +92,8 @@ for (String arg : args) { f(arg) }
       (expression_statement
         (method_invocation
           function: (identifier)
-          arguments: (argument_list (identifier)))))))
+          arguments: (argument_list
+            (identifier)))))))
 
 ==================
 For-in with def and colon syntax
@@ -107,7 +111,8 @@ for (def item : items) { f(item) }
       (expression_statement
         (method_invocation
           function: (identifier)
-          arguments: (argument_list (identifier)))))))
+          arguments: (argument_list
+            (identifier)))))))
 
 ==================
 C-style for with all parts
@@ -130,7 +135,8 @@ for (i = 0; i < n; i++) f(i)
     body: (expression_statement
       (method_invocation
         function: (identifier)
-        arguments: (argument_list (identifier))))))
+        arguments: (argument_list
+          (identifier))))))
 
 ==================
 Infinite for loop

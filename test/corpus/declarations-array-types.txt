@@ -46,7 +46,8 @@ def first(int[] xs) { xs }
           (type_identifier))
         name: (identifier)))
     body: (block
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Array type in cast
@@ -78,7 +79,8 @@ String[] names() { x }
     name: (identifier)
     parameters: (formal_parameters)
     body: (block
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Array type with a space before the brackets

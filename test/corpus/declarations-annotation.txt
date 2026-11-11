@@ -10,7 +10,8 @@ class Foo { }
 (source_file
   (class_declaration
     (annotation
-      name: (qualified_name (identifier)))
+      name: (qualified_name
+        (identifier)))
     name: (identifier)
     body: (class_body)))
 
@@ -26,8 +27,11 @@ class Foo { }
 (source_file
   (class_declaration
     (annotation
-      name: (qualified_name (identifier))
-      arguments: (argument_list (string_literal (string_fragment))))
+      name: (qualified_name
+        (identifier))
+      arguments: (argument_list
+        (string_literal
+          (string_fragment))))
     name: (identifier)
     body: (class_body)))
 
@@ -43,11 +47,13 @@ class Bar { }
 (source_file
   (class_declaration
     (annotation
-      name: (qualified_name (identifier))
+      name: (qualified_name
+        (identifier))
       arguments: (argument_list
         (assignment_expression
           left: (identifier)
-          right: (string_literal (string_fragment)))))
+          right: (string_literal
+            (string_fragment)))))
     name: (identifier)
     body: (class_body)))
 
@@ -83,9 +89,11 @@ class Foo { }
 (source_file
   (class_declaration
     (annotation
-      name: (qualified_name (identifier)))
+      name: (qualified_name
+        (identifier)))
     (annotation
-      name: (qualified_name (identifier)))
+      name: (qualified_name
+        (identifier)))
     name: (identifier)
     body: (class_body)))
 
@@ -106,12 +114,15 @@ class Foo {
     body: (class_body
       (method_declaration
         (annotation
-          name: (qualified_name (identifier)))
+          name: (qualified_name
+            (identifier)))
         name: (identifier)
         parameters: (formal_parameters
-          (formal_parameter name: (identifier)))
+          (formal_parameter
+            name: (identifier)))
         body: (block
-          (expression_statement (identifier)))))))
+          (expression_statement
+            (identifier)))))))
 
 ==================
 Annotation as an annotation argument

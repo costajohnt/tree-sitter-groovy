@@ -7,7 +7,8 @@ Empty list
 ---
 
 (source_file
-  (expression_statement (list_literal)))
+  (expression_statement
+    (list_literal)))
 
 ==================
 Single-element list
@@ -19,7 +20,8 @@ Single-element list
 
 (source_file
   (expression_statement
-    (list_literal (number_literal))))
+    (list_literal
+      (number_literal))))
 
 ==================
 Multi-element list
@@ -77,8 +79,12 @@ Nested list
 (source_file
   (expression_statement
     (list_literal
-      (list_literal (number_literal) (number_literal))
-      (list_literal (number_literal) (number_literal)))))
+      (list_literal
+        (number_literal)
+        (number_literal))
+      (list_literal
+        (number_literal)
+        (number_literal)))))
 
 ==================
 Empty map
@@ -89,7 +95,8 @@ Empty map
 ---
 
 (source_file
-  (expression_statement (map_literal)))
+  (expression_statement
+    (map_literal)))
 
 ==================
 Single-entry map
@@ -117,9 +124,15 @@ Multi-entry map
 (source_file
   (expression_statement
     (map_literal
-      (map_entry key: (identifier) value: (number_literal))
-      (map_entry key: (identifier) value: (number_literal))
-      (map_entry key: (identifier) value: (number_literal)))))
+      (map_entry
+        key: (identifier)
+        value: (number_literal))
+      (map_entry
+        key: (identifier)
+        value: (number_literal))
+      (map_entry
+        key: (identifier)
+        value: (number_literal)))))
 
 ==================
 Map with trailing comma
@@ -132,8 +145,12 @@ Map with trailing comma
 (source_file
   (expression_statement
     (map_literal
-      (map_entry key: (identifier) value: (number_literal))
-      (map_entry key: (identifier) value: (number_literal)))))
+      (map_entry
+        key: (identifier)
+        value: (number_literal))
+      (map_entry
+        key: (identifier)
+        value: (number_literal)))))
 
 ==================
 Map with string keys
@@ -146,8 +163,12 @@ Map with string keys
 (source_file
   (expression_statement
     (map_literal
-      (map_entry key: (string_literal) value: (number_literal))
-      (map_entry key: (string_literal) value: (number_literal)))))
+      (map_entry
+        key: (string_literal)
+        value: (number_literal))
+      (map_entry
+        key: (string_literal)
+        value: (number_literal)))))
 
 ==================
 Nested map
@@ -178,8 +199,14 @@ List containing map
 (source_file
   (expression_statement
     (list_literal
-      (map_literal (map_entry key: (identifier) value: (number_literal)))
-      (map_literal (map_entry key: (identifier) value: (number_literal))))))
+      (map_literal
+        (map_entry
+          key: (identifier)
+          value: (number_literal)))
+      (map_literal
+        (map_entry
+          key: (identifier)
+          value: (number_literal))))))
 
 ==================
 Spread elements in a list literal

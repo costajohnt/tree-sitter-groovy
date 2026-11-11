@@ -16,9 +16,11 @@ switch (x) {
       body: (switch_block
         (switch_arrow_case
           value: (number_literal)
-          body: (yield_statement (string_literal)))
+          body: (yield_statement
+            (string_literal)))
         (switch_default
-          body: (yield_statement (string_literal)))))))
+          body: (yield_statement
+            (string_literal)))))))
 
 ==================
 Yield in classic case
@@ -38,9 +40,11 @@ switch (x) {
       body: (switch_block
         (switch_case
           value: (number_literal)
-          (yield_statement (number_literal)))
+          (yield_statement
+            (number_literal)))
         (switch_default
-          (yield_statement (number_literal)))))))
+          (yield_statement
+            (number_literal)))))))
 
 ==================
 Yield with expression

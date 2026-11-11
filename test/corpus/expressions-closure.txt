@@ -7,7 +7,8 @@ Empty closure
 ---
 
 (source_file
-  (expression_statement (closure)))
+  (expression_statement
+    (closure)))
 
 ==================
 Closure with single statement body
@@ -20,7 +21,8 @@ Closure with single statement body
 (source_file
   (expression_statement
     (closure
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Closure with explicit empty parameter list
@@ -47,8 +49,10 @@ Closure with one parameter
   (expression_statement
     (closure
       (closure_parameters
-        (closure_parameter name: (identifier)))
-      (expression_statement (identifier)))))
+        (closure_parameter
+          name: (identifier)))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Closure with multiple parameters
@@ -62,10 +66,14 @@ Closure with multiple parameters
   (expression_statement
     (closure
       (closure_parameters
-        (closure_parameter name: (identifier))
-        (closure_parameter name: (identifier))
-        (closure_parameter name: (identifier)))
-      (expression_statement (identifier)))))
+        (closure_parameter
+          name: (identifier))
+        (closure_parameter
+          name: (identifier))
+        (closure_parameter
+          name: (identifier)))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Closure with multiple statements in body
@@ -78,9 +86,12 @@ Closure with multiple statements in body
 (source_file
   (expression_statement
     (closure
-      (expression_statement (identifier))
-      (expression_statement (identifier))
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier))
+      (expression_statement
+        (identifier))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Closure as list element
@@ -95,12 +106,16 @@ Closure as list element
     (list_literal
       (closure
         (closure_parameters
-          (closure_parameter name: (identifier)))
-        (expression_statement (identifier)))
+          (closure_parameter
+            name: (identifier)))
+        (expression_statement
+          (identifier)))
       (closure
         (closure_parameters
-          (closure_parameter name: (identifier)))
-        (expression_statement (identifier))))))
+          (closure_parameter
+            name: (identifier)))
+        (expression_statement
+          (identifier))))))
 
 ==================
 Nested closure
@@ -114,12 +129,15 @@ Nested closure
   (expression_statement
     (closure
       (closure_parameters
-        (closure_parameter name: (identifier)))
+        (closure_parameter
+          name: (identifier)))
       (expression_statement
         (closure
           (closure_parameters
-            (closure_parameter name: (identifier)))
-          (expression_statement (identifier)))))))
+            (closure_parameter
+              name: (identifier)))
+          (expression_statement
+            (identifier)))))))
 
 ==================
 Closure with typed parameter
@@ -136,7 +154,8 @@ Closure with typed parameter
         (closure_parameter
           type: (type_identifier)
           name: (identifier)))
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Closure with multiple typed parameters
@@ -156,7 +175,8 @@ Closure with multiple typed parameters
         (closure_parameter
           type: (type_identifier)
           name: (identifier)))
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Closure with mixed typed and untyped parameters
@@ -175,7 +195,8 @@ Closure with mixed typed and untyped parameters
           name: (identifier))
         (closure_parameter
           name: (identifier)))
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Closure with generic-typed parameter
@@ -195,7 +216,8 @@ Closure with generic-typed parameter
             arguments: (type_arguments
               (type_identifier)))
           name: (identifier)))
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Trailing closure with no parens on a property-access call
@@ -231,11 +253,14 @@ list.inject(0) { acc, x -> acc + x }
       function: (field_access
         object: (identifier)
         field: (identifier))
-      arguments: (argument_list (number_literal))
+      arguments: (argument_list
+        (number_literal))
       closure: (closure
         (closure_parameters
-          (closure_parameter name: (identifier))
-          (closure_parameter name: (identifier)))
+          (closure_parameter
+            name: (identifier))
+          (closure_parameter
+            name: (identifier)))
         (expression_statement
           (binary_expression
             left: (identifier)

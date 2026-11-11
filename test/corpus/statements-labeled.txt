@@ -9,7 +9,8 @@ outer: foo
 (source_file
   (labeled_statement
     label: (identifier)
-    statement: (expression_statement (identifier))))
+    statement: (expression_statement
+      (identifier))))
 
 ==================
 Labeled while loop

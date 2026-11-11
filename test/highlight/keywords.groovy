@@ -66,3 +66,19 @@ for await (v in c) { }
 
 switch (x) { case Integer i when i > 0 -> y }
 //                          ^ keyword.control
+
+record Q(int x) { }
+// <- keyword
+
+record.key()
+// <- variable
+
+record(1)
+// <- function.call
+
+class Holder {
+    private Record record
+    //             ^ property
+    record Inner(int x) { }
+    // <- keyword
+}

@@ -55,7 +55,8 @@ def greet(name = 'world') { name }
         name: (identifier)
         default: (string_literal)))
     body: (block
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Parameter with type and default
@@ -74,7 +75,8 @@ def f(String s = 'hi') { s }
         name: (identifier)
         default: (string_literal)))
     body: (block
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Mixed positional and defaulted parameters
@@ -88,7 +90,8 @@ def f(a, b = 2, c = 3) { a }
   (method_declaration
     name: (identifier)
     parameters: (formal_parameters
-      (formal_parameter name: (identifier))
+      (formal_parameter
+        name: (identifier))
       (formal_parameter
         name: (identifier)
         default: (number_literal))
@@ -96,7 +99,8 @@ def f(a, b = 2, c = 3) { a }
         name: (identifier)
         default: (number_literal)))
     body: (block
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Varargs parameter
@@ -115,7 +119,8 @@ def collect(String... args) { args }
           (type_identifier))
         name: (identifier)))
     body: (block
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Method with throws and varargs
@@ -139,7 +144,8 @@ def fmt(String fmt, Object... args) throws Exception { fmt }
     (throws_clause
       (type_identifier))
     body: (block
-      (expression_statement (identifier)))))
+      (expression_statement
+        (identifier)))))
 
 ==================
 Typed return method
@@ -155,7 +161,8 @@ String greet() { 'hi' }
     name: (identifier)
     parameters: (formal_parameters)
     body: (block
-      (expression_statement (string_literal)))))
+      (expression_statement
+        (string_literal)))))
 
 ==================
 Typed return with typed parameters
@@ -170,8 +177,12 @@ int add(int a, int b) { a + b }
     return_type: (type_identifier)
     name: (identifier)
     parameters: (formal_parameters
-      (formal_parameter type: (type_identifier) name: (identifier))
-      (formal_parameter type: (type_identifier) name: (identifier)))
+      (formal_parameter
+        type: (type_identifier)
+        name: (identifier))
+      (formal_parameter
+        type: (type_identifier)
+        name: (identifier)))
     body: (block
       (expression_statement
         (binary_expression
@@ -238,13 +249,17 @@ ResponseEntity get(@PathVariable("id") Long id, @RequestBody Map body) { }
     parameters: (formal_parameters
       (formal_parameter
         (annotation
-          name: (qualified_name (identifier))
-          arguments: (argument_list (string_literal (string_fragment))))
+          name: (qualified_name
+            (identifier))
+          arguments: (argument_list
+            (string_literal
+              (string_fragment))))
         type: (type_identifier)
         name: (identifier))
       (formal_parameter
         (annotation
-          name: (qualified_name (identifier)))
+          name: (qualified_name
+            (identifier)))
         type: (type_identifier)
         name: (identifier)))
     body: (block)))
