@@ -234,3 +234,25 @@ list[1, 2] = [3, 4]
       right: (list_literal
         (number_literal)
         (number_literal)))))
+
+==================
+empty index on a list literal
+==================
+
+def newSvnPath = [][]
+x = [1][0]
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (subscript_expression
+        object: (list_literal))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (subscript_expression
+        object: (list_literal
+          (number_literal))
+        index: (number_literal)))))

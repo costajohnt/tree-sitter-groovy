@@ -247,6 +247,8 @@ module.exports = grammar({
     [$._type, $._argument_command],
     // `a(x) or(y)`: a call chained onto a call, or a call then a new name.
     [$._call_chain, $._expression],
+    // `[a][` may index the list, or open an empty index `[a][]`.
+    [$._expression, $._empty_list_subscript],
     // See SPECIFICATION.md §7. Populated as rules accumulate.
     // (list_literal vs map_literal — tree-sitter resolves without
     //  an explicit conflict because `:` after the first element
@@ -1589,6 +1591,7 @@ module.exports = grammar({
       $.multi_assignment_expression,
       $.power_expression,
       $.subscript_expression,
+      alias($._empty_list_subscript, $.subscript_expression),
       $.safe_subscript_expression,
       $.method_invocation,
       $.update_expression,
@@ -2227,6 +2230,14 @@ module.exports = grammar({
       repeat(seq(',', field('index', choice($._expression, $.spread_arguments)))),
       ']',
     )),
+
+    // An empty index is valid on a list literal, `def l = [][]`; elsewhere
+    // `x[]` stays an array type.
+    _empty_list_subscript: $ => seq(
+      field('object', $.list_literal),
+      alias($._subscript_open, '['),
+      ']',
+    ),
 
     // `?[` is one token. `a ? [b] : c` (with space) still parses
     // as ternary plus list because tree-sitter's lexer never
