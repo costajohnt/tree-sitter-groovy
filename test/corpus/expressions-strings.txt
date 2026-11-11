@@ -730,3 +730,18 @@ for x in "\${pid[@]}"; do
       name: (identifier)
       value: (string_literal
         (string_fragment)))))
+
+==================
+slashy string with a backslash before an escaped slash
+==================
+
+p = ~/^([a-z]*):\\/\\/.+/
+---
+
+(source_file
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (unary_expression
+        operand: (string_literal
+          (string_fragment))))))
