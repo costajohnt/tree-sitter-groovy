@@ -299,6 +299,7 @@ module.exports = grammar({
     // §4 — a record takes only some modifiers; until `record` the
     // modifiers may belong to any declaration.
     [$._modifier, $.record_declaration],
+    [$._modifier, $.record_declaration, $.local_variable_declaration],
 
     // §5.2 — `def identifier` could either be a
     // local_variable_declaration (variable_declarator with no
@@ -1332,8 +1333,18 @@ module.exports = grammar({
       )),
       // prec.dynamic: `String t = z` is one declaration, not `String` and
       // `t = z` (statements need no separator in this grammar).
+      // A later declarator may go without a value: `Object a = f(), b`.
       prec.dynamic(1, seq(
         optional('final'),
+        field('type', $._type),
+        $._initialized_declarator,
+        repeat(seq(',', choice($._initialized_declarator, $._bare_declarator))),
+      )),
+      // Modifiers on a script variable, as on a field:
+      // `public static final long IM = 139968`.
+      prec.dynamic(1, seq(
+        choice('public', 'protected', 'private', 'static'),
+        repeat($._modifier),
         field('type', $._type),
         $._initialized_declarator,
         repeat(seq(',', $._initialized_declarator)),
@@ -1412,8 +1423,10 @@ module.exports = grammar({
       field('value', $._expression),
     ),
 
+    // The last name may take the rest: `def (head, *tail) = list`.
     _multi_assignment_target: $ => seq(
       optional(field('type', $._type)),
+      optional('*'),
       $.variable_declarator,
     ),
 
@@ -2192,11 +2205,12 @@ module.exports = grammar({
     // controller action that ends in `[model: value]` on its own line returns
     // a map; it isn't a subscript of the statement before it.
     // Several indexes select several elements: `list[1, 2]`, `map['a', 'b']`.
+    // An index may be spread: `(1..5)[*1..3]`.
     subscript_expression: $ => prec.left(PREC.POSTFIX, seq(
       field('object', $._expression),
       alias($._subscript_open, '['),
-      field('index', $._expression),
-      repeat(seq(',', field('index', $._expression))),
+      field('index', choice($._expression, $.spread_arguments)),
+      repeat(seq(',', field('index', choice($._expression, $.spread_arguments)))),
       ']',
     )),
 
