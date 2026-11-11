@@ -414,6 +414,13 @@ fix relative to *both* parent grammars.
 | Line comment `// …` | port | |
 | Block comment `/* … */` | **fixed** | Single `block_comment` token. Must accept `/**/` and `/***/`. Closes murtaza64 #16. |
 | Groovydoc `/** … */` | port from murtaza64 (but tokenised) | Single `groovydoc_comment` token; tag parsing is out of scope per §1.2(1). |
+| Nested types and initializers | **new** (fork) | A class body takes nested `class`, `interface`, `trait`, `enum`, `record` and `@interface` members, `static { … }` (`static_initializer`) and `{ … }` (`instance_initializer`). `def` may lead a class or interface (`def class X`, `def static class X`). |
+| Anonymous class body | **new** (fork) | `new Runnable() { void run() { } }`: `object_creation_expression` takes a `class_body` in its `body` field. Never a closure argument of the new object. |
+| Array creation | **new** (fork) | `new byte[10]`, `new int[2][]`, `new String[] { 'a' }`: `array_creation_expression` with `dimension_expression`, `dimension` and `array_initializer`. Nested initializers need a comma (`{{1, 2}, {3, 4}}`); `{x}` stays a closure. |
+| Lambda | **new** (fork) | `x -> x + 1`, `(a, b) -> { … }`, `(String s) -> s`: `lambda_expression`. Inside `{ x -> x }` the closure parameter wins. |
+| Annotated declarations | **new** (fork) | `@Field String NAME = 'x'`, `@Shared log = []`, annotations after modifiers (`static @Rule TestName n`), type-use annotations (`implements @A I`, `List<@A String>`, `String @A []`). An annotation value may be a brace array: `@Target({TYPE, METHOD})`. |
+| `instanceof` pattern | **new** (fork) | `x instanceof Foo f`: the name in a `name` field of `instanceof_expression`. |
+| Groovy 5 and 6 forms | **new** (fork) | `for await (x in xs)`; an index variable, `for (int i, v in list)` (fields `index`, `index_type`); a type pattern with an optional guard in an arrow case, `case Integer i when i > 0 ->` (`type_pattern`); null-coalescing `??` (a `binary_expression` at the Elvis level) and `??=`. Record and list patterns are not supported. |
 
 ---
 
@@ -579,6 +586,25 @@ attempts to allow command chains in argument lists. We trade DSL
 expressiveness for parse-tree reliability — the metric tooling and
 syntax-highlighter targets are better served by reliable parses on
 the 95% case than ambitious parses on the 5%.
+
+The `command_chain` rule as built goes further than the points above,
+each shape gated by a zero-width or keyed scanner token (§6) so a line
+break still ends a statement:
+
+- a first argument that starts with a string, a number, `~`, `!`, `new`,
+  `null`, `true`, `false` or a dotted name, or a name with a comma after
+  it (`bind Foo, Bar`); later arguments are any expression or a named
+  argument, quoted keys included;
+- a receiver that is a dotted path, `?.`, `*.` or a string
+  (`'x:title' lang: 'en'`);
+- a command as the value of a declaration or assignment
+  (`def r = sh returnStdout: true, script: 'x'`), inside parentheses
+  (`(el x).click()`, `if (valueOf findProperty(s, 'x'))`) and, with one
+  name argument, as a call argument (`visibilityOf(el x)`);
+- a call chained onto a call on the same line (`a(x) or(b(y))`), and onto
+  a parenthesized command's argument (`(page.list 0 isEmpty())`);
+- `a.b key` as a whole statement, and `a b` as the body of a braceless
+  `if`, when the statement ends after the name.
 
 ### 5.6 Optional parentheses
 
@@ -814,29 +840,47 @@ single emit/no-emit decision per call.
 
 ### 6.1 Tokens exported
 
+The plan above listed more tokens than the scanner needed: GString
+bodies, slashy bodies, labels and statement ends are in-grammar rules.
+`src/scanner.c` exports, in `externals` order:
+
 ```c
 enum TokenType {
-  AUTOMATIC_SEMICOLON,    // §5.10 — newline-as-terminator
-  SLASHY_STRING_START,    // §5.4 — opening `/` of slashy regex
-  SLASHY_STRING_BODY,     // §5.4 — body (until unescaped `/`)
-  SLASHY_STRING_END,      // §5.4 — closing `/`
-  DOLLAR_SLASHY_STRING,   // §5.7 — single-token `$/.../$` when no interpolation
-  GSTRING_BODY,           // §5.7 — literal fragment of a double-quoted string
-  GSTRING_INTERPOLATION_START, // `${` or `$` followed by identifier
-  LABEL_COLON,            // §5.3 — colon that closes a statement label
-  BLOCK_COMMENT,          // single-token block comment incl. /**/ and /***/
-  GROOVYDOC_COMMENT,      // single-token /** ... */ comment
-  COMMAND_NAMED_KEY,      // §5.5 — `name` of `name:` in a parenthesis-free call
-  SUBSCRIPT_OPEN,         // §5.10 — `[` on the same line as the expression before it
-  COMMAND_LITERAL_START,  // §5.5 — zero-width, before a literal-led first command argument
-  COMMAND_CLOSURE_START,  // §5.5 — zero-width, before a closure-led first command argument
-  CALL_OPEN,              // §5.5 — `(` of an argument list, on the callee's line
-  CAST_VALUE_START,       // §5.15 — zero-width, a cast's value on the `)` line
+  SLASHY_STRING_START,    // §6.2 — opening `/` of a slashy string
+  LINE_COMMENT,           // §6.6
+  BLOCK_COMMENT,          // §6.6 — incl. /**/ and /***/
+  GROOVYDOC_COMMENT,      // §6.6 — /** ... */
+  COMMAND_NAMED_KEY,      // §6.7 — `name` of `name:` in a parenthesis-free call
+  SUBSCRIPT_OPEN,         // §6.8 — `[` on the line of the expression before it
+  COMMAND_LITERAL_START,  // §6.9 — zero-width, before a literal-led first command argument
+  COMMAND_CLOSURE_START,  // §6.10 — zero-width, before a closure-led first command argument
+  CALL_OPEN,              // §6.11 — `(` of an argument list, on the callee's line
+  CAST_VALUE_START,       // §6.12 — zero-width, a cast's value on the `)` line
+  STRING_BODY,            // §6.13 — never emitted; marks a string body
+  RECORD_KEYWORD,         // §6.14 — `record` before a record header
+  COMMAND_VALUE_START,    // §6.15 — zero-width, a command call as a value
+  LINE_BREAK,             // §6.16 — zero-width, a statement starting on a new line
+  COMMAND_NAME_ARGUMENT,  // §6.7 — `a.b key` where the statement ends after `key`
+  VAR_KEYWORD,            // §6.17 — `var`, `pipeline`, `trait` as keywords
+  PIPELINE_KEYWORD,
+  TRAIT_KEYWORD,
+  TYPE_ARGUMENTS_OPEN,    // §6.18 — `<` of type arguments on a value
+  LESS_THAN,              // §6.18 — a comparison's `<` where type arguments could start
   ERROR_SENTINEL,         // never in a rule; valid only during error recovery
 };
 ```
 
+A byte order mark counts as whitespace wherever the scanner skips it, so
+a file that starts with two of them parses; the grammar lists `\uFEFF`
+in `extras` as well.
+
 ### 6.2 SLASHY_STRING — implementation contract
+
+The one escape in a slashy body is `\/`; any other backslash is a
+character of its own, as in Groovy's lexer, so `:\\/\\/.+` holds two
+escaped slashes. The closing-slash lookahead and `_slashy_text` follow
+the same rule. `\$` stays a pair, so the `$` after it starts no
+interpolation.
 
 ```text
 Inputs visible to scanner:
@@ -997,6 +1041,63 @@ next line is a parenthesized expression and a statement, not a cast. That
 alternative carries a dynamic precedence, so `(T) x.y` followed by
 `bar = 1` stays a cast and an assignment. Values starting otherwise
 (`(int) -1`, `(T) [a]`) take a plain alternative.
+
+### 6.13 STRING_BODY — implementation contract
+
+Never emitted. A rule inside every string body lists it, so when it is
+valid the scanner knows it is in a string and returns at once: `//` and
+`/*` inside `"…"` stay text instead of starting a comment.
+
+### 6.14 RECORD_KEYWORD — implementation contract
+
+Emitted for `record` only when a name and then `(` or `<` follow on the
+same line. Anywhere else `record` lexes as an identifier: `record { }`,
+`return record`, `final record = x`.
+
+### 6.15 COMMAND_VALUE_START — implementation contract
+
+Zero width, before the first argument of a command call that is a
+declaration's or assignment's value: a name, string or number on the
+receiver's line, but not `as`, `in`, `instanceof` or `else`, which
+continue the expression or statement. `x = foo bar` is `x = foo(bar)`.
+
+### 6.16 LINE_BREAK — implementation contract
+
+Zero width, before a statement that starts on a new line with a name or
+`(`, where the line before could end a statement. The names that continue
+a statement across a line break are left alone: `else`, `catch`,
+`finally`, `while`, `case`, `default`, `as`, `in`, `instanceof`, `throws`,
+`extends`, `implements`, `permits`, unless a `.` follows the name
+(`in.property` starts a statement). Rules that may span a line break
+(a return type above a method name, a type above a declared name, a
+cast above its value) take it on a path with a negative dynamic
+precedence, so two statements win wherever both parse.
+
+### 6.17 VAR_KEYWORD, PIPELINE_KEYWORD, TRAIT_KEYWORD — implementation contract
+
+`var` and `trait` are keywords only before a name on the same line (not
+`in`, `as` or `instanceof`); `pipeline` only before a `{` on its line.
+Anywhere else each lexes as an identifier: `var.set(1)`, `{ var -> }`,
+`Pipeline pipeline = p`, `trait.parentFile`.
+
+### 6.18 TYPE_ARGUMENTS_OPEN and LESS_THAN — implementation contract
+
+Where a generic type may be a value, the scanner scans the `<…>` after a
+name: names, dots, commas, `?`, `@`, `[]` and nested `<…>`, balanced on
+the line. TYPE_ARGUMENTS_OPEN is emitted when that holds and the `>` is
+followed by `)`, `,`, `]`, `::` or `.` and a name
+(`Mock(Supplier<Long>)`, `List<X>.class`). After a space before the `<`,
+it needs a declared name and `=`, `;`, `(` or the line's end after the
+`>`, or a `(`; a `)` or `,` after the name, or a `)` right after the
+`>`, count only when no space sits just inside the outer `<` and `>`
+(`Closure <V> v)`, `(List <T>) x`, but not `f(x < y, z > w)`).
+
+When the `<…>` is not type-shaped (an operator, a literal, a `(`, a line
+break) and a comparison may follow the name, LESS_THAN is emitted
+instead and aliased to `<`. Without it the in-grammar `<` of type
+arguments wins where a declaration or a cast could start, and
+`i<n ? a : b` or `if ((value>0)&&(value<99))` failed. `<=`, `<<`, `<..`
+and `<=>` are left to the grammar.
 
 ---
 
@@ -1446,7 +1547,8 @@ Standard tree-sitter highlighting captures:
   `if`, `else`, `for`, `while`, `do`, `switch`, `case`, `default`,
   `return`, `throw`, `try`, `catch`, `finally`, `break`, `continue`,
   `import`, `package`, `new`, `as`, `in`, `instanceof`, `assert`,
-  `yield`, `pipeline`, `sealed`, `non-sealed`, `permits`.
+  `yield`, `pipeline`, `sealed`, `non-sealed`, `permits`, and the
+  Groovy 5 `await` (in `for await`) and `when` (a type pattern's guard).
   Fixes murtaza64 #36 (enum unhighlighted).
 - `@operator` — every operator node in §3.2.
 - `@string`, `@string.regex` (slashy strings), `@string.escape`.

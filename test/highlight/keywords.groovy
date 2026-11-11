@@ -60,3 +60,9 @@ switch (x) { case 1 -> y }
 
 yield 42
 // <- keyword.control
+
+for await (v in c) { }
+//  ^ keyword.control
+
+switch (x) { case Integer i when i > 0 -> y }
+//                          ^ keyword.control

@@ -262,6 +262,8 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   (`[else: 1]`, `x.else`), and a braceless `if` body may be a command with
   one name argument, so `if (follower) follower value` followed by `else`
   on the next line keeps its `else`.
+- Highlights capture `await`, `when`, `??` and `??=`; SPECIFICATION.md
+  covers the forms and scanner tokens the fork added (§4, §5.5, §6).
 
 ## [0.3.0] - 2026-08-30
 
