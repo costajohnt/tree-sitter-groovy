@@ -870,10 +870,12 @@ module.exports = grammar({
     // §4 — class has a single super and zero-or-more interfaces.
     superclass: $ => seq('extends', repeat($.annotation), $._type),
 
+    // A type-use annotation may come before each: `implements @A Consumer<T>`.
     super_interfaces: $ => seq(
       'implements',
+      repeat($.annotation),
       $._type,
-      repeat(seq(',', $._type)),
+      repeat(seq(',', repeat($.annotation), $._type)),
     ),
 
     // §4 — trait / interface extend multiple interfaces (no
@@ -1928,6 +1930,13 @@ module.exports = grammar({
       field('arguments', alias($._value_type_arguments, $.type_arguments)),
     )),
 
+    _spaced_type_arguments: $ => seq(
+      '<',
+      $._type_argument,
+      repeat(seq(',', $._type_argument)),
+      '>',
+    ),
+
     _value_type_arguments: $ => seq(
       alias($._type_arguments_open, '<'),
       optional(seq(
@@ -1950,10 +1959,21 @@ module.exports = grammar({
       '>',
     ),
 
+    // An array type argument may annotate its dimension:
+    // `Consumer<@T1 String @T2 []>`.
     _type_argument: $ => choice(
       $._type,
       $.wildcard,
       seq(repeat1($.annotation), $._type),
+      alias($._annotated_array_type, $.array_type),
+    ),
+
+    _annotated_array_type: $ => seq(
+      repeat($.annotation),
+      $._type,
+      repeat1($.annotation),
+      alias($._subscript_open, '['),
+      ']',
     ),
 
     wildcard: $ => seq(
@@ -1973,10 +1993,14 @@ module.exports = grammar({
     // discriminate without tree-shape heuristics.
 
     // `Collections.<String>emptyList()` passes explicit type arguments.
+    // A space may come before them: `Arrays. < T > asList(a)`.
     field_access: $ => prec.left(PREC.ACCESS, seq(
       field('object', $._expression),
       '.',
-      optional(field('type_arguments', $.type_arguments)),
+      optional(field('type_arguments', choice(
+        $.type_arguments,
+        alias($._spaced_type_arguments, $.type_arguments),
+      ))),
       field('field', $._property_name),
     )),
 

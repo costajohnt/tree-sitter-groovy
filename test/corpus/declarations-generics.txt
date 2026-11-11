@@ -601,3 +601,95 @@ f(x < y, z > w)
         (binary_expression
           left: (identifier)
           right: (identifier))))))
+
+==================
+type arguments after a space before a parenthesis, after a dot, and annotated dimensions
+==================
+
+x = (List <T>)s.get()
+static <V> V get(K key, Closure <V> value) { }
+y = Arrays. < String > asList(a)
+c = new Consumer<@T1 String @T2 []>()
+abstract class C implements @A Consumer<T> { }
+f(x < y, z > w)
+---
+
+(source_file
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (parenthesized_type_cast
+        type: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (type_identifier)))
+        value: (method_invocation
+          function: (field_access
+            object: (identifier)
+            field: (identifier))
+          arguments: (argument_list)))))
+  (method_declaration
+    type_parameters: (method_type_parameters
+      (type_parameter
+        name: (type_identifier)))
+    return_type: (type_identifier)
+    name: (identifier)
+    parameters: (formal_parameters
+      (formal_parameter
+        type: (type_identifier)
+        name: (identifier))
+      (formal_parameter
+        type: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (type_identifier)))
+        name: (identifier)))
+    body: (block))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (method_invocation
+        function: (field_access
+          object: (identifier)
+          type_arguments: (type_arguments
+            (type_identifier))
+          field: (identifier))
+        arguments: (argument_list
+          (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (object_creation_expression
+        type: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (array_type
+              (annotation
+                name: (qualified_name
+                  (identifier)))
+              (type_identifier)
+              (annotation
+                name: (qualified_name
+                  (identifier))))))
+        arguments: (argument_list))))
+  (class_declaration
+    name: (identifier)
+    (super_interfaces
+      (annotation
+        name: (qualified_name
+          (identifier)))
+      (generic_type
+        base: (type_identifier)
+        arguments: (type_arguments
+          (type_identifier))))
+    body: (class_body))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (binary_expression
+          left: (identifier)
+          right: (identifier))
+        (binary_expression
+          left: (identifier)
+          right: (identifier))))))

@@ -238,6 +238,9 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   guard in an arrow case (`case Integer i when i > 0 ->`, node
   `type_pattern`), the null-coalescing `??` and `??=`. A class may put
   annotations after its modifiers (`static @Immutable class X`).
+- More spaced and annotated type arguments: `(List <T>) x`,
+  `Closure <V> value)` as a parameter, `Arrays. < T > asList(a)`,
+  `Consumer<@T1 String @T2 []>`, and `implements @A Consumer<T>`.
 
 ## [0.3.0] - 2026-08-30
 
