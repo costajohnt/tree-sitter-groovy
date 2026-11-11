@@ -593,3 +593,135 @@ assert (x .42 == 1)
         argument: (binary_expression
           left: (number_literal)
           right: (number_literal))))))
+
+================================================================================
+Division after an operand, slashy after an operator, and Grails command shapes
+================================================================================
+
+println "${a/1000f},${b/1000f}"
+x = a/2 + b/2
+def p = line.split(/=/, 2)
+render [:] as JSON
+def saved = [a]*.save validate: false, flush: true
+resolver?.setLocale request, response, l
+def ui(final @DelegatesTo(BlockSpec) Closure closure) {
+}
+form(new Spec().ui new Attachment(), { })
+menuIcon ext == "pdf" ? A : B, m
+---
+
+(source_file
+  (command_chain
+    (identifier)
+    (string_literal
+      (gstring_brace_interpolation
+        (binary_expression
+          (identifier)
+          (number_literal)))
+      (string_fragment)
+      (gstring_brace_interpolation
+        (binary_expression
+          (identifier)
+          (number_literal)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (binary_expression
+        (binary_expression
+          (identifier)
+          (number_literal))
+        (binary_expression
+          (identifier)
+          (number_literal)))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (method_invocation
+        (field_access
+          (identifier)
+          (identifier))
+        (argument_list
+          (string_literal
+            (string_fragment))
+          (number_literal)))))
+  (expression_statement
+    (cast_expression
+      (subscript_expression
+        (identifier))
+      (type_identifier)))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (command_chain
+        (spread_dot_expression
+          (list_literal
+            (identifier))
+          (identifier))
+        (named_argument
+          (identifier)
+          (boolean_literal))
+        (named_argument
+          (identifier)
+          (boolean_literal)))))
+  (command_chain
+    (safe_navigation_expression
+      (identifier)
+      (identifier))
+    (identifier)
+    (identifier)
+    (identifier))
+  (method_declaration
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (annotation
+          (qualified_name
+            (identifier))
+          (argument_list
+            (identifier)))
+        (type_identifier)
+        (identifier)))
+    (block))
+  (expression_statement
+    (method_invocation
+      (identifier)
+      (argument_list
+        (command_chain
+          (field_access
+            (object_creation_expression
+              (type_identifier)
+              (argument_list))
+            (identifier))
+          (object_creation_expression
+            (type_identifier)
+            (argument_list))
+          (closure)))))
+  (command_chain
+    (identifier)
+    (ternary_expression
+      (binary_expression
+        (identifier)
+        (string_literal
+          (string_fragment)))
+      (identifier)
+      (identifier))
+    (identifier)))
+
+================================================================================
+Lone carriage returns end line comments
+================================================================================
+
+// cx = 1 // dy = 2
+---
+
+(source_file
+  (line_comment)
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (number_literal)))
+  (line_comment)
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (number_literal))))
