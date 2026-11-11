@@ -86,6 +86,8 @@
   "^="
   "|="
   "?="
+  "??"
+  "??="
   "**"
   "++"
   "--"
@@ -138,6 +140,8 @@
   "case"
   "default"
   "yield"
+  "await"
+  "when"
 ] @keyword.control
 
 [
