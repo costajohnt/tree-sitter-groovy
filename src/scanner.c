@@ -32,6 +32,7 @@ enum TokenType {
     PIPELINE_KEYWORD,
     TRAIT_KEYWORD,
     TYPE_ARGUMENTS_OPEN,
+    LESS_THAN,
     ERROR_SENTINEL,
 };
 
@@ -191,12 +192,19 @@ bool tree_sitter_groovy_external_scanner_scan(
         && lexer->lookahead == '<') {
         advance(lexer);
         lexer->mark_end(lexer);
+        // A comparison's `<` when no balanced, type-shaped `<…>` follows.
+        // Not `<=`, `<<`, `<..` or `<=>`, which the grammar lexes.
+        bool less_than = valid_symbols[LESS_THAN] && lexer->lookahead != '='
+            && lexer->lookahead != '<' && lexer->lookahead != '.';
         unsigned depth = 1;
         bool after_name = false;
         for (unsigned steps = 0; depth > 0; steps++) {
             int32_t c = lexer->lookahead;
             if (steps > 400 || lexer->eof(lexer)) {
                 return false;
+            }
+            if (c == '\n' || c == '\r') {
+                goto not_type;
             }
             if (c == ' ' || c == '\t') {
                 advance(lexer);
@@ -209,14 +217,14 @@ bool tree_sitter_groovy_external_scanner_scan(
             } else if (c == '.') {
                 advance(lexer);
                 if (!after_name || !is_ident_start(lexer->lookahead)) {
-                    return false;
+                    goto not_type;
                 }
-            } else if (c == ',' || c == '?') {
+            } else if (c == ',' || c == '?' || c == '@') {
                 advance(lexer);
             } else if (c == '[') {
                 advance(lexer);
                 if (lexer->lookahead != ']') {
-                    return false;
+                    goto not_type;
                 }
                 advance(lexer);
             } else if (c == '<') {
@@ -226,7 +234,7 @@ bool tree_sitter_groovy_external_scanner_scan(
                 advance(lexer);
                 depth--;
             } else {
-                return false;
+                goto not_type;
             }
             after_name = false;
         }
@@ -267,6 +275,12 @@ bool tree_sitter_groovy_external_scanner_scan(
             return false;
         }
         lexer->result_symbol = TYPE_ARGUMENTS_OPEN;
+        return true;
+    not_type:
+        if (!less_than) {
+            return false;
+        }
+        lexer->result_symbol = LESS_THAN;
         return true;
     }
 

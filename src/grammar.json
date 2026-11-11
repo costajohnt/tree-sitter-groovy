@@ -9063,6 +9063,44 @@
                 "type": "FIELD",
                 "name": "operator",
                 "content": {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_less_than"
+                  },
+                  "named": false,
+                  "value": "<"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "right",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_expression"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "PREC_LEFT",
+          "value": 10,
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "left",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_expression"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "operator",
+                "content": {
                   "type": "STRING",
                   "value": "<="
                 }
@@ -11042,6 +11080,10 @@
     {
       "type": "SYMBOL",
       "name": "_type_arguments_open"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_less_than"
     },
     {
       "type": "SYMBOL",

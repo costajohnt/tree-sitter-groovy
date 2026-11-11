@@ -214,6 +214,10 @@ module.exports = grammar({
     // follows: `Mock(Supplier<Long>)`, `ArrayList<Job>.class`. Anywhere else
     // `<` is left to the grammar, so `i<n` stays a comparison.
     $._type_arguments_open,
+    // §5.14 — a comparison's `<` right after a name, when no balanced,
+    // type-shaped `<…>` follows: `i<n ? a : b`. Without it the in-grammar
+    // `<` of type arguments wins where a generic type may start.
+    $._less_than,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -2249,6 +2253,10 @@ module.exports = grammar({
         // `instanceof_expression`, `cast_expression`), so they
         // land in their own rules later.
         ['<',   PREC.RELATIONAL],
+        // §5.14 — the scanner's `<` when what follows can't be type
+        // arguments, where a type's `<` could also follow the name:
+        // `i<n ? a : b`, `(i<a.size())`.
+        [alias($._less_than, '<'), PREC.RELATIONAL],
         ['<=',  PREC.RELATIONAL],
         ['>',   PREC.RELATIONAL],
         ['>=',  PREC.RELATIONAL],
