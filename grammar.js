@@ -132,7 +132,7 @@ module.exports = grammar({
       'if', 'for', 'while', 'do', 'switch', 'case', 'return',
       'break', 'continue', 'throw', 'try', 'catch', 'finally', 'assert',
       'synchronized', 'new', 'class', 'interface', 'enum', 'import',
-      'package',
+      'package', 'else',
     ],
     properties: _ => [],
   },
@@ -522,6 +522,11 @@ module.exports = grammar({
       repeat1(field('argument', alias($._name_call, $.method_invocation))),
     )),
 
+    _bare_name_command: $ => seq(
+      field('receiver', $.identifier),
+      field('argument', alias($._command_name_argument, $.identifier)),
+    ),
+
     // After the first argument has made the statement a command chain,
     // a later argument is any expression or a named argument:
     // `helper.registerAllowedMethod 'sh', [Map], { m -> }`.
@@ -651,7 +656,13 @@ module.exports = grammar({
         alias($._parenthesized_command, $.command_chain),
       )),
       ')',
-      field('consequence', choice($.block, $._statement)),
+      // `if (follower) follower value` then `else` on the next line: a bare
+      // receiver's one name argument, which elsewhere would be two statements.
+      field('consequence', choice(
+        $.block,
+        $._statement,
+        alias($._bare_name_command, $.command_chain),
+      )),
       optional(';'),
       optional(seq(
         'else',

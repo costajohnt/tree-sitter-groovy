@@ -258,6 +258,10 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   argument (`isOrIsCausedBy(e, A) or(isOrIsCausedBy(e, B))`), and onto a
   command's argument inside parentheses (`(page.optionList 0 isEmpty())`).
 - A list literal may take an empty index, `def l = [][]`.
+- `else` is a reserved word, still a map key or property name
+  (`[else: 1]`, `x.else`), and a braceless `if` body may be a command with
+  one name argument, so `if (follower) follower value` followed by `else`
+  on the next line keeps its `else`.
 
 ## [0.3.0] - 2026-08-30
 
