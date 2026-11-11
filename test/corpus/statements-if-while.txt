@@ -260,3 +260,41 @@ while (it.next()) ;
         object: (identifier)
         field: (identifier))
       arguments: (argument_list))))
+
+==================
+else is a keyword, and a braceless if takes a one-name command
+==================
+
+if (follower) follower value
+else {
+    println(value)
+}
+m = [else: 1]
+x.else = 2
+---
+
+(source_file
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (identifier)
+      argument: (identifier))
+    alternative: (block
+      (expression_statement
+        (method_invocation
+          function: (identifier)
+          arguments: (argument_list
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (map_literal
+        (map_entry
+          key: (identifier)
+          value: (number_literal)))))
+  (expression_statement
+    (assignment_expression
+      left: (field_access
+        object: (identifier)
+        field: (identifier))
+      right: (number_literal))))

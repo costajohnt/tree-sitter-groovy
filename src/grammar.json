@@ -494,6 +494,32 @@
         ]
       }
     },
+    "_bare_name_command": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "receiver",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "argument",
+          "content": {
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_command_name_argument"
+            },
+            "named": true,
+            "value": "identifier"
+          }
+        }
+      ]
+    },
     "_command_later_argument": {
       "type": "SEQ",
       "members": [
@@ -970,6 +996,15 @@
                 {
                   "type": "SYMBOL",
                   "name": "_statement"
+                },
+                {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_bare_name_command"
+                  },
+                  "named": true,
+                  "value": "command_chain"
                 }
               ]
             }
@@ -12097,6 +12132,10 @@
       {
         "type": "STRING",
         "value": "package"
+      },
+      {
+        "type": "STRING",
+        "value": "else"
       }
     ],
     "properties": []
