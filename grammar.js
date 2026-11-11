@@ -1497,7 +1497,11 @@ module.exports = grammar({
       field('body', choice($.block, $._statement)),
     ),
 
-    expression_statement: $ => $._expression,
+    expression_statement: $ => choice(
+      $._expression,
+      alias($._static_assignment, $.assignment_expression),
+      alias($._yield_call, $.method_invocation),
+    ),
 
     // §3.2 PRIMARY — minimal alternative set for now. Every primary
     // expression form from §3.2 / §5 will land in this choice over
@@ -1549,6 +1553,26 @@ module.exports = grammar({
       // `getBean(String[], name)`, `String[]::new`, `List[]` in a data table.
       alias($._array_type_value, $.array_type),
       alias($._generic_type_value, $.generic_type),
+    ),
+
+    // §5.2 — `static.unused = { }` in a metaclass DSL. A statement only, where
+    // `static` is a keyword anyway; in an expression it stays one, so
+    // `[static: true]` keeps its key.
+    _static_assignment: $ => prec.right(PREC.ASSIGN, seq(
+      field('left', alias(seq(
+        field('object', alias('static', $.identifier)),
+        '.',
+        field('field', $._property_name),
+      ), $.field_access)),
+      field('operator', '='),
+      field('right', $._value),
+    )),
+
+    // A method named `yield` called with no arguments, as a statement.
+
+    _yield_call: $ => seq(
+      field('function', alias('yield', $.identifier)),
+      field('arguments', alias(seq(alias($._call_open, '('), ')'), $.argument_list)),
     ),
 
     // Not on a generic type: `<` right after a name would then lex as a type
@@ -2396,8 +2420,15 @@ module.exports = grammar({
       );
     },
 
+    // A keyword that can also start an expression is a key too: `[new: 1]`,
+    // `f(switch: 'on')`.
     map_entry: $ => seq(
-      field('key', choice($._expression, reserved('properties', $.identifier))),
+      field('key', choice(
+        $._expression,
+        reserved('properties', $.identifier),
+        alias('new', $.identifier),
+        alias('switch', $.identifier),
+      )),
       ':',
       field('value', $._expression),
     ),

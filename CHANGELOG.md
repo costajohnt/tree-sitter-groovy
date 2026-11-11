@@ -223,6 +223,10 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
   (`def class X`, `def static class X`, `def interface X`),
   `final` after `def` declares a local (`def final x = 1`), and a
   parameter may put `def` before its type (`def Object x`).
+- `new` and `switch` may be a map or named-argument key in first place
+  (`[new: 1]`, `f(switch: "on")`, `foo new: 1`); `in` before a dot is a
+  name at the start of a statement or a cast's value (`in.property`,
+  `(T) in.x`); and `static.x = v` and `yield()` are statements.
 
 ## [0.3.0] - 2026-08-30
 

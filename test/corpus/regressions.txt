@@ -479,3 +479,81 @@ return \
     argument: (string_literal))
   (return_statement
     (number_literal)))
+
+==================
+statement keywords and in as names
+==================
+
+Query.In in = (Query.In) c[0]
+in.property == "id"
+Query.Equals e = (Query.Equals) in.subquery.criteria[0]
+static.unused = { -> }
+yield()
+def m = [new: 1, switch: "on"]
+foo new: 1
+---
+
+(source_file
+  (local_variable_declaration
+    type: (qualified_type
+      (type_identifier)
+      (type_identifier))
+    name: (identifier)
+    value: (parenthesized_type_cast
+      type: (qualified_type
+        (type_identifier)
+        (type_identifier))
+      value: (subscript_expression
+        object: (identifier)
+        index: (number_literal))))
+  (expression_statement
+    (binary_expression
+      left: (field_access
+        object: (identifier)
+        field: (identifier))
+      right: (string_literal
+        (string_fragment))))
+  (local_variable_declaration
+    type: (qualified_type
+      (type_identifier)
+      (type_identifier))
+    name: (identifier)
+    value: (parenthesized_type_cast
+      type: (qualified_type
+        (type_identifier)
+        (type_identifier))
+      value: (subscript_expression
+        object: (field_access
+          object: (field_access
+            object: (identifier)
+            field: (identifier))
+          field: (identifier))
+        index: (number_literal))))
+  (expression_statement
+    (assignment_expression
+      object: (identifier)
+      left: (field_access)
+      field: (field_access
+        (identifier))
+      right: (closure
+        (closure_parameters))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list)))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (map_literal
+        (map_entry
+          key: (identifier)
+          value: (number_literal))
+        (map_entry
+          key: (identifier)
+          value: (string_literal
+            (string_fragment))))))
+  (command_chain
+    receiver: (identifier)
+    argument: (named_argument
+      key: (identifier)
+      value: (number_literal))))
