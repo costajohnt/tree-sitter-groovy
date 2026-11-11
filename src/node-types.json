@@ -15640,7 +15640,7 @@
     "fields": {
       "index": {
         "multiple": true,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "array_creation_expression",

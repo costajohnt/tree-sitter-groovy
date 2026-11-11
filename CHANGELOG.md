@@ -257,6 +257,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 - A call may chain onto a call on the same line, as a statement or an
   argument (`isOrIsCausedBy(e, A) or(isOrIsCausedBy(e, B))`), and onto a
   command's argument inside parentheses (`(page.optionList 0 isEmpty())`).
+- A list literal may take an empty index, `def l = [][]`.
 
 ## [0.3.0] - 2026-08-30
 

@@ -5924,6 +5924,15 @@
           "name": "subscript_expression"
         },
         {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_empty_list_subscript"
+          },
+          "named": true,
+          "value": "subscript_expression"
+        },
+        {
           "type": "SYMBOL",
           "name": "safe_subscript_expression"
         },
@@ -8539,6 +8548,32 @@
           }
         ]
       }
+    },
+    "_empty_list_subscript": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "object",
+          "content": {
+            "type": "SYMBOL",
+            "name": "list_literal"
+          }
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_subscript_open"
+          },
+          "named": false,
+          "value": "["
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
     },
     "safe_subscript_expression": {
       "type": "PREC_LEFT",
@@ -11739,6 +11774,10 @@
     [
       "_call_chain",
       "_expression"
+    ],
+    [
+      "_expression",
+      "_empty_list_subscript"
     ],
     [
       "enum_constant",
