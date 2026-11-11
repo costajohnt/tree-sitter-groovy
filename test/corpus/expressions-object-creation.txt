@@ -247,3 +247,71 @@ foo(new Runnable() {
               name: (identifier)
               parameters: (formal_parameters)
               body: (block))))))))
+
+==================
+nested array initializers and an annotation array value
+==================
+
+def manyStrings = new String[][] { {'one','two'}, {'three','four'}, }
+def x = new int[][] {{1, 2}, {3}}
+@Target({ElementType.TYPE, ElementType.METHOD})
+@interface A { }
+@Foo({ it > 1 })
+class B { }
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (array_creation_expression
+        type: (type_identifier)
+        (dimension)
+        (dimension)
+        value: (array_initializer
+          (array_initializer
+            (string_literal)
+            (string_literal))
+          (array_initializer
+            (string_literal)
+            (string_literal))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (array_creation_expression
+        type: (type_identifier)
+        (dimension)
+        (dimension)
+        value: (array_initializer
+          (array_initializer
+            (number_literal)
+            (number_literal))
+          (closure
+            (expression_statement
+              (number_literal)))))))
+  (annotation_type_declaration
+    (annotation
+      name: (qualified_name
+        (identifier))
+      arguments: (argument_list
+        (array_initializer
+          (field_access
+            object: (identifier)
+            field: (identifier))
+          (field_access
+            object: (identifier)
+            field: (identifier)))))
+    name: (identifier)
+    body: (class_body))
+  (class_declaration
+    (annotation
+      name: (qualified_name
+        (identifier))
+      arguments: (argument_list
+        (closure
+          (expression_statement
+            (binary_expression
+              left: (identifier)
+              right: (number_literal))))))
+    name: (identifier)
+    body: (class_body)))
