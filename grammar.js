@@ -263,6 +263,10 @@ module.exports = grammar({
     // past the line break after the name to tell it from the start of an
     // argument that continues on the next line (`a.foo bar` then `.baz`).
     $._command_name_start,
+    // §4 — the `->` after a switch case's labels. A name right before it is
+    // the label's last operand, never a lambda's parameter: `case FOO -> 1`,
+    // `case a < b -> 3`.
+    $._case_arrow,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -442,12 +446,13 @@ module.exports = grammar({
     // Top-level. Real rule set lands incrementally per
     // SPECIFICATION.md §4 (statement and declaration coverage).
     source_file: $ => seq(
-      optional($.shebang),
+      repeat($.shebang),
       repeat(choice($._statement, ';', $._line_break)),
     ),
 
     // §4 — `#!/usr/bin/env groovy` line at file start. Single
     // token consumed by the in-grammar lexer.
+    // Several may open the file (nix-shell: `#! nix-shell -i groovy`).
     shebang: _ => token(seq('#!', /[^\n]*/)),
 
     // §4 — statement-level alternatives. Declarations and the rest
@@ -1824,16 +1829,14 @@ module.exports = grammar({
       'case',
       field('value', choice($._case_value, $.type_pattern)),
       repeat(seq(',', field('value', $._case_value))),
-      '->',
+      alias($._case_arrow, '->'),
       field('body', choice($.block, $._statement)),
       optional(';'),
     ),
 
-    // A name before `->` is the case's label, not a lambda's parameter:
-    // `case FOO -> 1`, `case String -> { }`, `case APRIL, MAY -> …`.
-    _case_value: $ => choice($._expression, $._case_name),
-
-    _case_name: $ => prec(PREC.ASSIGN + 1, $.identifier),
+    // A name before `->` is the case's label, not a lambda's parameter
+    // (`case FOO -> 1`, `case a < b -> 3`): the scanner's `_case_arrow`.
+    _case_value: $ => $._expression,
 
     type_pattern: $ => seq(
       field('type', $._type),

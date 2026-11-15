@@ -7,16 +7,11 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "shebang"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "shebang"
+          }
         },
         {
           "type": "REPEAT",
@@ -6949,7 +6944,12 @@
           }
         },
         {
-          "type": "STRING",
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_case_arrow"
+          },
+          "named": false,
           "value": "->"
         },
         {
@@ -6984,25 +6984,8 @@
       ]
     },
     "_case_value": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "_expression"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_case_name"
-        }
-      ]
-    },
-    "_case_name": {
-      "type": "PREC",
-      "value": 2,
-      "content": {
-        "type": "SYMBOL",
-        "name": "identifier"
-      }
+      "type": "SYMBOL",
+      "name": "_expression"
     },
     "type_pattern": {
       "type": "SEQ",
@@ -12864,6 +12847,10 @@
     {
       "type": "SYMBOL",
       "name": "_command_name_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_case_arrow"
     },
     {
       "type": "SYMBOL",

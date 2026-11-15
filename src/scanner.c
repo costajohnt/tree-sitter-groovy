@@ -37,6 +37,7 @@ enum TokenType {
     TERNARY_QUESTION,
     EXPRESSION_COLON,
     COMMAND_NAME_START,
+    CASE_ARROW,
     ERROR_SENTINEL,
 };
 
@@ -385,6 +386,24 @@ bool tree_sitter_groovy_external_scanner_scan(
         }
         lexer->result_symbol = LESS_THAN;
         return true;
+    }
+
+    // SPECIFICATION.md §4 — the `->` after a switch case's labels, where
+    // the parser expects one. A name right before it then ends the label
+    // instead of starting a lambda: `case a < b -> 3`, `case FOO -> 1`.
+    if (valid_symbols[CASE_ARROW] && !valid_symbols[ERROR_SENTINEL]) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, true);
+        }
+        if (lexer->lookahead == '-') {
+            advance(lexer);
+            if (lexer->lookahead != '>') {
+                return false;
+            }
+            advance(lexer);
+            lexer->result_symbol = CASE_ARROW;
+            return true;
+        }
     }
 
     // SPECIFICATION.md §3.2 — the `?` of a ternary whose first branch is a
@@ -901,6 +920,23 @@ bool tree_sitter_groovy_external_scanner_scan(
     // A comment may follow a `\` line continuation: `a || \` then `// c`.
     bool stray = false;
     newline |= skip_whitespace_and_continuations(lexer, &stray);
+    // SPECIFICATION.md §6.6 — a Hubitat `#include ns.Library` line, which
+    // the hub expands before compiling, is read as a line comment when it
+    // starts at column 0, so the rest of the file still parses.
+    if (!stray && lexer->lookahead == '#' && valid_symbols[LINE_COMMENT]
+        && lexer->get_column(lexer) == 0) {
+        for (const char *p = "#include "; *p; p++) {
+            if (lexer->lookahead != *p) {
+                return false;
+            }
+            advance(lexer);
+        }
+        while (!lexer->eof(lexer) && lexer->lookahead != '\n' && lexer->lookahead != '\r') {
+            advance(lexer);
+        }
+        lexer->result_symbol = LINE_COMMENT;
+        return true;
+    }
     if (stray || lexer->lookahead != '/') {
         return false;
     }

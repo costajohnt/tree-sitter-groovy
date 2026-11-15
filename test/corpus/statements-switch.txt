@@ -396,3 +396,100 @@ switch (v) { case a < b: x; case a < b, c > d: y }
             right: (identifier))
           (expression_statement
             (identifier)))))))
+
+==================
+Arrow cases with expression labels before the arrow
+==================
+
+def r = switch (x) {
+    case a < b -> 3
+    case c > d -> 4
+    case a <= b, c == d && e -> 5
+    case x in [1, 2] -> 6
+    case foo(z -> z) -> 7
+    case 2 -> w -> w + 1
+    default -> 0
+}
+def f = x -> x + 1
+switch (x) {
+    case a < b:
+        break
+}
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (switch_expression
+        value: (identifier)
+        body: (switch_block
+          (switch_arrow_case
+            value: (binary_expression
+              left: (identifier)
+              right: (identifier))
+            body: (expression_statement
+              (number_literal)))
+          (switch_arrow_case
+            value: (binary_expression
+              left: (identifier)
+              right: (identifier))
+            body: (expression_statement
+              (number_literal)))
+          (switch_arrow_case
+            value: (binary_expression
+              left: (identifier)
+              right: (identifier))
+            value: (binary_expression
+              left: (binary_expression
+                left: (identifier)
+                right: (identifier))
+              right: (identifier))
+            body: (expression_statement
+              (number_literal)))
+          (switch_arrow_case
+            value: (membership_expression
+              element: (identifier)
+              collection: (list_literal
+                (number_literal)
+                (number_literal)))
+            body: (expression_statement
+              (number_literal)))
+          (switch_arrow_case
+            value: (method_invocation
+              function: (identifier)
+              arguments: (argument_list
+                (lambda_expression
+                  parameters: (formal_parameter)
+                  body: (identifier))))
+            body: (expression_statement
+              (number_literal)))
+          (switch_arrow_case
+            value: (number_literal)
+            body: (expression_statement
+              (lambda_expression
+                parameters: (formal_parameter)
+                body: (binary_expression
+                  left: (identifier)
+                  right: (number_literal)))))
+          (switch_default
+            body: (expression_statement
+              (number_literal)))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (lambda_expression
+        parameters: (formal_parameter)
+        body: (binary_expression
+          left: (identifier)
+          right: (number_literal)))))
+  (expression_statement
+    (switch_expression
+      value: (identifier)
+      body: (switch_block
+        (switch_case
+          value: (binary_expression
+            left: (identifier)
+            right: (identifier))
+          (break_statement))))))

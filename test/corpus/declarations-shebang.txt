@@ -38,3 +38,20 @@ def x = 5
     (variable_declarator
       name: (identifier)
       value: (number_literal))))
+
+==================
+Several shebang lines (nix-shell)
+==================
+
+#! /usr/bin/env nix-shell
+#! nix-shell -i groovy
+println 1
+
+---
+
+(source_file
+  (shebang)
+  (shebang)
+  (command_chain
+    receiver: (identifier)
+    argument: (number_literal)))

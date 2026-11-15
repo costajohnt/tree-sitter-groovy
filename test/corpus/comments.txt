@@ -166,3 +166,35 @@ x = a \
       right: (binary_expression
         left: (identifier)
         right: (number_literal)))))
+
+==================
+Hubitat include line at column 0 reads as a line comment
+==================
+
+#include ShellyUSA.ShellyUSA_Driver_Library
+import groovy.transform.Field
+def s = """
+#include x
+"""
+x = 1
+#include esphome.espHomeApiHelper
+
+---
+
+(source_file
+  (line_comment)
+  (import_declaration
+    name: (qualified_name
+      (identifier)
+      (identifier)
+      (identifier)))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (string_fragment))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (number_literal)))
+  (line_comment))
