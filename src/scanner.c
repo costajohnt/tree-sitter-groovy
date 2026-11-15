@@ -33,6 +33,9 @@ enum TokenType {
     TRAIT_KEYWORD,
     TYPE_ARGUMENTS_OPEN,
     LESS_THAN,
+    YIELD_KEYWORD,
+    TERNARY_QUESTION,
+    EXPRESSION_COLON,
     ERROR_SENTINEL,
 };
 
@@ -141,6 +144,42 @@ static bool skip_whitespace(TSLexer *lexer) {
         lexer->advance(lexer, true);
     }
     return newline;
+}
+
+// At a `[`: true when a balanced `[…]` (brackets, braces and parentheses
+// nested; quoted strings skipped) is followed on its line by `:` but not `::`.
+static bool bracket_then_colon(TSLexer *lexer) {
+    unsigned depth = 0;
+    for (unsigned steps = 0; steps < 4000 && !lexer->eof(lexer); steps++) {
+        int32_t c = lexer->lookahead;
+        advance(lexer);
+        if (c == '[' || c == '(' || c == '{') {
+            depth++;
+        } else if (c == ']' || c == ')' || c == '}') {
+            if (--depth == 0) {
+                if (c != ']') {
+                    return false;
+                }
+                while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                    advance(lexer);
+                }
+                if (lexer->lookahead != ':') {
+                    return false;
+                }
+                advance(lexer);
+                return lexer->lookahead != ':';
+            }
+        } else if (c == '\'' || c == '"') {
+            while (!lexer->eof(lexer) && lexer->lookahead != c && steps++ < 4000) {
+                if (lexer->lookahead == '\\') {
+                    advance(lexer);
+                }
+                advance(lexer);
+            }
+            advance(lexer);
+        }
+    }
+    return false;
 }
 
 void *tree_sitter_groovy_external_scanner_create(void) {
@@ -286,6 +325,11 @@ bool tree_sitter_groovy_external_scanner_scan(
                     ok = lexer->lookahead != '=' && lexer->lookahead != '~';
                 }
             }
+            // Where no comparison may stand (a parameter's type, a type
+            // argument) a balanced `<…>` is type arguments whatever follows:
+            // `f(Map < K, List < V > > m)`. Elsewhere `f(x < y, z > w)` is
+            // two comparisons.
+            ok = ok || !valid_symbols[LESS_THAN];
         } else if (c == ':') {
             advance(lexer);
             ok = lexer->lookahead == ':';
@@ -309,6 +353,28 @@ bool tree_sitter_groovy_external_scanner_scan(
         }
         lexer->result_symbol = LESS_THAN;
         return true;
+    }
+
+    // SPECIFICATION.md §3.2 — the `?` of a ternary whose first branch is a
+    // list or map right after it, `c?[x: 1]:[x: 2]`, as Groovy 2.4 and 3 read
+    // it (Groovy 4 reads `?[` as a safe index and rejects the `:`). Only when
+    // the balanced `[…]` is followed by a single `:` and no rule around the
+    // expression expects a `:` (a ternary's first branch, `case`, `assert`, a
+    // map key), so `c ? a?[i] : b` and `case a?[i]:` keep the safe index.
+    if (valid_symbols[TERNARY_QUESTION] && !valid_symbols[EXPRESSION_COLON]
+        && !valid_symbols[ERROR_SENTINEL]) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, true);
+        }
+        if (lexer->lookahead == '?') {
+            advance(lexer);
+            lexer->mark_end(lexer);
+            if (lexer->lookahead == '[' && bracket_then_colon(lexer)) {
+                lexer->result_symbol = TERNARY_QUESTION;
+                return true;
+            }
+            return false;
+        }
     }
 
     // SPECIFICATION.md §5.15 — zero-width, after a cast's `)`: the value
@@ -603,10 +669,11 @@ bool tree_sitter_groovy_external_scanner_scan(
     // grammar lexes the word as an identifier: `var.set(1)`, `{ var -> }`,
     // `def var = 1`, `trait.parentFile`, `Pipeline pipeline = p`.
     if ((valid_symbols[VAR_KEYWORD] || valid_symbols[PIPELINE_KEYWORD]
-         || valid_symbols[TRAIT_KEYWORD]) && !valid_symbols[ERROR_SENTINEL]) {
+         || valid_symbols[TRAIT_KEYWORD] || valid_symbols[YIELD_KEYWORD])
+        && !valid_symbols[ERROR_SENTINEL]) {
         newline |= skip_whitespace(lexer);
         int32_t c = lexer->lookahead;
-        if (c == 'v' || c == 'p' || c == 't') {
+        if (c == 'v' || c == 'p' || c == 't' || c == 'y') {
             char word[12];
             unsigned len = 0;
             while (is_ident_part(lexer->lookahead)) {
@@ -625,14 +692,50 @@ bool tree_sitter_groovy_external_scanner_scan(
             } else if (len == 5 && memcmp(word, "trait", 5) == 0
                 && valid_symbols[TRAIT_KEYWORD]) {
                 sym = TRAIT_KEYWORD;
+            } else if (len == 5 && memcmp(word, "yield", 5) == 0
+                && valid_symbols[YIELD_KEYWORD]) {
+                sym = YIELD_KEYWORD;
             } else {
                 return false;
             }
             lexer->mark_end(lexer);
+            bool spaced = lexer->lookahead == ' ' || lexer->lookahead == '\t';
             while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
                 advance(lexer);
             }
-            if (sym == PIPELINE_KEYWORD) {
+            c = lexer->lookahead;
+            if (sym == YIELD_KEYWORD) {
+                // `yield` starts a yield statement only before the start of a
+                // value on its line: a name, a literal, a closure, a unary
+                // operator, or `(` or `[` after a space. Otherwise it is a
+                // name: `yield.call(a)`, `yield(1)`, `{ yield -> }`,
+                // `yield = 1`, `yield[0]`.
+                bool value = is_ident_start(c) || (c >= '0' && c <= '9')
+                    || c == '\'' || c == '"' || c == '{'
+                    || ((c == '(' || c == '[') && spaced);
+                if (c == '-' || c == '+' || c == '!' || c == '~') {
+                    advance(lexer);
+                    // not `->`, `-=`, `+=` or `!=`
+                    value = lexer->lookahead != '=' && !(c == '-' && lexer->lookahead == '>');
+                }
+                if (!value) {
+                    return false;
+                }
+                if (is_ident_start(c)) {
+                    len = 0;
+                    while (is_ident_part(lexer->lookahead)) {
+                        if (len < sizeof(word)) {
+                            word[len] = (char)lexer->lookahead;
+                        }
+                        len++;
+                        advance(lexer);
+                    }
+                    if ((len == 2 && (memcmp(word, "in", 2) == 0 || memcmp(word, "as", 2) == 0))
+                        || (len == 10 && memcmp(word, "instanceof", 10) == 0)) {
+                        return false;
+                    }
+                }
+            } else if (sym == PIPELINE_KEYWORD) {
                 if (lexer->lookahead != '{') {
                     return false;
                 }
@@ -651,6 +754,20 @@ bool tree_sitter_groovy_external_scanner_scan(
                 if ((len == 2 && (memcmp(word, "in", 2) == 0 || memcmp(word, "as", 2) == 0))
                     || (len == 10 && memcmp(word, "instanceof", 10) == 0)) {
                     return false;
+                }
+                // `var message: 'Hi'` at the start of a statement is a call
+                // with a named argument; `for (var x : xs)` declares `x`.
+                // A record may start where a statement does, not in a `for`.
+                if (sym == VAR_KEYWORD && valid_symbols[RECORD_KEYWORD]) {
+                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                        advance(lexer);
+                    }
+                    if (lexer->lookahead == ':') {
+                        advance(lexer);
+                        if (lexer->lookahead != ':') {
+                            return false;
+                        }
+                    }
                 }
             }
             lexer->result_symbol = sym;

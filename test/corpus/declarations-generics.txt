@@ -693,3 +693,58 @@ f(x < y, z > w)
         (binary_expression
           left: (identifier)
           right: (identifier))))))
+
+==================
+Spaced type arguments in a parameter type
+==================
+
+def f(Map < String, List < Integer > > m) {}
+class A {
+    A(Map < String, String > m, int x) {}
+}
+f(x < y, z > w)
+
+---
+
+(source_file
+  (method_declaration
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (generic_type
+          (type_identifier)
+          (type_arguments
+            (type_identifier)
+            (generic_type
+              (type_identifier)
+              (type_arguments
+                (type_identifier)))))
+        (identifier)))
+    (block))
+  (class_declaration
+    (identifier)
+    (class_body
+      (constructor_declaration
+        (identifier)
+        (formal_parameters
+          (formal_parameter
+            (generic_type
+              (type_identifier)
+              (type_arguments
+                (type_identifier)
+                (type_identifier)))
+            (identifier))
+          (formal_parameter
+            (type_identifier)
+            (identifier)))
+        (block))))
+  (expression_statement
+    (method_invocation
+      (identifier)
+      (argument_list
+        (binary_expression
+          (identifier)
+          (identifier))
+        (binary_expression
+          (identifier)
+          (identifier))))))

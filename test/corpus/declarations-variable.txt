@@ -858,3 +858,33 @@ public static void main(String[] args) { }
           (type_identifier))
         name: (identifier)))
     body: (block)))
+
+==================
+var as a command name with named arguments
+==================
+
+var message : "Hi there"
+var a: 1, b: 2
+for (var x : xs) {}
+
+---
+
+(source_file
+  (command_chain
+    (identifier)
+    (named_argument
+      (identifier)
+      (string_literal
+        (string_fragment))))
+  (command_chain
+    (identifier)
+    (named_argument
+      (identifier)
+      (number_literal))
+    (named_argument
+      (identifier)
+      (number_literal)))
+  (for_in_statement
+    (identifier)
+    (identifier)
+    (block)))

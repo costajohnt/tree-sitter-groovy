@@ -82,3 +82,77 @@ Ternary inside list literal
         condition: (identifier)
         consequence: (identifier)
         alternative: (identifier)))))
+
+==================
+Unspaced ternary with a list or map first branch
+==================
+
+r = n.a()?[x: 1]:[x: 2]
+s = c?[1]:[2]
+
+---
+
+(source_file
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (ternary_expression
+        (method_invocation
+          (field_access
+            (identifier)
+            (identifier))
+          (argument_list))
+        (map_literal
+          (map_entry
+            (identifier)
+            (number_literal)))
+        (map_literal
+          (map_entry
+            (identifier)
+            (number_literal))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (ternary_expression
+        (identifier)
+        (list_literal
+          (number_literal))
+        (list_literal
+          (number_literal))))))
+
+==================
+Safe index before a ternary or case colon stays a safe index
+==================
+
+u = c ? a?[i] : b
+switch (v) {
+    case a?[i]: break
+}
+assert a?[i] : m
+
+---
+
+(source_file
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (ternary_expression
+        (identifier)
+        (safe_subscript_expression
+          (identifier)
+          (identifier))
+        (identifier))))
+  (expression_statement
+    (switch_expression
+      (identifier)
+      (switch_block
+        (switch_case
+          (safe_subscript_expression
+            (identifier)
+            (identifier))
+          (break_statement)))))
+  (assert_statement
+    (safe_subscript_expression
+      (identifier)
+      (identifier))
+    (identifier)))

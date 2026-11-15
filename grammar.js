@@ -220,6 +220,17 @@ module.exports = grammar({
     // type-shaped `<…>` follows: `i<n ? a : b`. Without it the in-grammar
     // `<` of type arguments wins where a generic type may start.
     $._less_than,
+    // §4 — `yield` starts a yield statement only before a value on its line;
+    // anywhere else it is a name: `yield.call(a)`, `yield(1)`, `{ yield -> }`.
+    $._yield_keyword,
+    // §3.2 — the `?` of a ternary whose first branch is a list or map right
+    // after it, `c?[x: 1]:[x: 2]` (Groovy 2.4 and 3), when the balanced `[…]`
+    // is followed by `:`. Otherwise `?[` is a safe index.
+    $._ternary_question,
+    // Never emitted: valid where a `:` may follow an expression (a ternary's
+    // first branch, `case`, `assert`, a map key), which tells the scanner a
+    // `?[…]:` there is a safe index before that `:`, not a ternary.
+    $._expression_colon,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -756,7 +767,7 @@ module.exports = grammar({
     // a usable identifier elsewhere — tree-sitter's word:
     // directive resolves the ambiguity.
     yield_statement: $ => prec.right(seq(
-      'yield',
+      alias($._yield_keyword, 'yield'),
       $._expression,
     )),
 
@@ -767,7 +778,7 @@ module.exports = grammar({
     assert_statement: $ => prec.right(seq(
       'assert',
       $._expression,
-      optional(seq(choice(':', ','), field('message', $._expression))),
+      optional(seq(choice(':', alias($._expression_colon, ':'), ','), field('message', $._expression))),
     )),
 
     // §4 — try / catch / finally. At least one of catch/finally is
@@ -1586,7 +1597,6 @@ module.exports = grammar({
     expression_statement: $ => choice(
       $._expression,
       alias($._static_assignment, $.assignment_expression),
-      alias($._yield_call, $.method_invocation),
     ),
 
     // §3.2 PRIMARY — minimal alternative set for now. Every primary
@@ -1655,13 +1665,6 @@ module.exports = grammar({
       field('right', $._value),
     )),
 
-    // A method named `yield` called with no arguments, as a statement.
-
-    _yield_call: $ => seq(
-      field('function', alias('yield', $.identifier)),
-      field('arguments', alias(seq(alias($._call_open, '('), ')'), $.argument_list)),
-    ),
-
     // Not on a generic type: `<` right after a name would then lex as a type
     // argument opener in every expression, breaking `i<n`.
     _array_type_value: $ => seq(
@@ -1700,7 +1703,7 @@ module.exports = grammar({
     switch_case: $ => seq(
       'case',
       field('value', $._expression),
-      ':',
+      choice(':', alias($._expression_colon, ':')),
       repeat(choice($._statement, ';', $._line_break)),
     ),
 
@@ -2350,9 +2353,9 @@ module.exports = grammar({
     // discriminate elvis from ternary by node kind alone.
     ternary_expression: $ => prec.right(PREC.CONDITIONAL, seq(
       field('condition', $._expression),
-      '?',
+      choice('?', alias($._ternary_question, '?')),
       field('consequence', $._expression),
-      ':',
+      choice(':', alias($._expression_colon, ':')),
       field('alternative', $._expression),
     )),
 
@@ -2600,7 +2603,7 @@ module.exports = grammar({
         alias('new', $.identifier),
         alias('switch', $.identifier),
       )),
-      ':',
+      choice(':', alias($._expression_colon, ':')),
       field('value', $._expression),
     ),
 

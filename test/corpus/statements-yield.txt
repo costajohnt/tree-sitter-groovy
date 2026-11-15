@@ -63,3 +63,84 @@ switch (x) {
             (binary_expression
               left: (identifier)
               right: (identifier))))))))
+
+==================
+yield as a name outside a yield statement
+==================
+
+def l = { a, yield -> yield.call(a) }
+def m = { yield -> yield(1) }
+yield = 2
+yield[0]
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (closure
+        (closure_parameters
+          (closure_parameter
+            (identifier))
+          (closure_parameter
+            (identifier)))
+        (expression_statement
+          (method_invocation
+            (field_access
+              (identifier)
+              (identifier))
+            (argument_list
+              (identifier)))))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (closure
+        (closure_parameters
+          (closure_parameter
+            (identifier)))
+        (expression_statement
+          (method_invocation
+            (identifier)
+            (argument_list
+              (number_literal)))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (number_literal)))
+  (expression_statement
+    (subscript_expression
+      (identifier)
+      (number_literal))))
+
+==================
+Yield of a parenthesized value, a list, a negative number
+==================
+
+switch (x) {
+    case 1 -> yield (2)
+    case 2 -> yield [3]
+    default -> yield -1
+}
+
+---
+
+(source_file
+  (expression_statement
+    (switch_expression
+      (identifier)
+      (switch_block
+        (switch_arrow_case
+          (number_literal)
+          (yield_statement
+            (parenthesized_expression
+              (number_literal))))
+        (switch_arrow_case
+          (number_literal)
+          (yield_statement
+            (list_literal
+              (number_literal))))
+        (switch_default
+          (yield_statement
+            (unary_expression
+              (number_literal))))))))
