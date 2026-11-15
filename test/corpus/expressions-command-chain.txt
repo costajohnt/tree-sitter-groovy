@@ -1222,3 +1222,38 @@ foo a: 1, case: 2
     argument: (named_argument
       key: (identifier)
       value: (number_literal))))
+
+==================
+String-headed command call with several arguments
+==================
+
+"foo" p, 2
+"${op}" p, 2
+"foo" p
+"foo" "x", 2
+
+---
+
+(source_file
+  (command_chain
+    receiver: (string_literal
+      (string_fragment))
+    argument: (identifier)
+    argument: (number_literal))
+  (command_chain
+    receiver: (string_literal
+      (gstring_brace_interpolation
+        value: (identifier)))
+    argument: (identifier)
+    argument: (number_literal))
+  (expression_statement
+    (string_literal
+      (string_fragment)))
+  (expression_statement
+    (identifier))
+  (command_chain
+    receiver: (string_literal
+      (string_fragment))
+    argument: (string_literal
+      (string_fragment))
+    argument: (number_literal)))

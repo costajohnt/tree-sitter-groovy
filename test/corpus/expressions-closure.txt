@@ -450,3 +450,40 @@ def m = { @Nullable Foo a,
             name: (identifier)))
         (expression_statement
           (identifier))))))
+
+==================
+Closure varargs parameter with a default or after def
+==================
+
+def a = { long... z = 123 -> z }
+def b = { @A final def String... z -> z }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (varargs_type
+              (type_identifier))
+            name: (identifier)
+            default: (number_literal)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            (annotation
+              name: (qualified_name
+                (identifier)))
+            type: (varargs_type
+              (type_identifier))
+            name: (identifier)))
+        (expression_statement
+          (identifier))))))

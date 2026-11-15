@@ -362,3 +362,46 @@ def m() { final @Deprecated x = 1 }
         (variable_declarator
           name: (identifier)
           value: (number_literal))))))
+
+==================
+Script method whose only modifier is an annotation
+==================
+
+@CompileStatic foo(Integer id = 0) {}
+@Deprecated plus(int a, int b) { }
+@Field def x = 1
+
+---
+
+(source_file
+  (method_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    name: (identifier)
+    parameters: (formal_parameters
+      (formal_parameter
+        type: (type_identifier)
+        name: (identifier)
+        default: (number_literal)))
+    body: (block))
+  (method_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    name: (identifier)
+    parameters: (formal_parameters
+      (formal_parameter
+        type: (type_identifier)
+        name: (identifier))
+      (formal_parameter
+        type: (type_identifier)
+        name: (identifier)))
+    body: (block))
+  (local_variable_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    (variable_declarator
+      name: (identifier)
+      value: (number_literal))))

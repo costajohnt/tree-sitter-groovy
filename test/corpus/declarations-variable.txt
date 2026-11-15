@@ -911,3 +911,50 @@ Annotated multiple assignment
     value: (list_literal
       (number_literal)
       (number_literal))))
+
+==================
+final multiple assignment without def
+==================
+
+final (a, b) = [1, 2]
+def m() { given: final (x, y) = [1, 2] }
+final def (c, d) = [3, 4]
+final x = 1
+
+---
+
+(source_file
+  (multi_assignment_declaration
+    (variable_declarator
+      name: (identifier))
+    (variable_declarator
+      name: (identifier))
+    value: (list_literal
+      (number_literal)
+      (number_literal)))
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters)
+    body: (block
+      (labeled_statement
+        label: (identifier)
+        statement: (multi_assignment_declaration
+          (variable_declarator
+            name: (identifier))
+          (variable_declarator
+            name: (identifier))
+          value: (list_literal
+            (number_literal)
+            (number_literal))))))
+  (multi_assignment_declaration
+    (variable_declarator
+      name: (identifier))
+    (variable_declarator
+      name: (identifier))
+    value: (list_literal
+      (number_literal)
+      (number_literal)))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (number_literal))))

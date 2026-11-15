@@ -358,8 +358,13 @@ bool tree_sitter_groovy_external_scanner_scan(
             // two comparisons.
             ok = ok || !valid_symbols[LESS_THAN];
         } else if (c == ':') {
+            // `::`, or a case label `case List<String>:`; no comparison
+            // ends in `>:`.
+            ok = true;
+        } else if (c == '-') {
+            // `case List<String> -> …`: `>` then `->` ends no comparison.
             advance(lexer);
-            ok = lexer->lookahead == ':';
+            ok = lexer->lookahead == '>';
         } else if (c == '.' || c == '\n' || c == '\r') {
             while (is_whitespace(lexer->lookahead)) {
                 advance(lexer);

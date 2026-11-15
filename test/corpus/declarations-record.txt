@@ -192,3 +192,31 @@ record Tenant(String id) implements Element {}
     (super_interfaces
       (type_identifier))
     body: (class_body)))
+
+==================
+Record component default values
+==================
+
+record R(boolean a, boolean b = false) {}
+record S(int a)
+
+---
+
+(source_file
+  (record_declaration
+    name: (identifier)
+    components: (record_components
+      (record_component
+        type: (type_identifier)
+        name: (identifier))
+      (record_component
+        type: (type_identifier)
+        name: (identifier)
+        default: (boolean_literal)))
+    body: (class_body))
+  (record_declaration
+    name: (identifier)
+    components: (record_components
+      (record_component
+        type: (type_identifier)
+        name: (identifier)))))

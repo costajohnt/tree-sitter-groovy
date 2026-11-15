@@ -491,9 +491,12 @@ module.exports = grammar({
     ),
 
     // prec: after modifiers, a name and `(` start this, never a declarator.
+    // An annotation stands in for a modifier: `@CompileStatic foo(x) { }`.
     _script_untyped_method: $ => prec(1, seq(
-      repeat($.annotation),
-      repeat1($._modifier),
+      choice(
+        seq(repeat($.annotation), repeat1($._modifier)),
+        repeat1($.annotation),
+      ),
       field('name', $.identifier),
       field('parameters', $.formal_parameters),
       optional($.throws_clause),
@@ -560,6 +563,12 @@ module.exports = grammar({
           $.spread_dot_expression,
         )),
         field('argument', $._command_trailing_argument),
+        repeat1($._command_later_argument),
+      ),
+      // A quoted or interpolated name: `"${op}" p, 2`.
+      seq(
+        field('receiver', $.string_literal),
+        field('argument', choice($.identifier, $.field_access, $.method_invocation)),
         repeat1($._command_later_argument),
       ),
       // A call chained onto a call on the same line, as Groovy's command
@@ -1386,6 +1395,8 @@ module.exports = grammar({
       repeat($.annotation),
       field('type', $._type),
       field('name', $.identifier),
+      // Groovy 4 component default: `record R(boolean b = false)`
+      optional(seq('=', field('default', $._expression))),
     ),
 
     // §4 — package and import. Trailing `;` is optional in Groovy;
@@ -1555,8 +1566,8 @@ module.exports = grammar({
     // also annotated: `@Deprecated def (int q, int r) = [1, 2]`
     multi_assignment_declaration: $ => seq(
       repeat($.annotation),
-      optional('final'),
-      'def',
+      // `final (a, b) = [1, 2]`: `final` alone stands in for `def`.
+      choice(seq('final', optional('def')), 'def'),
       '(',
       $._multi_assignment_target,
       repeat(seq(',', $._multi_assignment_target)),
@@ -2620,14 +2631,14 @@ module.exports = grammar({
         repeat($.annotation),
         optional('final'),
         optional(choice(
-          seq('def', optional(field('type', $._type))),
+          seq('def', optional(field('type', choice($._type, $.varargs_type)))),
           field('type', choice($._type, $.varargs_type)),
         )),
         field('name', $.identifier),
       )),
       prec.dynamic(-1, seq(
         optional('final'),
-        optional(choice('def', field('type', $._type))),
+        optional(choice('def', field('type', choice($._type, $.varargs_type)))),
         field('name', $.identifier),
         '=',
         field('default', $._expression),
