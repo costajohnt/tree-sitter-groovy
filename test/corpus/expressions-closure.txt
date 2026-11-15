@@ -487,3 +487,70 @@ def b = { @A final def String... z -> z }
             name: (identifier)))
         (expression_statement
           (identifier))))))
+
+==================
+Lambda whose body is a command call
+==================
+
+[1, 2].each(v -> println v)
+def f = (x) -> println x
+def g = x -> x + 1
+def h = (a, b) -> { a + b }
+def k = s -> s as String
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (list_literal
+          (number_literal)
+          (number_literal))
+        field: (identifier))
+      arguments: (argument_list
+        (lambda_expression
+          parameters: (formal_parameter)
+          body: (command_chain
+            receiver: (identifier)
+            argument: (identifier))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (lambda_expression
+        parameters: (formal_parameters
+          (formal_parameter
+            name: (identifier)))
+        body: (command_chain
+          receiver: (identifier)
+          argument: (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (lambda_expression
+        parameters: (formal_parameter)
+        body: (binary_expression
+          left: (identifier)
+          right: (number_literal)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (lambda_expression
+        parameters: (formal_parameters
+          (formal_parameter
+            name: (identifier))
+          (formal_parameter
+            name: (identifier)))
+        body: (block
+          (expression_statement
+            (binary_expression
+              left: (identifier)
+              right: (identifier)))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (lambda_expression
+        parameters: (formal_parameter)
+        body: (cast_expression
+          value: (identifier)
+          type: (type_identifier))))))

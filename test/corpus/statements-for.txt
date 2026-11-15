@@ -456,3 +456,30 @@ for (@Deprecated final i : [1]) {}
     value: (list_literal
       (number_literal))
     body: (block)))
+
+==================
+For loop whose init is a multiple assignment
+==================
+
+for (def (int i, int j) = [0, 0]; i < 5; i++) {}
+
+---
+
+(source_file
+  (for_statement
+    init: (multi_assignment_declaration
+      type: (type_identifier)
+      (variable_declarator
+        name: (identifier))
+      type: (type_identifier)
+      (variable_declarator
+        name: (identifier))
+      value: (list_literal
+        (number_literal)
+        (number_literal)))
+    condition: (binary_expression
+      left: (identifier)
+      right: (number_literal))
+    update: (update_expression
+      operand: (identifier))
+    body: (block)))

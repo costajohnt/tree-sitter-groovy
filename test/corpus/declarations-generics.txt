@@ -748,3 +748,27 @@ f(x < y, z > w)
         (binary_expression
           (identifier)
           (identifier))))))
+
+==================
+Type-use annotations on type-parameter bounds
+==================
+
+interface I<T extends @Deprecated CharSequence & @A Runnable> {}
+
+---
+
+(source_file
+  (interface_declaration
+    name: (identifier)
+    type_parameters: (type_parameters
+      (type_parameter
+        name: (type_identifier)
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        (type_identifier)
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        (type_identifier)))
+    body: (class_body)))

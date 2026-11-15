@@ -890,3 +890,36 @@ def d = "${ if (x) {} }"
           (if_statement
             condition: (identifier)
             consequence: (block)))))))
+
+==================
+Triple-quoted strings whose content ends with the quote
+==================
+
+def a = '''a='b''''
+def b = """say "hi""""
+def c = '''it's'''
+def d = """x""" + '''y'''
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal)))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (string_fragment))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal)))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (binary_expression
+        left: (string_literal
+          (string_fragment))
+        right: (string_literal)))))

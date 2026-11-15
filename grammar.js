@@ -672,7 +672,7 @@ module.exports = grammar({
       alias($._subscript_open, '['),
       optional(seq(
         choice($._expression, $.spread_arguments),
-        repeat(seq(',', choice($._expression, $.spread_arguments))),
+        repeat(seq(',', repeat(','), choice($._expression, $.spread_arguments))),
         optional(','),
       )),
       ']',
@@ -682,7 +682,7 @@ module.exports = grammar({
       const entry = choice($.map_entry, $.spread_map_entry);
       return seq(
         alias($._subscript_open, '['),
-        choice(':', seq(entry, repeat(seq(',', entry)), optional(','))),
+        choice(':', seq(entry, repeat(seq(',', repeat(','), entry)), optional(','))),
         ']',
       );
     },
@@ -783,6 +783,8 @@ module.exports = grammar({
       optional(choice(
         seq(field('init', $._expression), repeat(seq(',', field('init', $._expression)))),
         field('init', $.local_variable_declaration),
+        // `for (def (int i, int j) = [0, 0]; i < 5; i++)` (Groovy 3+)
+        field('init', alias($._for_multi_assignment, $.multi_assignment_declaration)),
         // `for (int i; i < 3; i++)`: a typed declaration without a value.
         field('init', alias($._for_bare_declaration, $.local_variable_declaration)),
       )),
@@ -796,6 +798,18 @@ module.exports = grammar({
       ')',
       // also an empty body: `for (i = 0; i < 5; i++);`
       field('body', choice($.block, $._statement, ';')),
+    ),
+
+    // `def` only: `final` and annotations there would compete with a for-in
+    // loop's modifiers.
+    _for_multi_assignment: $ => seq(
+      'def',
+      '(',
+      $._multi_assignment_target,
+      repeat(seq(',', $._multi_assignment_target)),
+      ')',
+      '=',
+      field('value', $._expression),
     ),
 
     _for_bare_declaration: $ => seq(
@@ -985,12 +999,14 @@ module.exports = grammar({
       '>',
     ),
 
+    // A bound may carry type-use annotations: `<T extends @A CharSequence>`.
     type_parameter: $ => seq(
       field('name', alias($.identifier, $.type_identifier)),
       optional(seq(
         'extends',
+        repeat($.annotation),
         $._type,
-        repeat(seq('&', $._type)),
+        repeat(seq('&', repeat($.annotation), $._type)),
       )),
     ),
 
@@ -2339,9 +2355,11 @@ module.exports = grammar({
       ')',
     ),
 
+    // Groovy 2.4 drops an empty argument, `foo(a,,b)` (3 and 4 reject it). The
+    // extra commas stay tokens of the list, as they do in list and map literals.
     _argument_list_body: $ => seq(
       $._argument,
-      repeat(seq(',', $._argument)),
+      repeat(seq(',', repeat(','), $._argument)),
       optional(','),
     ),
 
@@ -2381,18 +2399,26 @@ module.exports = grammar({
     // Several indexes select several elements: `list[1, 2]`, `map['a', 'b']`.
     // An index may be spread: `(1..5)[*1..3]`.
     // An empty map is an index too: `render [:] as JSON` is `render[:]`.
+    // So are named entries, which make one map: `A[x: 1, y: 2]`, `A[*: m]`.
     subscript_expression: $ => prec.left(PREC.POSTFIX, seq(
       field('object', $._expression),
       alias($._subscript_open, '['),
       choice(
         seq(
-          field('index', choice($._expression, $.spread_arguments)),
-          repeat(seq(',', field('index', choice($._expression, $.spread_arguments)))),
+          field('index', $._subscript_index),
+          repeat(seq(',', field('index', $._subscript_index))),
         ),
         ':',
       ),
       ']',
     )),
+
+    _subscript_index: $ => choice(
+      $._expression,
+      $.spread_arguments,
+      alias($.map_entry, $.named_argument),
+      $.spread_map_entry,
+    ),
 
     // An empty index is valid on a list literal, `def l = [][]`; elsewhere
     // `x[]` stays an array type. A string takes one too: `"x"[]` is
@@ -2406,10 +2432,12 @@ module.exports = grammar({
     // `?[` is one token. `a ? [b] : c` (with space) still parses
     // as ternary plus list because tree-sitter's lexer never
     // crosses a whitespace boundary to extend a multi-char token.
+    // Several or named indexes as for `[`: `a?[1, 2]`, `A?[name: 1]`.
     safe_subscript_expression: $ => prec.left(PREC.POSTFIX, seq(
       field('object', $._expression),
       '?[',
-      field('index', $._expression),
+      field('index', $._subscript_index),
+      repeat(seq(',', field('index', $._subscript_index))),
       ']',
     )),
 
@@ -2658,7 +2686,8 @@ module.exports = grammar({
         alias($._lambda_parameters, $.formal_parameters),
       )),
       '->',
-      field('body', choice($.block, $._expression)),
+      // The body may be a command call: `v -> println v` (Groovy 3+).
+      field('body', choice($.block, $._value)),
     ))),
 
     // A lambda's `(` starts an expression, so it is the in-grammar `(`,
@@ -2677,12 +2706,13 @@ module.exports = grammar({
     // form (see map_literal). Tree-sitter splits the parse between
     // list_literal and map_literal until a `:` or `]` disambiguates;
     // the conflict declaration above keeps both alternatives alive.
-    // Elements may be spread: `[*a, *b]`.
+    // Elements may be spread: `[*a, *b]`. Groovy 2.4 drops an empty element,
+    // `[a,,b]` (see `_argument_list_body`).
     list_literal: $ => seq(
       '[',
       optional(seq(
         choice($._expression, $.spread_arguments),
-        repeat(seq(',', choice($._expression, $.spread_arguments))),
+        repeat(seq(',', repeat(','), choice($._expression, $.spread_arguments))),
         optional(','),
       )),
       ']',
@@ -2702,7 +2732,8 @@ module.exports = grammar({
           ':',
           seq(
             entry,
-            repeat(seq(',', entry)),
+            // `[a: 1,, b: 2]`: Groovy 2.4's empty element (see `_argument_list_body`)
+            repeat(seq(',', repeat(','), entry)),
             optional(','),
           ),
         ),
@@ -2855,7 +2886,8 @@ module.exports = grammar({
         /'[^']/,
         /''[^']/,
       )),
-      '\'\'\'',
+      // the content may end with one or two quotes: `'''a='b''''`
+      /''''?'?/,
     )),
 
     // §5.7 / §6.3 — double-quoted GString. The opening `"` is
@@ -2886,7 +2918,8 @@ module.exports = grammar({
     _triple_double_quoted_string: $ => seq(
       '"""',
       repeat(gstringPart($, $._triple_gstring_text)),
-      token.immediate('"""'),
+      // the content may end with one or two quotes: `"""say "hi""""`
+      alias(token.immediate(/""""?"?/), '"""'),
     ),
 
     _triple_gstring_text: _ => token.immediate(repeat1(choice(

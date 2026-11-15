@@ -5559,6 +5559,10 @@
             "named": true
           },
           {
+            "type": "multi_assignment_declaration",
+            "named": true
+          },
+          {
             "type": "multi_assignment_expression",
             "named": true
           },
@@ -7697,6 +7701,10 @@
           },
           {
             "type": "closure",
+            "named": true
+          },
+          {
+            "type": "command_chain",
             "named": true
           },
           {
@@ -14380,7 +14388,7 @@
     "named": true,
     "fields": {
       "index": {
-        "multiple": false,
+        "multiple": true,
         "required": true,
         "types": [
           {
@@ -14476,6 +14484,10 @@
             "named": true
           },
           {
+            "type": "named_argument",
+            "named": true
+          },
+          {
             "type": "null_literal",
             "named": true
           },
@@ -14528,7 +14540,15 @@
             "named": true
           },
           {
+            "type": "spread_arguments",
+            "named": true
+          },
+          {
             "type": "spread_dot_expression",
+            "named": true
+          },
+          {
+            "type": "spread_map_entry",
             "named": true
           },
           {
@@ -15965,6 +15985,10 @@
             "named": true
           },
           {
+            "type": "named_argument",
+            "named": true
+          },
+          {
             "type": "null_literal",
             "named": true
           },
@@ -16022,6 +16046,10 @@
           },
           {
             "type": "spread_dot_expression",
+            "named": true
+          },
+          {
+            "type": "spread_map_entry",
             "named": true
           },
           {
@@ -18503,6 +18531,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "annotation",
+          "named": true
+        },
         {
           "type": "array_type",
           "named": true

@@ -292,3 +292,59 @@ def z = "x"[0]
         object: (string_literal
           (string_fragment))
         index: (number_literal)))))
+
+==================
+Named and several indexes, also after ?[
+==================
+
+def x = A[x: 1, y: 2]
+def y = A[*: m]
+def z = a?[1, 2]
+def w = A?[name: 1]
+def v = a[b ? c : d]
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (subscript_expression
+        object: (identifier)
+        index: (named_argument
+          key: (identifier)
+          value: (number_literal))
+        index: (named_argument
+          key: (identifier)
+          value: (number_literal)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (subscript_expression
+        object: (identifier)
+        index: (spread_map_entry
+          value: (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (safe_subscript_expression
+        object: (identifier)
+        index: (number_literal)
+        index: (number_literal))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (safe_subscript_expression
+        object: (identifier)
+        index: (named_argument
+          key: (identifier)
+          value: (number_literal)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (subscript_expression
+        object: (identifier)
+        index: (ternary_expression
+          condition: (identifier)
+          consequence: (identifier)
+          alternative: (identifier))))))

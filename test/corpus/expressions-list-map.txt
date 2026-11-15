@@ -199,3 +199,55 @@ def all = [*a, *b, 3]
         (spread_arguments
           value: (identifier))
         (number_literal)))))
+
+==================
+Groovy 2.4 empty elements in arguments, lists and maps
+==================
+
+foo(a,,b)
+foo(a, , b)
+def l = ["off", "cool", , "heat"]
+def m = [a: 1,, b: 2]
+foo(a, b)
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (identifier)
+        (identifier))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (identifier)
+        (identifier))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (list_literal
+        (string_literal
+          (string_fragment))
+        (string_literal
+          (string_fragment))
+        (string_literal
+          (string_fragment)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (map_literal
+        (map_entry
+          key: (identifier)
+          value: (number_literal))
+        (map_entry
+          key: (identifier)
+          value: (number_literal)))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (identifier)
+        (identifier)))))
