@@ -254,7 +254,6 @@ module.exports = grammar({
     [$.command_chain, $._expression, $._type],
     // §5.5 — `foo [:], m` (a command's list or map argument) or `foo[k]`.
     [$.command_chain, $._expression, $._array_type_value, $._type],
-    [$.command_chain, $._expression, $._array_type_value],
     [$.command_chain, $._type],
     // §5.5 — `(el x)` is a command call; `(String s) -> …` a lambda's
     // parameter list. The `->` decides.
@@ -315,6 +314,8 @@ module.exports = grammar({
     // token after the identifier (`;` / operator vs `in`)
     // disambiguates.
     [$.for_in_statement, $._expression],
+    [$.for_in_statement, $._expression, $._type],
+    [$.for_in_statement, $._type],
 
 
     // §4 — a record takes only some modifiers; until `record` the
@@ -722,16 +723,22 @@ module.exports = grammar({
     // declaration (`int i = 0`, `def i = 0`, incl. multiple
     // declarators). Apache `GroovyParser.g4` `forInit:
     // localVariableDeclaration | expressionList` also allows a
-    // comma-separated expression list (`i = 0, j = 1`); that form is
-    // not yet supported.
+    // comma-separated expression list (`i = 0, j = 1`), and the update
+    // slot takes one too (`i++, j++`), as in Groovy 3 and 4.
     for_statement: $ => seq(
       'for',
       '(',
-      optional(field('init', choice($._expression, $.local_variable_declaration))),
+      optional(choice(
+        seq(field('init', $._expression), repeat(seq(',', field('init', $._expression)))),
+        field('init', $.local_variable_declaration),
+      )),
       ';',
       optional(field('condition', $._expression)),
       ';',
-      optional(field('update', $._expression)),
+      optional(seq(
+        field('update', $._expression),
+        repeat(seq(',', field('update', $._expression))),
+      )),
       ')',
       field('body', choice($.block, $._statement)),
     ),
@@ -1050,8 +1057,7 @@ module.exports = grammar({
     // both field and method when the identifier is followed by `(`
     // and no return type precedes it.
     constructor_declaration: $ => prec.right(3, seq(
-      repeat($.annotation),
-      repeat($._modifier),
+      ...memberModifiers($),
       field('name', $.identifier),
       field('parameters', $.formal_parameters),
       optional($.throws_clause),
@@ -1100,6 +1106,7 @@ module.exports = grammar({
       seq(
         repeat($.annotation),
         repeat1($._modifier),
+        optional(seq(repeat1($.annotation), repeat($._modifier))),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
@@ -1420,17 +1427,22 @@ module.exports = grammar({
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
+      // Annotations may also follow modifiers: `static @Field x = 1`,
+      // `final @Deprecated x = 1`.
       seq(
-        repeat1($.annotation),
-        repeat($._modifier),
+        choice(
+          seq(repeat1($.annotation), repeat($._modifier)),
+          seq(repeat1($._modifier), repeat1($.annotation), repeat($._modifier)),
+        ),
         optional(choice('def', alias($._var_keyword, 'var'), field('type', $._type))),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
     )),
 
+    // Groovy 3 and 4 take `in` as a name: `InputStream in = null`.
     _initialized_declarator: $ => seq(
-      field('name', $.identifier),
+      field('name', choice($.identifier, alias('in', $.identifier))),
       '=',
       field('value', $._value),
     ),
@@ -2289,9 +2301,10 @@ module.exports = grammar({
     )),
 
     // An empty index is valid on a list literal, `def l = [][]`; elsewhere
-    // `x[]` stays an array type.
+    // `x[]` stays an array type. A string takes one too: `"x"[]` is
+    // `"x"[[]]`.
     _empty_list_subscript: $ => seq(
-      field('object', $.list_literal),
+      field('object', choice($.list_literal, $.string_literal)),
       alias($._subscript_open, '['),
       ']',
     ),
@@ -2817,6 +2830,12 @@ module.exports = grammar({
           $.expression_statement,
           $.command_chain,
           $.if_statement,
+          $.local_variable_declaration,
+          $.for_statement,
+          $.for_in_statement,
+          $.while_statement,
+          $.do_while_statement,
+          $.try_statement,
           $.assert_statement,
           $.labeled_statement,
           ';',

@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 
 ### Fixed
 
+- A GString `${ }` body may hold declarations and loops: `"${ def v = 1; v }"`, `"${ for (i in x) {} }"`, `while`, `do` and `try`, as in Groovy.
+- Annotations may follow modifiers on a script variable, a local, a field or a constructor-shaped method: `static @Field x = 1`, `final @Deprecated x = 1`, `static @Deprecated f() {}`.
+- A comment may follow a `\` line continuation: `a || \` then `// c` on the next line.
+- A classic `for` takes comma-separated initializer and update lists, `for (i = 0, j = 0; i < n; i++, j++)`, as in Groovy 3 and 4.
+- `in` is a variable name in a typed declaration and in an assignment that starts a line, `InputStream in = null` and `in = f()`, as in Groovy 3 and 4.
+- A string takes an empty subscript: `"x"[]` is `"x"[[]]`.
 - A command call's name argument may continue on a later line that starts with `.`, `?.` or `*.`: `a.foo bar` then `.baz` is `a.foo(bar.baz)`, as in Groovy.
 - A nested `enum` inside a class body (`static enum EventType { ... }`,
   a common Groovy domain-model idiom for entity fields backed by a

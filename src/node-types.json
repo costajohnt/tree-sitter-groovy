@@ -5439,7 +5439,7 @@
         ]
       },
       "init": {
-        "multiple": false,
+        "multiple": true,
         "required": false,
         "types": [
           {
@@ -5625,7 +5625,7 @@
         ]
       },
       "update": {
-        "multiple": false,
+        "multiple": true,
         "required": false,
         "types": [
           {
@@ -6291,7 +6291,19 @@
           "named": true
         },
         {
+          "type": "do_while_statement",
+          "named": true
+        },
+        {
           "type": "expression_statement",
+          "named": true
+        },
+        {
+          "type": "for_in_statement",
+          "named": true
+        },
+        {
+          "type": "for_statement",
           "named": true
         },
         {
@@ -6300,6 +6312,18 @@
         },
         {
           "type": "labeled_statement",
+          "named": true
+        },
+        {
+          "type": "local_variable_declaration",
+          "named": true
+        },
+        {
+          "type": "try_statement",
+          "named": true
+        },
+        {
+          "type": "while_statement",
           "named": true
         }
       ]

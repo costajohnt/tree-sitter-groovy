@@ -256,3 +256,39 @@ x = [1][0]
         object: (list_literal
           (number_literal))
         index: (number_literal)))))
+
+==================
+Empty subscript on a string
+==================
+
+def y = "x"[]
+command "x" []
+def l = [][]
+def z = "x"[0]
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (subscript_expression
+        object: (string_literal
+          (string_fragment)))))
+  (command_chain
+    receiver: (identifier)
+    argument: (subscript_expression
+      object: (string_literal
+        (string_fragment))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (subscript_expression
+        object: (list_literal))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (subscript_expression
+        object: (string_literal
+          (string_fragment))
+        index: (number_literal)))))

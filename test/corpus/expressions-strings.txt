@@ -745,3 +745,148 @@ p = ~/^([a-z]*):\\/\\/.+/
       right: (unary_expression
         operand: (string_literal
           (string_fragment))))))
+
+==================
+GString interpolation with declarations and loops
+==================
+
+def a = "${ def v = 1; v }"
+def b = "${ for (i in x) {} }"
+def c = "${ while (x) {} }"
+def d = "${ try {} finally {} }"
+def e = "${ String r = f(); r }"
+def f = "${ for (int i = 0; i < 2; i++) { s += i } }"
+def g = "${ do { x() } while (y) }"
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (gstring_brace_interpolation
+          (local_variable_declaration
+            (variable_declarator
+              name: (identifier)
+              value: (number_literal)))
+          (expression_statement
+            (identifier))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (gstring_brace_interpolation
+          (for_in_statement
+            variable: (identifier)
+            value: (identifier)
+            body: (block))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (gstring_brace_interpolation
+          (while_statement
+            condition: (identifier)
+            body: (block))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (gstring_brace_interpolation
+          (try_statement
+            body: (block)
+            (finally_clause
+              body: (block)))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (gstring_brace_interpolation
+          (local_variable_declaration
+            type: (type_identifier)
+            name: (identifier)
+            value: (method_invocation
+              function: (identifier)
+              arguments: (argument_list)))
+          (expression_statement
+            (identifier))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (gstring_brace_interpolation
+          (for_statement
+            init: (local_variable_declaration
+              type: (type_identifier)
+              name: (identifier)
+              value: (number_literal))
+            condition: (binary_expression
+              left: (identifier)
+              right: (number_literal))
+            update: (update_expression
+              operand: (identifier))
+            body: (block
+              (expression_statement
+                (assignment_expression
+                  left: (identifier)
+                  right: (identifier)))))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (gstring_brace_interpolation
+          (do_while_statement
+            body: (block
+              (expression_statement
+                (method_invocation
+                  function: (identifier)
+                  arguments: (argument_list))))
+            condition: (identifier)))))))
+
+==================
+GString interpolation statements stay expressions and commands
+==================
+
+def a = "${x}"
+def b = "${ a.b c }"
+def c = "${ x -> x }"
+def d = "${ if (x) {} }"
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (gstring_brace_interpolation
+          value: (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (gstring_brace_interpolation
+          (command_chain
+            receiver: (field_access
+              object: (identifier)
+              field: (identifier))
+            argument: (identifier))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (gstring_brace_interpolation
+          (closure_parameters
+            (closure_parameter
+              name: (identifier)))
+          (expression_statement
+            (identifier))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (gstring_brace_interpolation
+          (if_statement
+            condition: (identifier)
+            consequence: (block)))))))

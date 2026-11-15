@@ -154,6 +154,28 @@ static bool skip_whitespace(TSLexer *lexer) {
     return newline;
 }
 
+// Skips whitespace and `\` line continuations; true when a line ended in
+// the whitespace (a continued line doesn't count). Sets *stray when a `\`
+// that continues no line was skipped: no token may start after it.
+static bool skip_whitespace_and_continuations(TSLexer *lexer, bool *stray) {
+    bool newline = false;
+    for (;;) {
+        newline |= skip_whitespace(lexer);
+        if (lexer->lookahead != '\\') {
+            return newline;
+        }
+        lexer->advance(lexer, true);
+        if (lexer->lookahead == '\r') {
+            lexer->advance(lexer, true);
+        }
+        if (lexer->lookahead != '\n') {
+            *stray = true;
+            return newline;
+        }
+        lexer->advance(lexer, true);
+    }
+}
+
 // At a `[`: true when a balanced `[…]` (brackets, braces and parentheses
 // nested; quoted strings skipped) is followed on its line by `:` but not `::`.
 static bool bracket_then_colon(TSLexer *lexer) {
@@ -686,8 +708,15 @@ bool tree_sitter_groovy_external_scanner_scan(
                     "as", "in", "instanceof", "throws", "extends",
                     "implements", "permits",
                 };
-                // `in.property`: a name before a dot starts a statement.
+                // `in.property`: a name before a dot starts a statement, and
+                // `in = 2` assigns to a variable named `in` (Groovy 3 and 4).
                 bool dotted = lexer->lookahead == '.';
+                if (len == 2 && memcmp(word, "in", 2) == 0) {
+                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                        advance(lexer);
+                    }
+                    dotted |= lexer->lookahead == '=';
+                }
                 for (unsigned i = 0; i < sizeof(continuing) / sizeof(continuing[0]) && !dotted; i++) {
                     if (strlen(continuing[i]) == len && memcmp(word, continuing[i], len) == 0) {
                         return false;
@@ -867,8 +896,10 @@ bool tree_sitter_groovy_external_scanner_scan(
         return false;
     }
 
-    newline |= skip_whitespace(lexer);
-    if (lexer->lookahead != '/') {
+    // A comment may follow a `\` line continuation: `a || \` then `// c`.
+    bool stray = false;
+    newline |= skip_whitespace_and_continuations(lexer, &stray);
+    if (stray || lexer->lookahead != '/') {
         return false;
     }
 

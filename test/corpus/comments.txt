@@ -122,3 +122,47 @@ bar
   (block_comment)
   (groovydoc_comment)
   (expression_statement (identifier)))
+
+==================
+Comment after a line continuation
+==================
+
+def r = a || \
+// c
+b
+def s = a || \
+/* c */ b
+foo a, \
+// c
+b
+x = a \
+/ 2
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (binary_expression
+        left: (identifier)
+        (line_comment)
+        right: (identifier))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (binary_expression
+        left: (identifier)
+        (block_comment)
+        right: (identifier))))
+  (command_chain
+    receiver: (identifier)
+    argument: (identifier)
+    (line_comment)
+    argument: (identifier))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (binary_expression
+        left: (identifier)
+        right: (number_literal)))))

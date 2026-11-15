@@ -289,3 +289,76 @@ static @Managed interface ManagedSpec extends Spec { }
             arguments: (argument_list
               (string_literal
                 (string_fragment)))))))))
+
+==================
+Annotation after modifiers
+==================
+
+static @groovy.transform.Field x = 1
+private static @Field String y = "GET"
+class A {
+    static @Deprecated x = 1
+    static @Deprecated f() {}
+    private @Deprecated String g() { null }
+}
+def m() { final @Deprecated x = 1 }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)
+        (identifier)
+        (identifier)))
+    (variable_declarator
+      name: (identifier)
+      value: (number_literal)))
+  (local_variable_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier)
+      value: (string_literal
+        (string_fragment))))
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (field_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        (variable_declarator
+          name: (identifier)
+          value: (number_literal)))
+      (constructor_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        name: (identifier)
+        parameters: (formal_parameters)
+        body: (block))
+      (method_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        return_type: (type_identifier)
+        name: (identifier)
+        parameters: (formal_parameters)
+        body: (block
+          (expression_statement
+            (null_literal))))))
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters)
+    body: (block
+      (local_variable_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        (variable_declarator
+          name: (identifier)
+          value: (number_literal))))))

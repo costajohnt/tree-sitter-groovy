@@ -325,3 +325,59 @@ class A {
             (identifier)))
         name: (identifier)
         body: (class_body)))))
+
+==================
+Classic for with several initializers and updates
+==================
+
+for (int i = 0; i < 3; i++, j++) {}
+for (int i = 0, j = 0; i < 3; i++, j++) {}
+for (i = 0, j = 0; i < 3; i++) {}
+for (;;) {}
+
+---
+
+(source_file
+  (for_statement
+    init: (local_variable_declaration
+      type: (type_identifier)
+      name: (identifier)
+      value: (number_literal))
+    condition: (binary_expression
+      left: (identifier)
+      right: (number_literal))
+    update: (update_expression
+      operand: (identifier))
+    update: (update_expression
+      operand: (identifier))
+    body: (block))
+  (for_statement
+    init: (local_variable_declaration
+      type: (type_identifier)
+      name: (identifier)
+      value: (number_literal)
+      name: (identifier)
+      value: (number_literal))
+    condition: (binary_expression
+      left: (identifier)
+      right: (number_literal))
+    update: (update_expression
+      operand: (identifier))
+    update: (update_expression
+      operand: (identifier))
+    body: (block))
+  (for_statement
+    init: (assignment_expression
+      left: (identifier)
+      right: (number_literal))
+    init: (assignment_expression
+      left: (identifier)
+      right: (number_literal))
+    condition: (binary_expression
+      left: (identifier)
+      right: (number_literal))
+    update: (update_expression
+      operand: (identifier))
+    body: (block))
+  (for_statement
+    body: (block)))
