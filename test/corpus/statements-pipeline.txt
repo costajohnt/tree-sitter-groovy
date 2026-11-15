@@ -91,3 +91,123 @@ def after = 2
     (variable_declarator
       name: (identifier)
       value: (number_literal))))
+
+==================
+pipeline followed by an operator or a dot is a call with a closure
+==================
+
+pipeline { a = 1 } | 1
+pipeline { a = 1 }.with { println it }
+pipeline { a }?.foo()
+pipeline { a } == 6
+pipeline { a } + 1
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (binary_expression
+      left: (closure
+        (expression_statement
+          (assignment_expression
+            left: (identifier)
+            right: (number_literal))))
+      right: (number_literal)))
+  (command_chain
+    receiver: (identifier)
+    argument: (method_invocation
+      function: (field_access
+        object: (closure
+          (expression_statement
+            (assignment_expression
+              left: (identifier)
+              right: (number_literal))))
+        field: (identifier))
+      closure: (closure
+        (command_chain
+          receiver: (identifier)
+          argument: (identifier)))))
+  (command_chain
+    receiver: (identifier)
+    argument: (method_invocation
+      function: (safe_navigation_expression
+        object: (closure
+          (expression_statement
+            (identifier)))
+        property: (identifier))
+      arguments: (argument_list)))
+  (command_chain
+    receiver: (identifier)
+    argument: (binary_expression
+      left: (closure
+        (expression_statement
+          (identifier)))
+      right: (number_literal)))
+  (command_chain
+    receiver: (identifier)
+    argument: (binary_expression
+      left: (closure
+        (expression_statement
+          (identifier)))
+      right: (number_literal))))
+
+==================
+pipeline block with braces in strings and comments
+==================
+
+pipeline {
+    agent any
+    stages {
+        stage('x') {
+            steps {
+                sh "echo ${'}'}"
+                sh '''a } b'''
+                echo "}" // }
+            }
+        }
+    }
+} // done
+pipeline { agent any };
+
+---
+
+(source_file
+  (pipeline_statement
+    body: (closure
+      (expression_statement
+        (identifier))
+      (expression_statement
+        (identifier))
+      (command_chain
+        receiver: (identifier)
+        argument: (closure
+          (expression_statement
+            (method_invocation
+              function: (identifier)
+              arguments: (argument_list
+                (string_literal))
+              closure: (closure
+                (command_chain
+                  receiver: (identifier)
+                  argument: (closure
+                    (command_chain
+                      receiver: (identifier)
+                      argument: (string_literal
+                        (string_fragment)
+                        (gstring_brace_interpolation
+                          value: (string_literal))))
+                    (command_chain
+                      receiver: (identifier)
+                      argument: (string_literal))
+                    (command_chain
+                      receiver: (identifier)
+                      argument: (string_literal
+                        (string_fragment)))
+                    (line_comment))))))))))
+  (line_comment)
+  (pipeline_statement
+    body: (closure
+      (command_chain
+        receiver: (identifier)
+        argument: (identifier)))))

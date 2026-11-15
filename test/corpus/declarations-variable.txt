@@ -727,10 +727,9 @@ trait Named { }
         field: (identifier))
       arguments: (argument_list))
     body: (block
-      (expression_statement
-        (identifier))
-      (expression_statement
-        (identifier))))
+      (command_chain
+        receiver: (identifier)
+        argument: (identifier))))
   (local_variable_declaration
     type: (type_identifier)
     name: (identifier)

@@ -267,6 +267,14 @@ module.exports = grammar({
     // the label's last operand, never a lambda's parameter: `case FOO -> 1`,
     // `case a < b -> 3`.
     $._case_arrow,
+    // The one name argument of a command call that is a closure's whole body,
+    // when `}` follows it on its line: `{ x -> println x }` (lexed like
+    // `_command_name_argument`).
+    $._closure_command_argument,
+    // The `(` of a lambda's parameters that is a command call's argument,
+    // after a space: `configurations.all (Configuration it) -> { }`. The
+    // scanner finds the balanced `(…)` and then `->`; otherwise it is a call's.
+    $._command_lambda_open,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -579,6 +587,7 @@ module.exports = grammar({
       // A call chained onto a call on the same line, as Groovy's command
       // chains allow: `isOrIsCausedBy(e, A) or(isOrIsCausedBy(e, B))`.
       $._call_chain,
+      $._lambda_command,
       // `if (c) a.b key` then `else`: a name alone after a dotted receiver,
       // with the statement ending after it.
       seq(
@@ -713,9 +722,14 @@ module.exports = grammar({
     // closure (§5.8). A `prec(1, …)` keeps block preferred at use
     // sites where both `block` and a closure-bearing `_statement`
     // are valid alternatives (e.g. the body slot of `if` / `while`).
+    // One command call as the whole body, as for a closure (see closure):
+    // `for (k in m) { println k }`.
     block: $ => prec(1, seq(
       '{',
-      repeat(choice($._statement, ';', $._line_break)),
+      choice(
+        repeat(choice($._statement, ';', $._line_break)),
+        alias($._closure_command, $.command_chain),
+      ),
       '}',
     )),
 
@@ -1555,7 +1569,39 @@ module.exports = grammar({
 
     // The value of a declaration or assignment, which may be a command call:
     // `def r = sh returnStdout: true, script: 'x'`.
-    _value: $ => choice($._expression, alias($._value_command, $.command_chain)),
+    _value: $ => choice(
+      $._expression,
+      alias($._value_command, $.command_chain),
+      alias($._lambda_command, $.command_chain),
+    ),
+
+    // A spaced call whose one argument is a lambda with parenthesized
+    // parameters (Groovy 3+): `configurations.all (Configuration it) -> { }`,
+    // `def r = foo () -> { }`. See `_command_lambda_open`.
+    _lambda_command: $ => seq(
+      field('receiver', choice(
+        $.identifier,
+        $.field_access,
+        $.safe_navigation_expression,
+        $.spread_dot_expression,
+      )),
+      field('argument', alias($._command_lambda, $.lambda_expression)),
+    ),
+
+    _command_lambda: $ => prec.right(PREC.ASSIGN, seq(
+      field('parameters', alias($._command_lambda_parameters, $.formal_parameters)),
+      '->',
+      field('body', choice($.block, $._value)),
+    )),
+
+    _command_lambda_parameters: $ => seq(
+      alias($._command_lambda_open, '('),
+      optional(seq(
+        $.formal_parameter,
+        repeat(seq(',', $.formal_parameter)),
+      )),
+      ')',
+    ),
 
     // §5.5 — a command call as a value. Its first argument starts on the
     // receiver's line (`_command_value_start`), and may be any expression,
@@ -2635,11 +2681,28 @@ module.exports = grammar({
     // has no `->` and an implicit `it` parameter (we do NOT emit a
     // synthetic `it` per §5.8). Default values and varargs land later.
     // The parameters may start on the line after the `{`.
+    // A body that is one command call with one name argument, `}` right after
+    // it on its line, is read as that call, as Groovy reads it and as for a
+    // lambda's body: `{ x -> println x }`, `{ println it }`. Elsewhere
+    // `foo bar` stays two statements (see command_chain).
     closure: $ => seq(
       '{',
       optional(seq(optional($._line_break), $.closure_parameters)),
-      repeat(choice($._statement, ';', $._line_break)),
+      choice(
+        repeat(choice($._statement, ';', $._line_break)),
+        alias($._closure_command, $.command_chain),
+      ),
       '}',
+    ),
+
+    _closure_command: $ => seq(
+      field('receiver', choice(
+        $.identifier,
+        $.field_access,
+        $.safe_navigation_expression,
+        $.spread_dot_expression,
+      )),
+      field('argument', alias($._closure_command_argument, $.identifier)),
     ),
 
     closure_parameters: $ => seq(

@@ -38,6 +38,8 @@ enum TokenType {
     EXPRESSION_COLON,
     COMMAND_NAME_START,
     CASE_ARROW,
+    CLOSURE_COMMAND_ARGUMENT,
+    COMMAND_LAMBDA_OPEN,
     ERROR_SENTINEL,
 };
 
@@ -106,6 +108,17 @@ static bool finish_command_named_key(TSLexer *lexer, const bool *valid_symbols,
     // `case` and `default` may be keys too, since a switch label can't follow
     // an argument on its line: `input name: 'x', default: false`.
     lexer->mark_end(lexer);
+    // A closure's whole body, `{ x -> println x }`: the name and then `}`.
+    if (valid_symbols[CLOSURE_COMMAND_ARGUMENT] && is_name_argument(word, len)
+        && !(len == 4 && memcmp(word, "else", 4) == 0)) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, false);
+        }
+        if (lexer->lookahead == '}') {
+            lexer->result_symbol = CLOSURE_COMMAND_ARGUMENT;
+            return true;
+        }
+    }
     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
         lexer->advance(lexer, false);
     }
@@ -143,6 +156,104 @@ static inline bool is_whitespace(int32_t c) {
 }
 
 // Skips whitespace; true when a line ended in it.
+// Advances past a balanced `{…}`, the lookahead being its `{`; false at the
+// end of input. Strings, GString `${…}` and comments are skipped, so their
+// braces don't count. Slashy strings are not recognized: a brace in one may
+// end the scan early, and the caller then keeps its default reading.
+static bool skip_braces(TSLexer *lexer) {
+    unsigned depth = 0;
+    while (!lexer->eof(lexer)) {
+        int32_t c = lexer->lookahead;
+        advance(lexer);
+        if (c == '{') {
+            depth++;
+        } else if (c == '}') {
+            if (--depth == 0) {
+                return true;
+            }
+        } else if (c == '/' && lexer->lookahead == '/') {
+            while (!lexer->eof(lexer) && lexer->lookahead != '\n') {
+                advance(lexer);
+            }
+        } else if (c == '/' && lexer->lookahead == '*') {
+            advance(lexer);
+            int32_t prev = 0;
+            while (!lexer->eof(lexer) && !(prev == '*' && lexer->lookahead == '/')) {
+                prev = lexer->lookahead;
+                advance(lexer);
+            }
+            advance(lexer);
+        } else if (c == '\'' || c == '"') {
+            bool triple = false;
+            if (lexer->lookahead == c) {
+                advance(lexer);
+                if (lexer->lookahead != c) {
+                    continue; // empty string
+                }
+                advance(lexer);
+                triple = true;
+            }
+            unsigned run = 0;
+            while (!lexer->eof(lexer)) {
+                int32_t d = lexer->lookahead;
+                if (d == '\\') {
+                    advance(lexer);
+                    advance(lexer);
+                    run = 0;
+                    continue;
+                }
+                if (!triple && d == '\n') {
+                    break;
+                }
+                if (c == '"' && d == '$') {
+                    advance(lexer);
+                    if (lexer->lookahead == '{' && !skip_braces(lexer)) {
+                        return false;
+                    }
+                    run = 0;
+                    continue;
+                }
+                advance(lexer);
+                if (d == c) {
+                    run++;
+                    if (!triple || run == 3) {
+                        break;
+                    }
+                } else {
+                    run = 0;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+// Advances to just past the `)` that closes a `(` already read; false at the
+// end of input. Quoted strings are skipped, so their parentheses don't count.
+static bool skip_parens(TSLexer *lexer) {
+    unsigned depth = 1;
+    while (!lexer->eof(lexer)) {
+        int32_t c = lexer->lookahead;
+        advance(lexer);
+        if (c == '(') {
+            depth++;
+        } else if (c == ')') {
+            if (--depth == 0) {
+                return true;
+            }
+        } else if (c == '\'' || c == '"') {
+            while (!lexer->eof(lexer) && lexer->lookahead != c && lexer->lookahead != '\n') {
+                if (lexer->lookahead == '\\') {
+                    advance(lexer);
+                }
+                advance(lexer);
+            }
+            advance(lexer);
+        }
+    }
+    return false;
+}
+
 static bool skip_whitespace(TSLexer *lexer) {
     bool newline = false;
     while (is_whitespace(lexer->lookahead)) {
@@ -394,6 +505,7 @@ bool tree_sitter_groovy_external_scanner_scan(
     if (valid_symbols[CASE_ARROW] && !valid_symbols[ERROR_SENTINEL]) {
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
             lexer->advance(lexer, true);
+            spaced = true;
         }
         if (lexer->lookahead == '-') {
             advance(lexer);
@@ -416,6 +528,7 @@ bool tree_sitter_groovy_external_scanner_scan(
         && !valid_symbols[ERROR_SENTINEL]) {
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
             lexer->advance(lexer, true);
+            spaced = true;
         }
         if (lexer->lookahead == '?') {
             advance(lexer);
@@ -434,6 +547,7 @@ bool tree_sitter_groovy_external_scanner_scan(
     if (valid_symbols[CAST_VALUE_START] && !valid_symbols[ERROR_SENTINEL]) {
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
             lexer->advance(lexer, true);
+            spaced = true;
         }
         int32_t c = lexer->lookahead;
         lexer->mark_end(lexer);
@@ -473,6 +587,7 @@ bool tree_sitter_groovy_external_scanner_scan(
     if (valid_symbols[SUBSCRIPT_OPEN] && !valid_symbols[ERROR_SENTINEL]) {
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
             lexer->advance(lexer, true);
+            spaced = true;
         }
         if (lexer->lookahead == '[') {
             lexer->advance(lexer, false);
@@ -485,12 +600,29 @@ bool tree_sitter_groovy_external_scanner_scan(
     // line of the callee. At a newline we fall through, and the in-grammar
     // `(` starts a new statement instead.
     if (valid_symbols[CALL_OPEN] && !valid_symbols[ERROR_SENTINEL]) {
+        // `spaced` also counts the spaces skipped by the branches above.
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            spaced = true;
             lexer->advance(lexer, true);
         }
         if (lexer->lookahead == '(') {
             lexer->advance(lexer, false);
             lexer->result_symbol = CALL_OPEN;
+            // `foo (a) -> a` passes a lambda (Groovy 3+); `foo (a)` is a call.
+            if (spaced && valid_symbols[COMMAND_LAMBDA_OPEN]) {
+                lexer->mark_end(lexer);
+                if (skip_parens(lexer)) {
+                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                        advance(lexer);
+                    }
+                    if (lexer->lookahead == '-') {
+                        advance(lexer);
+                        if (lexer->lookahead == '>') {
+                            lexer->result_symbol = COMMAND_LAMBDA_OPEN;
+                        }
+                    }
+                }
+            }
             return true;
         }
     }
@@ -620,7 +752,8 @@ bool tree_sitter_groovy_external_scanner_scan(
                 lexer->result_symbol = COMMAND_NAME_START;
                 return true;
             }
-            if (valid_symbols[COMMAND_NAMED_KEY] || valid_symbols[COMMAND_NAME_ARGUMENT]) {
+            if (valid_symbols[COMMAND_NAMED_KEY] || valid_symbols[COMMAND_NAME_ARGUMENT]
+                || valid_symbols[CLOSURE_COMMAND_ARGUMENT]) {
                 return finish_command_named_key(lexer, valid_symbols, word, len);
             }
             return false;
@@ -824,6 +957,24 @@ bool tree_sitter_groovy_external_scanner_scan(
             } else if (sym == PIPELINE_KEYWORD) {
                 if (lexer->lookahead != '{') {
                     return false;
+                }
+                // Only when the `}` ends the statement: `pipeline { a } | b`,
+                // `pipeline { }.with { }` call a method named `pipeline`.
+                // An unbalanced body keeps the block reading.
+                if (skip_braces(lexer)) {
+                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                        advance(lexer);
+                    }
+                    c = lexer->lookahead;
+                    bool ends = lexer->eof(lexer) || c == '\n' || c == '\r' || c == ';'
+                        || c == '}';
+                    if (c == '/') {
+                        advance(lexer);
+                        ends = lexer->lookahead == '/' || lexer->lookahead == '*';
+                    }
+                    if (!ends) {
+                        return false;
+                    }
                 }
             } else {
                 if (!is_ident_start(lexer->lookahead)) {

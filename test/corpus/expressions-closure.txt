@@ -554,3 +554,89 @@ def k = s -> s as String
         body: (cast_expression
           value: (identifier)
           type: (type_identifier))))))
+
+==================
+A closure whose whole body is a command call with one name argument
+==================
+
+def c = { x -> println x }
+c = { println it }
+list.each { a.b key }
+for (k in m) { println k}
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier)))
+        (command_chain
+          receiver: (identifier)
+          argument: (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (command_chain
+          receiver: (identifier)
+          argument: (identifier)))))
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (identifier)
+        field: (identifier))
+      closure: (closure
+        (command_chain
+          receiver: (field_access
+            object: (identifier)
+            field: (identifier))
+          argument: (identifier)))))
+  (for_in_statement
+    variable: (identifier)
+    value: (identifier)
+    body: (block
+      (command_chain
+        receiver: (identifier)
+        argument: (identifier)))))
+
+==================
+Closure bodies a name argument doesn't end stay statements
+==================
+
+foo { println x; y }
+foo { String s -> s }
+foo { println x
+}
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (closure
+      (expression_statement
+        (identifier))
+      (expression_statement
+        (identifier))
+      (expression_statement
+        (identifier))))
+  (command_chain
+    receiver: (identifier)
+    argument: (closure
+      (closure_parameters
+        (closure_parameter
+          type: (type_identifier)
+          name: (identifier)))
+      (expression_statement
+        (identifier))))
+  (command_chain
+    receiver: (identifier)
+    argument: (closure
+      (expression_statement
+        (identifier))
+      (expression_statement
+        (identifier)))))
