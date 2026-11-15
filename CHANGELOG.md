@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/
 
 ### Fixed
 
+- A command call's name argument may continue on a later line that starts with `.`, `?.` or `*.`: `a.foo bar` then `.baz` is `a.foo(bar.baz)`, as in Groovy.
 - A nested `enum` inside a class body (`static enum EventType { ... }`,
   a common Groovy domain-model idiom for entity fields backed by a
   fixed set of values) now parses as a class member. Previously

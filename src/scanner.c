@@ -36,6 +36,7 @@ enum TokenType {
     YIELD_KEYWORD,
     TERNARY_QUESTION,
     EXPRESSION_COLON,
+    COMMAND_NAME_START,
     ERROR_SENTINEL,
 };
 
@@ -90,6 +91,15 @@ static unsigned read_word(TSLexer *lexer, char *word, unsigned size) {
     return len;
 }
 
+// Whether a name may be a command call's one argument: not one of the
+// operators `as`, `in` and `instanceof`, nor `case` or `default`.
+static bool is_name_argument(const char *word, unsigned len) {
+    return !((len == 2 && (memcmp(word, "as", 2) == 0 || memcmp(word, "in", 2) == 0))
+        || (len == 10 && memcmp(word, "instanceof", 10) == 0)
+        || (len == 4 && memcmp(word, "case", 4) == 0)
+        || (len == 7 && memcmp(word, "default", 7) == 0));
+}
+
 // The rest of `scan_command_named_key`, once the identifier is read.
 static bool finish_command_named_key(TSLexer *lexer, const bool *valid_symbols,
                                      const char *word, unsigned len) {
@@ -110,9 +120,7 @@ static bool finish_command_named_key(TSLexer *lexer, const bool *valid_symbols,
         lexer->result_symbol = COMMAND_NAMED_KEY;
         return true;
     }
-    if (!valid_symbols[COMMAND_NAME_ARGUMENT]
-        || (len == 2 && (memcmp(word, "as", 2) == 0 || memcmp(word, "in", 2) == 0))
-        || (len == 10 && memcmp(word, "instanceof", 10) == 0)) {
+    if (!valid_symbols[COMMAND_NAME_ARGUMENT] || !is_name_argument(word, len)) {
         return false;
     }
     bool ends = lexer->eof(lexer) || n == '\n' || n == '\r' || n == ';' || n == '}';
@@ -540,6 +548,34 @@ bool tree_sitter_groovy_external_scanner_scan(
                     }
                 }
                 return false;
+            }
+            // A name that ends its line, where a key can't be. Groovy carries a
+            // later line that starts with `.`, `?.` or `*.` on from it: `a.foo bar`
+            // then `.baz` is `a.foo(bar.baz)`, so the name starts an argument.
+            // Otherwise it is the name argument that ends a statement (`a.b key`),
+            // given here as the zero-width `_command_name_start` before the name,
+            // since the lexer has looked past the end of `_command_name_argument`.
+            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+                while (is_whitespace(lexer->lookahead)) {
+                    advance(lexer);
+                }
+                if (lexer->lookahead == '?' || lexer->lookahead == '*') {
+                    advance(lexer);
+                }
+                if (lexer->lookahead == '.') {
+                    advance(lexer);
+                    // also `.@field` and `.&method`
+                    if (is_ident_start(lexer->lookahead) || lexer->lookahead == '@'
+                        || lexer->lookahead == '&') {
+                        lexer->result_symbol = COMMAND_LITERAL_START;
+                        return true;
+                    }
+                }
+                if (!valid_symbols[COMMAND_NAME_START] || !is_name_argument(word, len)) {
+                    return false;
+                }
+                lexer->result_symbol = COMMAND_NAME_START;
+                return true;
             }
             if (valid_symbols[COMMAND_NAMED_KEY] || valid_symbols[COMMAND_NAME_ARGUMENT]) {
                 return finish_command_named_key(lexer, valid_symbols, word, len);

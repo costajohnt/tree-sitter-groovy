@@ -231,6 +231,10 @@ module.exports = grammar({
     // first branch, `case`, `assert`, a map key), which tells the scanner a
     // `?[…]:` there is a safe index before that `:`, not a ternary.
     $._expression_colon,
+    // §5.5 — zero-width: `_command_name_argument` where the scanner had to look
+    // past the line break after the name to tell it from the start of an
+    // argument that continues on the next line (`a.foo bar` then `.baz`).
+    $._command_name_start,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -529,7 +533,7 @@ module.exports = grammar({
       // with the statement ending after it.
       seq(
         field('receiver', $.field_access),
-        field('argument', alias($._command_name_argument, $.identifier)),
+        $._command_name,
       ),
     ),
 
@@ -541,7 +545,12 @@ module.exports = grammar({
 
     _bare_name_command: $ => seq(
       field('receiver', $.identifier),
+      $._command_name,
+    ),
+
+    _command_name: $ => choice(
       field('argument', alias($._command_name_argument, $.identifier)),
+      seq($._command_name_start, field('argument', $.identifier)),
     ),
 
     // After the first argument has made the statement a command chain,

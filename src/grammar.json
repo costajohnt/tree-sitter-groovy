@@ -453,17 +453,8 @@
               }
             },
             {
-              "type": "FIELD",
-              "name": "argument",
-              "content": {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "_command_name_argument"
-                },
-                "named": true,
-                "value": "identifier"
-              }
+              "type": "SYMBOL",
+              "name": "_command_name"
             }
           ]
         }
@@ -514,6 +505,15 @@
           }
         },
         {
+          "type": "SYMBOL",
+          "name": "_command_name"
+        }
+      ]
+    },
+    "_command_name": {
+      "type": "CHOICE",
+      "members": [
+        {
           "type": "FIELD",
           "name": "argument",
           "content": {
@@ -525,6 +525,23 @@
             "named": true,
             "value": "identifier"
           }
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_command_name_start"
+            },
+            {
+              "type": "FIELD",
+              "name": "argument",
+              "content": {
+                "type": "SYMBOL",
+                "name": "identifier"
+              }
+            }
+          ]
         }
       ]
     },
@@ -12163,6 +12180,10 @@
     {
       "type": "SYMBOL",
       "name": "_expression_colon"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_command_name_start"
     },
     {
       "type": "SYMBOL",

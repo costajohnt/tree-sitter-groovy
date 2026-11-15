@@ -604,7 +604,9 @@ break still ends a statement:
 - a call chained onto a call on the same line (`a(x) or(b(y))`), and onto
   a parenthesized command's argument (`(page.list 0 isEmpty())`);
 - `a.b key` as a whole statement, and `a b` as the body of a braceless
-  `if`, when the statement ends after the name.
+  `if`, when the statement ends after the name;
+- a name argument that a later line continues with `.`, `?.` or `*.`, as
+  Groovy reads it: `a.foo bar` then `.baz` is `a.foo(bar.baz)`.
 
 ### 5.6 Optional parentheses
 

@@ -1108,3 +1108,90 @@ bar(2)
       function: (identifier)
       arguments: (argument_list
         (number_literal)))))
+
+==================
+Name argument continued on the next line
+==================
+
+tasks.x.mustRunAfter tasks
+    .createDockerfileOfficialFull // comment
+a.foo bar
+    ?.baz()
+a.foo bar
+
+    *.baz
+foo bar
+    .baz
+---
+
+(source_file
+  (command_chain
+    (field_access
+      (field_access
+        (identifier)
+        (identifier))
+      (identifier))
+    (field_access
+      (identifier)
+      (identifier)))
+  (line_comment)
+  (command_chain
+    (field_access
+      (identifier)
+      (identifier))
+    (method_invocation
+      (safe_navigation_expression
+        (identifier)
+        (identifier))
+      (argument_list)))
+  (command_chain
+    (field_access
+      (identifier)
+      (identifier))
+    (spread_dot_expression
+      (identifier)
+      (identifier)))
+  (command_chain
+    (identifier)
+    (field_access
+      (identifier)
+      (identifier))))
+
+==================
+Name argument then an operator on the next line
+==================
+
+a.b key
+-1
+a.b key
+++i
+a.b key
+foo = 1
+---
+
+(source_file
+  (command_chain
+    (field_access
+      (identifier)
+      (identifier))
+    (identifier))
+  (expression_statement
+    (unary_expression
+      (number_literal)))
+  (command_chain
+    (field_access
+      (identifier)
+      (identifier))
+    (identifier))
+  (expression_statement
+    (unary_update_expression
+      (identifier)))
+  (command_chain
+    (field_access
+      (identifier)
+      (identifier))
+    (identifier))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (number_literal))))
