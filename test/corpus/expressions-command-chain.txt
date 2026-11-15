@@ -1195,3 +1195,30 @@ foo = 1
     (assignment_expression
       (identifier)
       (number_literal))))
+
+==================
+default and case as later named argument keys
+==================
+
+input name: 'x', default: false
+foo a: 1, case: 2
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (named_argument
+      key: (identifier)
+      value: (string_literal))
+    argument: (named_argument
+      key: (identifier)
+      value: (boolean_literal)))
+  (command_chain
+    receiver: (identifier)
+    argument: (named_argument
+      key: (identifier)
+      value: (number_literal))
+    argument: (named_argument
+      key: (identifier)
+      value: (number_literal))))

@@ -114,6 +114,20 @@ function memberModifiers($) {
   ];
 }
 
+/**
+ * The modifiers after `def`, which annotations may lead or follow:
+ * `def static x`, `def @Shared String x`, `def static @Lazy x`.
+ *
+ * @param {GrammarSymbols<string>} $ Grammar reference symbols.
+ * @returns {RuleOrLiteral[]} The modifiers, to spread into a `seq`.
+ */
+function defModifiers($) {
+  return [
+    repeat($._modifier),
+    optional(seq(repeat1($.annotation), repeat($._modifier))),
+  ];
+}
+
 module.exports = grammar({
   name: 'groovy',
 
@@ -243,6 +257,13 @@ module.exports = grammar({
   conflicts: $ => [
     // `final def x` / `final x = 1` in a block vs. a modified member at top level.
     [$._modifier, $.local_variable_declaration],
+    // `for (int i, j; …)` and `for (int i, int j in …)` split at the comma.
+    [$._bare_declarator, $.for_in_statement],
+    // `if (a) foo b bar c` then `else`: a chain of names, or statements.
+    [$.command_chain, $._bare_name_command, $._expression, $._type],
+    [$.command_chain, $._bare_name_command, $._type],
+    [$._modifier, $.multi_assignment_declaration],
+    [$._modifier, $.for_in_statement],
     [$._modifier, $.local_variable_declaration, $.multi_assignment_declaration],
     // §5.5 — a literal after a command chain's comma is a positional
     // argument, or the start of a trailing method_invocation's function
@@ -544,8 +565,11 @@ module.exports = grammar({
       repeat1(field('argument', alias($._name_call, $.method_invocation))),
     )),
 
+    // Also a longer chain of names, `foo b bar c` (`foo(b).bar(c)`), which
+    // elsewhere is read as separate statements; the `else` decides.
     _bare_name_command: $ => seq(
       field('receiver', $.identifier),
+      repeat(prec.dynamic(-1, seq(field('argument', $.identifier), $.identifier))),
       $._command_name,
     ),
 
@@ -731,6 +755,8 @@ module.exports = grammar({
       optional(choice(
         seq(field('init', $._expression), repeat(seq(',', field('init', $._expression)))),
         field('init', $.local_variable_declaration),
+        // `for (int i; i < 3; i++)`: a typed declaration without a value.
+        field('init', alias($._for_bare_declaration, $.local_variable_declaration)),
       )),
       ';',
       optional(field('condition', $._expression)),
@@ -740,7 +766,15 @@ module.exports = grammar({
         repeat(seq(',', field('update', $._expression))),
       )),
       ')',
-      field('body', choice($.block, $._statement)),
+      // also an empty body: `for (i = 0; i < 5; i++);`
+      field('body', choice($.block, $._statement, ';')),
+    ),
+
+    _for_bare_declaration: $ => seq(
+      optional('final'),
+      field('type', $._type),
+      alias($._bare_declarator, $.variable_declarator),
+      repeat(seq(',', $.variable_declarator)),
     ),
 
     // §4 — do-while. Body is required; condition follows the body.
@@ -1096,8 +1130,9 @@ module.exports = grammar({
       seq(
         ...memberModifiers($),
         choice(
-          seq('def', repeat($._modifier)),
-          seq('def', repeat($._modifier), field('type', $._type)),
+          // `def @Shared String x`: annotations may follow `def` too.
+          seq('def', ...defModifiers($)),
+          seq('def', ...defModifiers($), field('type', $._type)),
           field('type', $._type),
         ),
         $.variable_declarator,
@@ -1385,6 +1420,14 @@ module.exports = grammar({
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
+      // `def @Deprecated x = 1`: annotations after `def`.
+      seq(
+        'def',
+        repeat1($.annotation),
+        optional(field('type', $._type)),
+        $.variable_declarator,
+        repeat(seq(',', $.variable_declarator)),
+      ),
       // A generic or array type can't start a command call, so a declarator
       // after one needs no value: `List<String> names`, `byte[] body`.
       prec.dynamic(1, seq(
@@ -1485,7 +1528,9 @@ module.exports = grammar({
     // needs a conflict declaration).
     //
     // Each name may carry a type: `def (String foo, int bar) = ["foo", 42]`.
+    // also annotated: `@Deprecated def (int q, int r) = [1, 2]`
     multi_assignment_declaration: $ => seq(
+      repeat($.annotation),
       optional('final'),
       'def',
       '(',
@@ -1606,6 +1651,8 @@ module.exports = grammar({
         field('index', $.identifier),
         ',',
       )),
+      // also annotated: `for (@Deprecated String i in l)`
+      repeat($.annotation),
       optional('final'),
       optional(choice('def', alias($._var_keyword, 'var'), field('type', $._type))),
       field('variable', $.identifier),
@@ -1721,9 +1768,12 @@ module.exports = grammar({
       '}',
     ),
 
+    // Groovy 4 switch expressions take several labels before a colon
+    // too: `case 6, 9: yield 'a'`.
     switch_case: $ => seq(
       'case',
-      field('value', $._expression),
+      field('value', $._case_value),
+      repeat(seq(',', field('value', $._case_value))),
       choice(':', alias($._expression_colon, ':')),
       repeat(choice($._statement, ';', $._line_break)),
     ),
@@ -1737,12 +1787,18 @@ module.exports = grammar({
     // `case Integer i when i > 0 -> …`.
     switch_arrow_case: $ => seq(
       'case',
-      field('value', choice($._expression, $.type_pattern)),
-      repeat(seq(',', field('value', $._expression))),
+      field('value', choice($._case_value, $.type_pattern)),
+      repeat(seq(',', field('value', $._case_value))),
       '->',
       field('body', choice($.block, $._statement)),
       optional(';'),
     ),
+
+    // A name before `->` is the case's label, not a lambda's parameter:
+    // `case FOO -> 1`, `case String -> { }`, `case APRIL, MAY -> …`.
+    _case_value: $ => choice($._expression, $._case_name),
+
+    _case_name: $ => prec(PREC.ASSIGN + 1, $.identifier),
 
     type_pattern: $ => seq(
       field('type', $._type),
@@ -2668,10 +2724,12 @@ module.exports = grammar({
       repeat(field('argument', alias($._name_call, $.method_invocation))),
     ),
 
-    _name_call: $ => seq(
+    // The last call may take a closure: `or (b) or (c) { }`.
+    _name_call: $ => prec.right(seq(
       field('function', $.identifier),
       field('arguments', $.argument_list),
-    ),
+      optional(field('closure', $.closure)),
+    )),
 
     // §3.2 — single `unary_expression` node kind but two precedence
     // alternatives, matching Apache §3.1:

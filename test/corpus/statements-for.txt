@@ -381,3 +381,78 @@ for (;;) {}
     body: (block))
   (for_statement
     body: (block)))
+
+==================
+For declaration without an initializer
+==================
+
+for (int i; i < 3; i++) {}
+for (int i; ;) { break }
+for (int i = 0, j; ;) {}
+
+---
+
+(source_file
+  (for_statement
+    init: (local_variable_declaration
+      type: (type_identifier)
+      (variable_declarator
+        name: (identifier)))
+    condition: (binary_expression
+      left: (identifier)
+      right: (number_literal))
+    update: (update_expression
+      operand: (identifier))
+    body: (block))
+  (for_statement
+    init: (local_variable_declaration
+      type: (type_identifier)
+      (variable_declarator
+        name: (identifier)))
+    body: (block
+      (break_statement)))
+  (for_statement
+    init: (local_variable_declaration
+      type: (type_identifier)
+      name: (identifier)
+      value: (number_literal)
+      name: (identifier))
+    body: (block)))
+
+==================
+For with an empty body and annotated for-in variables
+==================
+
+for (i = 0; i < 5; i++);
+for (@Deprecated String i in [1]) {}
+for (@Deprecated final i : [1]) {}
+
+---
+
+(source_file
+  (for_statement
+    init: (assignment_expression
+      left: (identifier)
+      right: (number_literal))
+    condition: (binary_expression
+      left: (identifier)
+      right: (number_literal))
+    update: (update_expression
+      operand: (identifier)))
+  (for_in_statement
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    type: (type_identifier)
+    variable: (identifier)
+    value: (list_literal
+      (number_literal))
+    body: (block))
+  (for_in_statement
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    variable: (identifier)
+    value: (list_literal
+      (number_literal))
+    body: (block)))

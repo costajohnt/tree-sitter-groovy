@@ -298,3 +298,39 @@ x.else = 2
         object: (identifier)
         field: (identifier))
       right: (number_literal))))
+
+==================
+Else after an if whose body is a command chain
+==================
+
+if (a) or (b) or (c) {
+}
+else {
+}
+if (a) foo b bar c
+else {}
+
+---
+
+(source_file
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (method_invocation
+        function: (identifier)
+        arguments: (argument_list
+          (identifier)))
+      argument: (method_invocation
+        function: (identifier)
+        arguments: (argument_list
+          (identifier))
+        closure: (closure)))
+    alternative: (block))
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (identifier)
+      argument: (identifier)
+      (identifier)
+      argument: (identifier))
+    alternative: (block)))

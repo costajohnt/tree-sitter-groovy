@@ -888,3 +888,26 @@ for (var x : xs) {}
     (identifier)
     (identifier)
     (block)))
+
+==================
+Annotated multiple assignment
+==================
+
+@Deprecated def (int q, int r) = [1, 2]
+
+---
+
+(source_file
+  (multi_assignment_declaration
+    (annotation
+      name: (qualified_name
+        (identifier)))
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier))
+    type: (type_identifier)
+    (variable_declarator
+      name: (identifier))
+    value: (list_literal
+      (number_literal)
+      (number_literal))))

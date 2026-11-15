@@ -69,8 +69,7 @@ static bool scan_command_named_key(TSLexer *lexer, const bool *valid_symbols) {
     if (!is_ident_start(lexer->lookahead)) {
         return false;
     }
-    // Keep the first few chars to reject `case:` / `default:`, which
-    // are switch labels, not keys, and the operators `as`, `in` and
+    // Keep the first few chars to reject the operators `as`, `in` and
     // `instanceof`, which are not arguments.
     char word[12];
     unsigned len = read_word(lexer, word, sizeof(word));
@@ -103,10 +102,8 @@ static bool is_name_argument(const char *word, unsigned len) {
 // The rest of `scan_command_named_key`, once the identifier is read.
 static bool finish_command_named_key(TSLexer *lexer, const bool *valid_symbols,
                                      const char *word, unsigned len) {
-    if ((len == 4 && memcmp(word, "case", 4) == 0)
-        || (len == 7 && memcmp(word, "default", 7) == 0)) {
-        return false;
-    }
+    // `case` and `default` may be keys too, since a switch label can't follow
+    // an argument on its line: `input name: 'x', default: false`.
     lexer->mark_end(lexer);
     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
         lexer->advance(lexer, false);
