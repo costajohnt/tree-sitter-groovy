@@ -313,3 +313,159 @@ def m() { def @Deprecated x = 1 }
         (variable_declarator
           name: (identifier)
           value: (number_literal))))))
+
+==================
+Method with modifiers and a return type after a member and a comment
+==================
+
+class A {
+    def x = 1
+    // doc
+    @Deprecated
+    private boolean isLeaf() { true }
+    /** doc */ @SuppressWarnings('X') private static List<String> names(Node n) { [] }
+    /* c */
+    protected int[] nums() { null }
+}
+
+---
+
+(source_file
+  (class_declaration
+    (identifier)
+    (class_body
+      (field_declaration
+        (variable_declarator
+          (identifier)
+          (number_literal)))
+      (line_comment)
+      (method_declaration
+        (annotation
+          (qualified_name
+            (identifier)))
+        (type_identifier)
+        (identifier)
+        (formal_parameters)
+        (block
+          (expression_statement
+            (boolean_literal))))
+      (groovydoc_comment)
+      (method_declaration
+        (annotation
+          (qualified_name
+            (identifier))
+          (argument_list
+            (string_literal)))
+        (generic_type
+          (type_identifier)
+          (type_arguments
+            (type_identifier)))
+        (identifier)
+        (formal_parameters
+          (formal_parameter
+            (type_identifier)
+            (identifier)))
+        (block
+          (expression_statement
+            (list_literal))))
+      (block_comment)
+      (method_declaration
+        (array_type
+          (type_identifier))
+        (identifier)
+        (formal_parameters)
+        (block
+          (expression_statement
+            (null_literal)))))))
+
+==================
+Field with modifiers after a member and a comment
+==================
+
+class A {
+    def x = 1
+    // c
+    @Deprecated private boolean flag
+    // c
+    private boolean other = true
+    // c
+    private untyped
+}
+
+---
+
+(source_file
+  (class_declaration
+    (identifier)
+    (class_body
+      (field_declaration
+        (variable_declarator
+          (identifier)
+          (number_literal)))
+      (line_comment)
+      (field_declaration
+        (annotation
+          (qualified_name
+            (identifier)))
+        (type_identifier)
+        (variable_declarator
+          (identifier)))
+      (line_comment)
+      (field_declaration
+        (type_identifier)
+        (variable_declarator
+          (identifier)
+          (boolean_literal)))
+      (line_comment)
+      (field_declaration
+        (variable_declarator
+          (identifier))))))
+
+==================
+Script method and declaration with annotations and modifiers after a comment
+==================
+
+def x = 1
+// doc
+@Deprecated
+private boolean isLeaf() { true }
+// c
+@Field static final int N = 1
+// c
+@Field untyped = 2
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (number_literal)))
+  (line_comment)
+  (method_declaration
+    (annotation
+      (qualified_name
+        (identifier)))
+    (type_identifier)
+    (identifier)
+    (formal_parameters)
+    (block
+      (expression_statement
+        (boolean_literal))))
+  (line_comment)
+  (local_variable_declaration
+    (annotation
+      (qualified_name
+        (identifier)))
+    (type_identifier)
+    (variable_declarator
+      (identifier)
+      (number_literal)))
+  (line_comment)
+  (local_variable_declaration
+    (annotation
+      (qualified_name
+        (identifier)))
+    (variable_declarator
+      (identifier)
+      (number_literal))))

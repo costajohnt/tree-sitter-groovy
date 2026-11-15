@@ -128,6 +128,20 @@ function defModifiers($) {
   ];
 }
 
+/**
+ * Annotations with modifiers before or after them, at least one annotation:
+ * `@Field static`, `static @Field`.
+ *
+ * @param {GrammarSymbols<string>} $ Grammar reference symbols.
+ * @returns {ChoiceRule} The prefix.
+ */
+function annotatedModifiers($) {
+  return choice(
+    seq(repeat1($.annotation), repeat($._modifier)),
+    seq(repeat1($._modifier), repeat1($.annotation), repeat($._modifier)),
+  );
+}
+
 module.exports = grammar({
   name: 'groovy',
 
@@ -1138,13 +1152,17 @@ module.exports = grammar({
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
-      seq(
+      // prec.dynamic: `private boolean isLeaf() { }` must stay one method,
+      // not an untyped field `boolean` followed by a constructor `isLeaf`.
+      // Both readings reach the `}`; without it the merge picks one by tree
+      // shape, which a comment before the member can flip.
+      prec.dynamic(-1, seq(
         repeat($.annotation),
         repeat1($._modifier),
         optional(seq(repeat1($.annotation), repeat($._modifier))),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
-      ),
+      )),
       // prec.dynamic: `@Inject Engine engine` must stay one typed field,
       // not an untyped field `Engine` followed by one more member.
       prec.dynamic(-1, seq(
@@ -1473,14 +1491,20 @@ module.exports = grammar({
       // Annotations may also follow modifiers: `static @Field x = 1`,
       // `final @Deprecated x = 1`.
       seq(
-        choice(
-          seq(repeat1($.annotation), repeat($._modifier)),
-          seq(repeat1($._modifier), repeat1($.annotation), repeat($._modifier)),
-        ),
-        optional(choice('def', alias($._var_keyword, 'var'), field('type', $._type))),
+        annotatedModifiers($),
+        choice('def', alias($._var_keyword, 'var'), field('type', $._type)),
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
+      // prec.dynamic: with no type, the name could be the type of a typed
+      // declaration or the return type of a method, which win:
+      // `@Field static final int N = 1` is not `int` and then `N = 1`, and
+      // `@Deprecated private boolean f() { }` is not `boolean` and a call.
+      prec.dynamic(-1, seq(
+        annotatedModifiers($),
+        $.variable_declarator,
+        repeat(seq(',', $.variable_declarator)),
+      )),
     )),
 
     // Groovy 3 and 4 take `in` as a name: `InputStream in = null`.
