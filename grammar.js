@@ -283,6 +283,11 @@ module.exports = grammar({
   conflicts: $ => [
     // `final def x` / `final x = 1` in a block vs. a modified member at top level.
     [$._modifier, $.local_variable_declaration],
+    // `for (final int i; …)`: the for loop's bare declaration or a `final`
+    // typed declaration, which read the same.
+    [$._for_bare_declaration, $.local_variable_declaration],
+    // `for (@A final x …`: a for-in loop's modifiers or an annotated declaration.
+    [$._modifier, $.local_variable_declaration, $.for_in_statement],
     // `for (int i, j; …)` and `for (int i, int j in …)` split at the comma.
     [$._bare_declarator, $.for_in_statement],
     // `if (a) foo b bar c` then `else`: a chain of names, or statements.
@@ -1534,6 +1539,33 @@ module.exports = grammar({
         $.variable_declarator,
         repeat(seq(',', $.variable_declarator)),
       ),
+      // After `final` a type and a name can't be a command call, so no
+      // declarator needs a value: `final String a, b`, `final int c`.
+      // prec.dynamic: not `final String` and then the statement `a`.
+      prec.dynamic(1, seq(
+        'final',
+        field('type', $._type),
+        alias($._bare_declarator, $.variable_declarator),
+        repeat(seq(',', $.variable_declarator)),
+      )),
+      // `@A final x = 1` with `final` as the token, not a `_modifier`: as the
+      // first statement of a block the parser would otherwise drop the block
+      // for a closure with the parameter `@A final x`; this way both stay
+      // open until `->` or the `=` decides. The untyped form loses to the
+      // typed one as below.
+      seq(
+        repeat1($.annotation),
+        'final',
+        field('type', $._type),
+        $.variable_declarator,
+        repeat(seq(',', $.variable_declarator)),
+      ),
+      prec.dynamic(-1, seq(
+        repeat1($.annotation),
+        'final',
+        $.variable_declarator,
+        repeat(seq(',', $.variable_declarator)),
+      )),
       // Annotations may also follow modifiers: `static @Field x = 1`,
       // `final @Deprecated x = 1`.
       seq(
@@ -1933,7 +1965,7 @@ module.exports = grammar({
     // prec.dynamic: `x as A.B<C>` is a cast to a generic type, never the
     // comparison chain `(x as A.B) < C > …` that `_dotted_type` would win.
     // A dotted name may also take type arguments or `[]` here:
-    // `x as java.util.concurrent.Callable<T>`, `[] as A.B[]`.
+    // `x as java.util.concurrent.Callable<T>`, `[] as A.B[]`, `[] as A.B<C>[]`.
     _cast_type: $ => choice(
       alias($.identifier, $.type_identifier),
       $.array_type,
@@ -1954,6 +1986,7 @@ module.exports = grammar({
     _dotted_array_type: $ => prec(PREC.ARRAY_TYPE, seq(
       choice(
         alias($._dotted_type, $.qualified_type),
+        alias($._dotted_generic_type, $.generic_type),
         alias($._dotted_array_type, $.array_type),
       ),
       alias($._subscript_open, '['),

@@ -142,3 +142,50 @@ p.q.any {
       closure: (closure
         (expression_statement
           (identifier))))))
+
+==================
+Cast and instanceof to a dotted generic array type
+==================
+
+[] as java.nio.file.WatchEvent.Kind<?>[]
+y instanceof Map.Entry<K, V>[]
+x as A.B<C>[][]
+
+---
+
+(source_file
+  (expression_statement
+    (cast_expression
+      value: (list_literal)
+      type: (array_type
+        (generic_type
+          base: (qualified_type
+            (type_identifier)
+            (type_identifier)
+            (type_identifier)
+            (type_identifier)
+            (type_identifier))
+          arguments: (type_arguments
+            (wildcard))))))
+  (expression_statement
+    (instanceof_expression
+      value: (identifier)
+      type: (array_type
+        (generic_type
+          base: (qualified_type
+            (type_identifier)
+            (type_identifier))
+          arguments: (type_arguments
+            (type_identifier)
+            (type_identifier))))))
+  (expression_statement
+    (cast_expression
+      value: (identifier)
+      type: (array_type
+        (array_type
+          (generic_type
+            base: (qualified_type
+              (type_identifier)
+              (type_identifier))
+            arguments: (type_arguments
+              (type_identifier))))))))
