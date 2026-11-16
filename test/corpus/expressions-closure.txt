@@ -1167,3 +1167,70 @@ def h = { a, e = x - y * z % g -> e }
                 right: (identifier)))))
         (expression_statement
           (identifier))))))
+
+==================
+Closure parameter named as (Groovy 3 and 4)
+==================
+
+def f = { List<AnnotationNode> as, String n -> as.any { it } }
+def g = { String as -> as }
+def h = { final String[] as = [], b -> as }
+def k = { it as String }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (generic_type
+              base: (type_identifier)
+              arguments: (type_arguments
+                (type_identifier)))
+            name: (identifier))
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        (expression_statement
+          (method_invocation
+            function: (field_access
+              object: (identifier)
+              field: (identifier))
+            closure: (closure
+              (expression_statement
+                (identifier))))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (array_type
+              (type_identifier))
+            name: (identifier)
+            default: (list_literal))
+          (closure_parameter
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (expression_statement
+          (cast_expression
+            value: (identifier)
+            type: (type_identifier)))))))

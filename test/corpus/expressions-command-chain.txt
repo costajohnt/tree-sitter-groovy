@@ -1439,3 +1439,29 @@ f 1, 2: 3
     argument: (named_argument
       key: (number_literal)
       value: (number_literal))))
+
+==================
+Command argument as with a subscript (Groovy 3 and 4)
+==================
+
+println as[0]
+foo.bar as[0][1], 2
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (subscript_expression
+      object: (identifier)
+      index: (number_literal)))
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (subscript_expression
+      object: (subscript_expression
+        object: (identifier)
+        index: (number_literal))
+      index: (number_literal))
+    argument: (number_literal)))
