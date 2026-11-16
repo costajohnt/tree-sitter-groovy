@@ -1087,15 +1087,26 @@ bool tree_sitter_groovy_external_scanner_scan(
                     }
                 }
             } else if (sym == SEALED_KEYWORD) {
-                // before `class`, `interface` or `trait`, also on a later line
+                // Before a type's keyword, also on a later line, or before a
+                // modifier, an annotation or `non-sealed`, which Groovy rejects
+                // after it (`sealed final interface I`): those stay errors.
                 while (is_whitespace(lexer->lookahead)) {
                     advance(lexer);
                 }
-                len = read_word(lexer, word, sizeof(word));
-                if (!((len == 5 && memcmp(word, "class", 5) == 0)
-                      || (len == 9 && memcmp(word, "interface", 9) == 0)
-                      || (len == 5 && memcmp(word, "trait", 5) == 0))) {
-                    return false;
+                if (lexer->lookahead != '@') {
+                    static const char *const after[] = {
+                        "class", "interface", "trait", "record", "enum", "non",
+                        "final", "abstract", "static", "public", "private",
+                        "protected", "strictfp",
+                    };
+                    len = read_word(lexer, word, sizeof(word));
+                    bool keyword = false;
+                    for (unsigned i = 0; i < sizeof(after) / sizeof(after[0]) && !keyword; i++) {
+                        keyword = strlen(after[i]) == len && memcmp(word, after[i], len) == 0;
+                    }
+                    if (!keyword) {
+                        return false;
+                    }
                 }
             } else if (sym == PIPELINE_KEYWORD) {
                 if (lexer->lookahead != '{') {
