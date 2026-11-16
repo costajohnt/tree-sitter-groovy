@@ -2950,7 +2950,7 @@ module.exports = grammar({
       prec.dynamic(-1, seq(
         optional('final'),
         optional(choice('def', field('type', choice($._type, $.varargs_type)))),
-        field('name', $.identifier),
+        field('name', choice($.identifier, alias('as', $.identifier))),
         '=',
         field('default', $._expression),
       )),
