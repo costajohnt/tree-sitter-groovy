@@ -147,3 +147,44 @@ b = a !in c
       right: (membership_expression
         element: (identifier)
         collection: (identifier)))))
+
+==================
+!in right before a bracket, parenthesis or brace
+==================
+
+assert 1 !in[2, 3]
+x = a !in(b)
+y = a !in{ it }
+z = a !in [1]
+
+---
+
+(source_file
+  (assert_statement
+    (membership_expression
+      element: (number_literal)
+      collection: (list_literal
+        (number_literal)
+        (number_literal))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (membership_expression
+        element: (identifier)
+        collection: (parenthesized_expression
+          (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (membership_expression
+        element: (identifier)
+        collection: (closure
+          (expression_statement
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (membership_expression
+        element: (identifier)
+        collection: (list_literal
+          (number_literal))))))

@@ -1340,3 +1340,70 @@ f a: 1, \
     argument: (named_argument
       key: (identifier)
       value: (number_literal))))
+
+==================
+Command call with a parenthesized receiver
+==================
+
+((int) 1 / 2) 1, 2
+(a + b) "x", 2
+(a) 1
+
+---
+
+(source_file
+  (command_chain
+    receiver: (parenthesized_expression
+      (binary_expression
+        left: (parenthesized_type_cast
+          type: (type_identifier)
+          value: (number_literal))
+        right: (number_literal)))
+    argument: (number_literal)
+    argument: (number_literal))
+  (command_chain
+    receiver: (parenthesized_expression
+      (binary_expression
+        left: (identifier)
+        right: (identifier)))
+    argument: (string_literal
+      (string_fragment))
+    argument: (number_literal))
+  (expression_statement
+    (parenthesized_type_cast
+      type: (type_identifier)
+      value: (number_literal))))
+
+==================
+Command chain inside parentheses
+==================
+
+def x = (1.plus 2 plus 3)
+def y = (a.b 1, 2 c 3)
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (parenthesized_expression
+        (command_chain
+          receiver: (field_access
+            object: (number_literal)
+            field: (identifier))
+          argument: (number_literal)
+          (identifier)
+          argument: (number_literal)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (parenthesized_expression
+        (command_chain
+          receiver: (field_access
+            object: (identifier)
+            field: (identifier))
+          argument: (number_literal)
+          argument: (number_literal)
+          (identifier)
+          argument: (number_literal))))))

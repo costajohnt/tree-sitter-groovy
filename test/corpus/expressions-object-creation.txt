@@ -398,3 +398,113 @@ foo(new Object()
                 name: (identifier)))
             (expression_statement
               (number_literal))))))))
+
+==================
+Array creation with two trailing empty dimensions
+==================
+
+def i = new int[10][][]
+int[][][] j = new int[2][3][]
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (array_creation_expression
+        type: (type_identifier)
+        (dimension_expression
+          (number_literal))
+        (dimension)
+        (dimension))))
+  (local_variable_declaration
+    type: (array_type
+      (array_type
+        (array_type
+          (type_identifier))))
+    name: (identifier)
+    value: (array_creation_expression
+      type: (type_identifier)
+      (dimension_expression
+        (number_literal))
+      (dimension_expression
+        (number_literal))
+      (dimension))))
+
+==================
+Closure on the line after new X() where a statement may end
+==================
+
+def a = new Object()
+{ int x = 1 }
+def b = new Object()
+{ }
+foo(new Object()
+{ int x = 1 })
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list))
+        closure: (closure
+          (local_variable_declaration
+            type: (type_identifier)
+            name: (identifier)
+            value: (number_literal))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list))
+        closure: (closure))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list)
+          body: (class_body
+            (field_declaration
+              type: (type_identifier)
+              (variable_declarator
+                name: (identifier)
+                value: (number_literal)))))))))
+
+==================
+Closure with -> after new X() on its line
+==================
+
+def a = new Object() { -> 3 }
+def b = new Object() { }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list))
+        closure: (closure
+          (closure_parameters)
+          (expression_statement
+            (number_literal))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (object_creation_expression
+        type: (type_identifier)
+        arguments: (argument_list)
+        body: (class_body)))))

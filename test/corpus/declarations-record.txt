@@ -220,3 +220,63 @@ record S(int a)
       (record_component
         type: (type_identifier)
         name: (identifier)))))
+
+==================
+Record compact constructor
+==================
+
+record Fruit(String name) {
+    Fruit {
+        assert name
+    }
+}
+record P(int x) {
+    @Deprecated public P {
+    }
+}
+record R(int x) {
+    public foo
+    {
+    }
+}
+
+---
+
+(source_file
+  (record_declaration
+    name: (identifier)
+    components: (record_components
+      (record_component
+        type: (type_identifier)
+        name: (identifier)))
+    body: (class_body
+      (constructor_declaration
+        name: (identifier)
+        body: (block
+          (assert_statement
+            (identifier))))))
+  (record_declaration
+    name: (identifier)
+    components: (record_components
+      (record_component
+        type: (type_identifier)
+        name: (identifier)))
+    body: (class_body
+      (constructor_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        name: (identifier)
+        body: (block))))
+  (record_declaration
+    name: (identifier)
+    components: (record_components
+      (record_component
+        type: (type_identifier)
+        name: (identifier)))
+    body: (class_body
+      (field_declaration
+        (variable_declarator
+          name: (identifier)))
+      (instance_initializer
+        body: (block)))))

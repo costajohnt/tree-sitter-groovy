@@ -62,3 +62,35 @@ def b = nodes*.@href
       value: (direct_field_access_expression
         object: (identifier)
         field: (identifier)))))
+
+==================
+Attribute access with the @ after a line break or space
+==================
+
+def x = a*.
+@child
+y = a.
+@child
+z = a?. @child
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (direct_field_access_expression
+        object: (identifier)
+        field: (identifier))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (direct_field_access_expression
+        object: (identifier)
+        field: (identifier))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (direct_field_access_expression
+        object: (identifier)
+        field: (identifier)))))

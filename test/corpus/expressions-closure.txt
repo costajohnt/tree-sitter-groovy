@@ -1083,3 +1083,42 @@ def f = { a, b -> e = g -> e }
             right: (lambda_expression
               parameters: (formal_parameter)
               body: (identifier))))))))
+
+==================
+Closure parameter default ending in a name before ->
+==================
+
+def c = { a, e = x + g -> e }
+def d = { e = x * y + g -> e }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier))
+          (closure_parameter
+            name: (identifier)
+            default: (binary_expression
+              left: (identifier)
+              right: (identifier))))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier)
+            default: (binary_expression
+              left: (binary_expression
+                left: (identifier)
+                right: (identifier))
+              right: (identifier))))
+        (expression_statement
+          (identifier))))))
