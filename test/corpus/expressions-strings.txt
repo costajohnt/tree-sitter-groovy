@@ -923,3 +923,27 @@ def d = """x""" + '''y'''
         left: (string_literal
           (string_fragment))
         right: (string_literal)))))
+
+==================
+return in a brace interpolation
+==================
+
+"${-> x; return y}"
+"${return y}"
+
+---
+
+(source_file
+  (expression_statement
+    (string_literal
+      (gstring_brace_interpolation
+        (closure_parameters)
+        (expression_statement
+          (identifier))
+        (return_statement
+          (identifier)))))
+  (expression_statement
+    (string_literal
+      (gstring_brace_interpolation
+        (return_statement
+          (identifier))))))

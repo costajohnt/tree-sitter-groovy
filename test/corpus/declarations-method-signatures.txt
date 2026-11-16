@@ -626,3 +626,30 @@ interface Config {
         body: (block
           (expression_statement
             (null_literal)))))))
+
+==================
+Interface methods without a return type
+==================
+
+interface K {
+    key()
+    value(String a) throws IOException
+}
+
+---
+
+(source_file
+  (interface_declaration
+    name: (identifier)
+    body: (class_body
+      (method_declaration
+        name: (identifier)
+        parameters: (formal_parameters))
+      (method_declaration
+        name: (identifier)
+        parameters: (formal_parameters
+          (formal_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        (throws_clause
+          (type_identifier))))))

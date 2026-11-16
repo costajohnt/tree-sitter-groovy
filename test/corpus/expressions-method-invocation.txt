@@ -219,3 +219,40 @@ f(a: 1, *: m)
           value: (number_literal))
         (spread_map_entry
           value: (identifier))))))
+
+==================
+A command call as a call argument
+==================
+
+println(g 1)
+parseText(readJSON file: "x")
+println(g 1, 2)
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (command_chain
+          receiver: (identifier)
+          argument: (number_literal)))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (command_chain
+          receiver: (identifier)
+          argument: (named_argument
+            key: (identifier)
+            value: (string_literal
+              (string_fragment)))))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (command_chain
+          receiver: (identifier)
+          argument: (number_literal)
+          argument: (number_literal))))))

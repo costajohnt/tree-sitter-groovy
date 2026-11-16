@@ -6347,6 +6347,10 @@
           "named": true
         },
         {
+          "type": "return_statement",
+          "named": true
+        },
+        {
           "type": "try_statement",
           "named": true
         },

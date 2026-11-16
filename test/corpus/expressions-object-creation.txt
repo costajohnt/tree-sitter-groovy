@@ -315,3 +315,49 @@ class B { }
               right: (number_literal))))))
     name: (identifier)
     body: (class_body)))
+
+==================
+A closure on the line after new X() is its argument
+==================
+
+def a = new Object()
+{ -> 3 }
+def b = new Object() // c
+{ }
+def c = new Runnable() { void run() { } }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list))
+        closure: (closure
+          (closure_parameters)
+          (expression_statement
+            (number_literal))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list))
+        (line_comment)
+        closure: (closure))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (object_creation_expression
+        type: (type_identifier)
+        arguments: (argument_list)
+        body: (class_body
+          (method_declaration
+            return_type: (type_identifier)
+            name: (identifier)
+            parameters: (formal_parameters)
+            body: (block)))))))

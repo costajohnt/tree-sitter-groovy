@@ -1321,3 +1321,22 @@ foo(a) + 1
         arguments: (argument_list
           (identifier)))
       right: (number_literal))))
+
+==================
+Backslash continuation after a named argument comma
+==================
+
+f a: 1, \
+    b: 2
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (named_argument
+      key: (identifier)
+      value: (number_literal))
+    argument: (named_argument
+      key: (identifier)
+      value: (number_literal))))

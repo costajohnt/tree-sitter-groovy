@@ -475,6 +475,27 @@ bool tree_sitter_groovy_external_scanner_scan(
                 }
             } else if (c == ',' || c == '?' || c == '@') {
                 advance(lexer);
+            } else if (c == '/') {
+                // A block comment on the line counts as a space: `<? /*V*/>`.
+                advance(lexer);
+                if (lexer->lookahead != '*') {
+                    goto not_type;
+                }
+                advance(lexer);
+                for (;;) {
+                    if (lexer->eof(lexer) || lexer->lookahead == '\n'
+                        || lexer->lookahead == '\r') {
+                        goto not_type;
+                    }
+                    int32_t star = lexer->lookahead;
+                    advance(lexer);
+                    if (star == '*' && lexer->lookahead == '/') {
+                        advance(lexer);
+                        break;
+                    }
+                }
+                prev_space = true;
+                continue;
             } else if (c == '[') {
                 advance(lexer);
                 if (lexer->lookahead != ']') {
@@ -834,10 +855,24 @@ bool tree_sitter_groovy_external_scanner_scan(
         // Where no statement may end (after a comma between arguments), the
         // key may start on the next line: `sh returnStdout: true,` then
         // `script: 'x'`. Elsewhere a key on the next line is a label.
-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t'
-            || (!valid_symbols[LINE_BREAK]
-                && (lexer->lookahead == '\n' || lexer->lookahead == '\r'))) {
-            lexer->advance(lexer, true);
+        // A backslash at the end of a line continues it: `f a: 1, \` then `b: 2`.
+        for (;;) {
+            if (lexer->lookahead == ' ' || lexer->lookahead == '\t'
+                || (!valid_symbols[LINE_BREAK]
+                    && (lexer->lookahead == '\n' || lexer->lookahead == '\r'))) {
+                lexer->advance(lexer, true);
+            } else if (lexer->lookahead == '\\') {
+                lexer->advance(lexer, true);
+                if (lexer->lookahead == '\r') {
+                    lexer->advance(lexer, true);
+                }
+                if (lexer->lookahead != '\n') {
+                    return false;
+                }
+                lexer->advance(lexer, true);
+            } else {
+                break;
+            }
         }
         // An identifier is either the key or, once consumed, not something
         // the code below could start (a comment or slashy string), so stop

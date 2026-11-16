@@ -1009,7 +1009,26 @@ module.exports = grammar({
       optional(field('type_parameters', $.type_parameters)),
       optional($.extends_interfaces),
       optional($.permits_clause),
-      field('body', $.class_body),
+      field('body', alias($._interface_body, $.class_body)),
+    ),
+
+    // An interface method may have no return type (Groovy 3 and 4): `key()`.
+    _interface_body: $ => seq(
+      '{',
+      repeat(choice(
+        $._class_member,
+        alias($._untyped_abstract_method, $.method_declaration),
+        $.instance_initializer,
+        ';',
+        $._line_break,
+      )),
+      '}',
+    ),
+
+    _untyped_abstract_method: $ => seq(
+      field('name', $.identifier),
+      field('parameters', $.formal_parameters),
+      optional($.throws_clause),
     ),
 
     // §4 / §5.14 — generic type parameter list on a class /
@@ -2056,15 +2075,17 @@ module.exports = grammar({
     // generic types, and array initialisers land later. PREC.PRIMARY
     // so it composes with the access tier from the left
     // (`new Foo().bar`).
-    // A `{` after the arguments starts an anonymous class body:
-    // `new Runnable() { void run() { } }`. Groovy never reads it as a closure
-    // argument of the new object.
+    // A `{` after the arguments on their line starts an anonymous class body:
+    // `new Runnable() { void run() { } }`. A `{` on the next line is a closure
+    // argument of the new object, `new Object()` then `{ -> 3 }`, as Groovy
+    // 2.4, 3 and 4 read it (the zero-width `_command_closure_start` matches
+    // only a `{` on the line).
     object_creation_expression: $ => prec.right(PREC.PRIMARY, seq(
       'new',
       repeat($.annotation),
       field('type', $._type),
       field('arguments', alias($._new_argument_list, $.argument_list)),
-      optional(field('body', $.class_body)),
+      optional(seq($._command_closure_start, field('body', $.class_body))),
     )),
 
     // §3.2 / §5.15 — array creation: `new byte[10]`, `new int[2][3]`,
@@ -2420,13 +2441,16 @@ module.exports = grammar({
       ')',
     ),
 
-    // §5.5 — a command call on a dotted receiver as the first argument, which
-    // takes the arguments after it too, as Groovy reads it:
+    // §5.5 — a command call as the first argument, which takes the arguments
+    // after it too, as Groovy reads it:
     // `form(new Spec().ui new Attachment(), { … })` passes `form` one value.
+    // On a bare name (Groovy 3 and 4): `println(g 1)`, `parseText(readJSON file: f)`.
     _argument_list_command: $ => prec.right(seq(
-      field('receiver', $.field_access),
-      $._command_literal_start,
-      field('argument', $._expression),
+      field('receiver', choice($.identifier, $.field_access)),
+      choice(
+        seq($._command_literal_start, field('argument', $._expression)),
+        field('argument', alias($._command_named_argument, $.named_argument)),
+      ),
       repeat($._command_later_argument),
     )),
 
@@ -3092,6 +3116,8 @@ module.exports = grammar({
           $.try_statement,
           $.assert_statement,
           $.labeled_statement,
+          // `${-> x; return y}`
+          $.return_statement,
           ';',
           $._line_break,
         )),

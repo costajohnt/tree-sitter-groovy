@@ -772,3 +772,44 @@ interface I<T extends @Deprecated CharSequence & @A Runnable> {}
             (identifier)))
         (type_identifier)))
     body: (class_body)))
+
+==================
+Block comments in type arguments
+==================
+
+Map<String, Collection<? /*V*/>> m
+List<? extends /*V*/ Number> l
+List</*V*/ String> s
+
+---
+
+(source_file
+  (local_variable_declaration
+    type: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier)
+        (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (wildcard)
+            (block_comment)))))
+    (variable_declarator
+      name: (identifier)))
+  (local_variable_declaration
+    type: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (wildcard
+          (block_comment)
+          (type_identifier))))
+    (variable_declarator
+      name: (identifier)))
+  (local_variable_declaration
+    type: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (block_comment)
+        (type_identifier)))
+    (variable_declarator
+      name: (identifier))))
