@@ -334,3 +334,37 @@ else {}
       (identifier)
       argument: (identifier))
     alternative: (block)))
+
+==================
+Braceless if body: a command call with a cast argument, then else
+==================
+
+if (c)
+    render result as JSON
+else
+    render status: 404
+if (c) render result as JSON
+
+---
+
+(source_file
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (identifier)
+      argument: (cast_expression
+        value: (identifier)
+        type: (type_identifier)))
+    alternative: (command_chain
+      receiver: (identifier)
+      argument: (named_argument
+        key: (identifier)
+        value: (number_literal))))
+  (if_statement
+    condition: (identifier)
+    consequence: (expression_statement
+      (identifier)))
+  (expression_statement
+    (cast_expression
+      value: (identifier)
+      type: (type_identifier))))

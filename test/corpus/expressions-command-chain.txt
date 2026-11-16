@@ -1407,3 +1407,35 @@ def y = (a.b 1, 2 c 3)
           argument: (number_literal)
           (identifier)
           argument: (number_literal))))))
+
+==================
+Number keys of a command call's named arguments
+==================
+
+select 1:-1
+select 1.5: 2, 3: 4
+f 1, 2: 3
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (named_argument
+      key: (number_literal)
+      value: (unary_expression
+        operand: (number_literal))))
+  (command_chain
+    receiver: (identifier)
+    argument: (named_argument
+      key: (number_literal)
+      value: (number_literal))
+    argument: (named_argument
+      key: (number_literal)
+      value: (number_literal)))
+  (command_chain
+    receiver: (identifier)
+    argument: (number_literal)
+    argument: (named_argument
+      key: (number_literal)
+      value: (number_literal))))

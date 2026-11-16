@@ -1122,3 +1122,48 @@ def d = { e = x * y + g -> e }
               right: (identifier))))
         (expression_statement
           (identifier))))))
+
+==================
+Closure parameter default whose right operand nests and ends in a name
+==================
+
+def f = { a, e = x + y * g -> e }
+def h = { a, e = x - y * z % g -> e }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier))
+          (closure_parameter
+            name: (identifier)
+            default: (binary_expression
+              left: (identifier)
+              right: (binary_expression
+                left: (identifier)
+                right: (identifier)))))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier))
+          (closure_parameter
+            name: (identifier)
+            default: (binary_expression
+              left: (identifier)
+              right: (binary_expression
+                left: (binary_expression
+                  left: (identifier)
+                  right: (identifier))
+                right: (identifier)))))
+        (expression_statement
+          (identifier))))))

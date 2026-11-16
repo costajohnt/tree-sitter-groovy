@@ -70,3 +70,39 @@ sealed trait T permits A { }
     (permits_clause
       (type_identifier))
     body: (class_body)))
+
+==================
+sealed as a name, and before class or interface
+==================
+
+def sealed = 1
+Exception sealed = thrown()
+sealed.message
+sealed class A permits B {}
+sealed interface I {}
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (number_literal)))
+  (local_variable_declaration
+    type: (type_identifier)
+    name: (identifier)
+    value: (method_invocation
+      function: (identifier)
+      arguments: (argument_list)))
+  (expression_statement
+    (field_access
+      object: (identifier)
+      field: (identifier)))
+  (class_declaration
+    name: (identifier)
+    (permits_clause
+      (type_identifier))
+    body: (class_body))
+  (interface_declaration
+    name: (identifier)
+    body: (class_body)))
