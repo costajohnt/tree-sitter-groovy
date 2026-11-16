@@ -438,7 +438,7 @@ module.exports = grammar({
 
     // §5.8 — `{ a = 1` is a closure parameter with a default value or a
     // closure body's assignment; `->` decides.
-    [$._expression, $.closure_parameter],
+    [$._expression, $._closure_parameter_name_default, $.closure_parameter],
     [$._value, $.closure_parameter],
 
     // §5.10 — after `{` and a `_line_break`, a closure's parameters or its
@@ -2754,10 +2754,25 @@ module.exports = grammar({
 
     closure_parameters: $ => seq(
       optional(seq(
-        $.closure_parameter,
-        repeat(seq(',', $.closure_parameter)),
+        repeat(seq($.closure_parameter, ',')),
+        choice(
+          $.closure_parameter,
+          alias($._closure_parameter_name_default, $.closure_parameter),
+        ),
       )),
       '->',
+    ),
+
+    // The last parameter with a name as its default, `{ a, List<String> e = g -> e }`:
+    // the `->` after the name is the closure's, not a lambda's `g -> e`, as Groovy
+    // reads it in any position. The prec on the name outranks the lambda's, and only
+    // with `->` next, so `{ String e = g, f = h }` stays a declaration.
+    _closure_parameter_name_default: $ => seq(
+      optional('final'),
+      optional(choice('def', field('type', choice($._type, $.varargs_type)))),
+      field('name', $.identifier),
+      '=',
+      field('default', prec(PREC.ASSIGN + 1, $.identifier)),
     ),
 
     // prec: in `{ x -> x }` the `x` is the closure's parameter, not the
