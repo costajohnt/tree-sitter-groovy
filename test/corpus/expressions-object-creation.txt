@@ -317,14 +317,20 @@ class B { }
     body: (class_body)))
 
 ==================
-A closure on the line after new X() is its argument
+A brace on the line after new X(): closure argument or class body
 ==================
 
 def a = new Object()
 { -> 3 }
-def b = new Object() // c
-{ }
 def c = new Runnable() { void run() { } }
+foo(new Runnable()
+{
+    void run() { }
+})
+foo(new Object()
+{ int x = 1 })
+foo(new Object()
+{ it -> 3 })
 
 ---
 
@@ -343,15 +349,6 @@ def c = new Runnable() { void run() { } }
   (local_variable_declaration
     (variable_declarator
       name: (identifier)
-      value: (method_invocation
-        function: (object_creation_expression
-          type: (type_identifier)
-          arguments: (argument_list))
-        (line_comment)
-        closure: (closure))))
-  (local_variable_declaration
-    (variable_declarator
-      name: (identifier)
       value: (object_creation_expression
         type: (type_identifier)
         arguments: (argument_list)
@@ -360,4 +357,44 @@ def c = new Runnable() { void run() { } }
             return_type: (type_identifier)
             name: (identifier)
             parameters: (formal_parameters)
-            body: (block)))))))
+            body: (block))))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list)
+          body: (class_body
+            (method_declaration
+              return_type: (type_identifier)
+              name: (identifier)
+              parameters: (formal_parameters)
+              body: (block)))))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list)
+          body: (class_body
+            (field_declaration
+              type: (type_identifier)
+              (variable_declarator
+                name: (identifier)
+                value: (number_literal))))))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (method_invocation
+          function: (object_creation_expression
+            type: (type_identifier)
+            arguments: (argument_list))
+          closure: (closure
+            (closure_parameters
+              (closure_parameter
+                name: (identifier)))
+            (expression_statement
+              (number_literal))))))))

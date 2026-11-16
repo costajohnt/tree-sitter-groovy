@@ -456,6 +456,10 @@ module.exports = grammar({
     // §4 — `List<String> x` declares `x` with no value; `List<String> x = 1`
     // is the initialized form. The token after the name decides.
     [$.local_variable_declaration, $._type],
+
+    // `new X()` then `{` on the next line: an anonymous class body or a
+    // closure argument; the body that parses decides (see object_creation_expression).
+    [$.object_creation_expression],
   ],
 
   rules: {
@@ -2076,17 +2080,31 @@ module.exports = grammar({
     // so it composes with the access tier from the left
     // (`new Foo().bar`).
     // A `{` after the arguments on their line starts an anonymous class body:
-    // `new Runnable() { void run() { } }`. A `{` on the next line is a closure
-    // argument of the new object, `new Object()` then `{ -> 3 }`, as Groovy
-    // 2.4, 3 and 4 read it (the zero-width `_command_closure_start` matches
-    // only a `{` on the line).
-    object_creation_expression: $ => prec.right(PREC.PRIMARY, seq(
-      'new',
-      repeat($.annotation),
-      field('type', $._type),
-      field('arguments', alias($._new_argument_list, $.argument_list)),
-      optional(seq($._command_closure_start, field('body', $.class_body))),
-    )),
+    // `new Runnable() { void run() { } }` (the zero-width `_command_closure_start`
+    // matches only a `{` on the line). A `{` on the next line may start a class
+    // body too, inside brackets, `foo(new Runnable()` then `{ void run() { } })`,
+    // or a closure argument of the new object, `new Object()` then `{ -> 3 }`, as
+    // Groovy 2.4, 3 and 4 read it. Both stay alive until one fails; where both
+    // parse, the class body wins. Its dynamic precedence outweighs the +1 that
+    // each declaration in the closure's body adds: `{ int x = 1 }` in a call's
+    // parentheses is a class body to Groovy.
+    // ponytail: at a statement's end Groovy reads a `{ }` or `{ int x = 1 }` on the
+    // next line as a closure; here it stays a class body, as it was.
+    object_creation_expression: $ => {
+      const head = [
+        'new',
+        repeat($.annotation),
+        field('type', $._type),
+        field('arguments', alias($._new_argument_list, $.argument_list)),
+      ];
+      return choice(
+        prec(PREC.PRIMARY, seq(
+          ...head,
+          optional(seq($._command_closure_start, field('body', $.class_body))),
+        )),
+        prec(PREC.PRIMARY, prec.dynamic(100, seq(...head, field('body', $.class_body)))),
+      );
+    },
 
     // §3.2 / §5.15 — array creation: `new byte[10]`, `new int[2][3]`,
     // `new String[3][]`, and with a Java array initializer
