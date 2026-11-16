@@ -640,3 +640,270 @@ foo { println x
         (identifier))
       (expression_statement
         (identifier)))))
+
+==================
+One-line body that is a declaration with no value (#147)
+==================
+
+a = { Foo bar }
+a = { String s }
+a = { x -> Foo bar }
+a = { FOO bar }
+a = { F bar }
+a = { java.util.List l }
+a = { foo.Bar baz }
+a = { trait.Foo x }
+a = { Éclair bar }
+if (c) { Foo bar }
+
+---
+
+(source_file
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (local_variable_declaration
+          type: (type_identifier)
+          (variable_declarator
+            name: (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (local_variable_declaration
+          type: (type_identifier)
+          (variable_declarator
+            name: (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier)))
+        (local_variable_declaration
+          type: (type_identifier)
+          (variable_declarator
+            name: (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (local_variable_declaration
+          type: (type_identifier)
+          (variable_declarator
+            name: (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (local_variable_declaration
+          type: (type_identifier)
+          (variable_declarator
+            name: (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (local_variable_declaration
+          type: (qualified_type
+            (type_identifier)
+            (type_identifier)
+            (type_identifier))
+          (variable_declarator
+            name: (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (local_variable_declaration
+          type: (qualified_type
+            (type_identifier)
+            (type_identifier))
+          (variable_declarator
+            name: (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (local_variable_declaration
+          type: (qualified_type
+            (type_identifier)
+            (type_identifier))
+          (variable_declarator
+            name: (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (local_variable_declaration
+          type: (type_identifier)
+          (variable_declarator
+            name: (identifier))))))
+  (if_statement
+    condition: (identifier)
+    consequence: (block
+      (local_variable_declaration
+        type: (type_identifier)
+        (variable_declarator
+          name: (identifier))))))
+
+==================
+Generic, array, `;` and next-line declarations in a one-line body (#147)
+==================
+
+a = { List<String> l }
+a = { Foo[] a }
+a = { Foo bar; }
+a = {
+  Foo bar }
+
+---
+
+(source_file
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (local_variable_declaration
+          type: (generic_type
+            base: (type_identifier)
+            arguments: (type_arguments
+              (type_identifier)))
+          (variable_declarator
+            name: (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (local_variable_declaration
+          type: (array_type
+            (type_identifier))
+          (variable_declarator
+            name: (identifier))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (expression_statement
+          (identifier))
+        (expression_statement
+          (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (expression_statement
+          (identifier))
+        (expression_statement
+          (identifier))))))
+
+==================
+One-line bodies that stay command calls (#147)
+==================
+
+a = { foo bar }
+a = { x -> println x }
+a = { println it }
+for (k in m) { println k }
+a = { Foo.bar baz }
+a = { a.B.c d }
+a = { _Foo bar }
+a = { $Foo bar }
+a = { this.Foo bar }
+a = { recordX y }
+a = { var x = 1 }
+
+---
+
+(source_file
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (command_chain
+          receiver: (identifier)
+          argument: (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier)))
+        (command_chain
+          receiver: (identifier)
+          argument: (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (command_chain
+          receiver: (identifier)
+          argument: (identifier)))))
+  (for_in_statement
+    variable: (identifier)
+    value: (identifier)
+    body: (block
+      (command_chain
+        receiver: (identifier)
+        argument: (identifier))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (command_chain
+          receiver: (field_access
+            object: (identifier)
+            field: (identifier))
+          argument: (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (command_chain
+          receiver: (field_access
+            object: (field_access
+              object: (identifier)
+              field: (identifier))
+            field: (identifier))
+          argument: (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (command_chain
+          receiver: (identifier)
+          argument: (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (command_chain
+          receiver: (identifier)
+          argument: (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (command_chain
+          receiver: (field_access
+            object: (identifier)
+            field: (identifier))
+          argument: (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (command_chain
+          receiver: (identifier)
+          argument: (identifier)))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (closure
+        (local_variable_declaration
+          (variable_declarator
+            name: (identifier)
+            value: (number_literal)))))))

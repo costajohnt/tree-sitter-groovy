@@ -40,6 +40,7 @@ enum TokenType {
     CASE_ARROW,
     CLOSURE_COMMAND_ARGUMENT,
     COMMAND_LAMBDA_OPEN,
+    CLOSURE_DECLARATION_START,
     ERROR_SENTINEL,
 };
 
@@ -143,6 +144,61 @@ static bool finish_command_named_key(TSLexer *lexer, const bool *valid_symbols,
         return false;
     }
     lexer->result_symbol = COMMAND_NAME_ARGUMENT;
+    return true;
+}
+
+// SPECIFICATION.md §5.8 — a closure's or block's whole body that is a
+// declaration with no value, `{ Foo bar }`, `{ x -> java.util.List l }`:
+// a dotted name whose last part starts with a capital letter, then a name
+// and `}` on its line. Groovy reads that as a declaration where `{ foo bar }`
+// and `{ Foo.bar baz }` are command calls (`_closure_command_argument`), and
+// `{ _Foo bar }` and `{ this.Foo bar }` too. Called with the lexer just past
+// the first part, which was `this` or `super` when `self`, and whose first
+// char was `first`; the token is the zero-width `_closure_declaration_start`,
+// so mark_end was called before it.
+// ponytail: Latin-1, Greek and Cyrillic capitals only (Groovy asks
+// Character.isUpperCase); a table if a type in another script shows up.
+static bool is_capital(int32_t c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 0xC0 && c <= 0xDE && c != 0xD7)
+        || (c >= 0x391 && c <= 0x3A9 && c != 0x3A2) || (c >= 0x400 && c <= 0x42F);
+}
+
+static bool finish_closure_declaration(TSLexer *lexer, int32_t first, bool self) {
+    if (self) {
+        return false;
+    }
+    bool capital = is_capital(first);
+    while (lexer->lookahead == '.') {
+        lexer->advance(lexer, false);
+        if (!is_ident_start(lexer->lookahead)) {
+            return false;
+        }
+        capital = is_capital(lexer->lookahead);
+        while (is_ident_part(lexer->lookahead)) {
+            lexer->advance(lexer, false);
+        }
+    }
+    if (!capital || (lexer->lookahead != ' ' && lexer->lookahead != '\t')) {
+        return false;
+    }
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        lexer->advance(lexer, false);
+    }
+    if (!is_ident_start(lexer->lookahead)) {
+        return false;
+    }
+    char word[12];
+    unsigned len = read_word(lexer, word, sizeof(word));
+    if (!is_name_argument(word, len) || (len == 4 && memcmp(word, "else", 4) == 0)) {
+        return false;
+    }
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        lexer->advance(lexer, false);
+    }
+    if (lexer->lookahead != '}') {
+        return false;
+    }
+    lexer->result_symbol = CLOSURE_DECLARATION_START;
     return true;
 }
 
@@ -893,6 +949,7 @@ bool tree_sitter_groovy_external_scanner_scan(
         newline |= skip_whitespace(lexer);
         int32_t c = lexer->lookahead;
         if (c == 'v' || c == 'p' || c == 't' || c == 'y') {
+            lexer->mark_end(lexer);
             char word[12];
             unsigned len = 0;
             while (is_ident_part(lexer->lookahead)) {
@@ -915,7 +972,12 @@ bool tree_sitter_groovy_external_scanner_scan(
                 && valid_symbols[YIELD_KEYWORD]) {
                 sym = YIELD_KEYWORD;
             } else {
-                return false;
+                sym = ERROR_SENTINEL;
+            }
+            if (sym == ERROR_SENTINEL || lexer->lookahead == '.') {
+                return valid_symbols[CLOSURE_DECLARATION_START]
+                    && finish_closure_declaration(lexer, c,
+                        len == 4 && memcmp(word, "this", 4) == 0);
             }
             lexer->mark_end(lexer);
             bool spaced = lexer->lookahead == ' ' || lexer->lookahead == '\t';
@@ -1018,14 +1080,20 @@ bool tree_sitter_groovy_external_scanner_scan(
     if (valid_symbols[RECORD_KEYWORD] && !valid_symbols[ERROR_SENTINEL]) {
         newline |= skip_whitespace(lexer);
         if (lexer->lookahead == 'r') {
-            for (const char *p = "record"; *p; p++) {
-                if (lexer->lookahead != *p) {
-                    return false;
+            lexer->mark_end(lexer);
+            bool record = true;
+            for (const char *p = "record"; *p && record; p++) {
+                record = lexer->lookahead == *p;
+                if (record) {
+                    advance(lexer);
                 }
-                advance(lexer);
             }
-            if (is_ident_part(lexer->lookahead)) {
-                return false;
+            if (!record || is_ident_part(lexer->lookahead) || lexer->lookahead == '.') {
+                while (is_ident_part(lexer->lookahead)) {
+                    advance(lexer);
+                }
+                return valid_symbols[CLOSURE_DECLARATION_START]
+                    && finish_closure_declaration(lexer, 'r', false);
             }
             lexer->mark_end(lexer);
             if (lexer->lookahead != ' ' && lexer->lookahead != '\t') {
@@ -1048,6 +1116,21 @@ bool tree_sitter_groovy_external_scanner_scan(
                 return true;
             }
             return false;
+        }
+    }
+
+    // The declaration body (see finish_closure_declaration). A name starting
+    // with `v`, `p`, `t`, `y` or `r` was handed on by the keyword scans above.
+    if (valid_symbols[CLOSURE_DECLARATION_START] && !valid_symbols[ERROR_SENTINEL]) {
+        newline |= skip_whitespace(lexer);
+        int32_t c = lexer->lookahead;
+        if (is_ident_start(c)) {
+            lexer->mark_end(lexer);
+            char word[6];
+            unsigned len = read_word(lexer, word, sizeof(word));
+            bool self = (len == 4 && memcmp(word, "this", 4) == 0)
+                || (len == 5 && memcmp(word, "super", 5) == 0);
+            return finish_closure_declaration(lexer, c, self);
         }
     }
 

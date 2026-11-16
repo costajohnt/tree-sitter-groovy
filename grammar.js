@@ -275,6 +275,9 @@ module.exports = grammar({
     // after a space: `configurations.all (Configuration it) -> { }`. The
     // scanner finds the balanced `(…)` and then `->`; otherwise it is a call's.
     $._command_lambda_open,
+    // Zero-width: a closure's or block's whole body is a declaration with no
+    // value, `{ Foo bar }`, not a command call (see _closure_declaration).
+    $._closure_declaration_start,
     // Never referenced by a rule: valid only during error recovery, when
     // the scanner must not emit context-sensitive tokens.
     $._error_sentinel,
@@ -734,6 +737,7 @@ module.exports = grammar({
       choice(
         repeat(choice($._statement, ';', $._line_break)),
         alias($._closure_command, $.command_chain),
+        alias($._closure_declaration, $.local_variable_declaration),
       ),
       '}',
     )),
@@ -2724,6 +2728,7 @@ module.exports = grammar({
       choice(
         repeat(choice($._statement, ';', $._line_break)),
         alias($._closure_command, $.command_chain),
+        alias($._closure_declaration, $.local_variable_declaration),
       ),
       '}',
     ),
@@ -2736,6 +2741,15 @@ module.exports = grammar({
         $.spread_dot_expression,
       )),
       field('argument', alias($._closure_command_argument, $.identifier)),
+    ),
+
+    // The whole body a declaration with no value, when the type's last part
+    // starts with a capital letter: `{ Foo bar }`, `{ x -> java.util.List l }`,
+    // as Groovy reads it. `{ foo bar }` and `{ Foo.bar baz }` are command calls.
+    _closure_declaration: $ => seq(
+      $._closure_declaration_start,
+      field('type', choice(alias($.identifier, $.type_identifier), $.qualified_type)),
+      alias($._bare_declarator, $.variable_declarator),
     ),
 
     closure_parameters: $ => seq(

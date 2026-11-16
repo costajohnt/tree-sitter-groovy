@@ -1071,6 +1071,15 @@
                 },
                 "named": true,
                 "value": "command_chain"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_closure_declaration"
+                },
+                "named": true,
+                "value": "local_variable_declaration"
               }
             ]
           },
@@ -11453,6 +11462,15 @@
               },
               "named": true,
               "value": "command_chain"
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_closure_declaration"
+              },
+              "named": true,
+              "value": "local_variable_declaration"
             }
           ]
         },
@@ -11502,6 +11520,46 @@
             "named": true,
             "value": "identifier"
           }
+        }
+      ]
+    },
+    "_closure_declaration": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_closure_declaration_start"
+        },
+        {
+          "type": "FIELD",
+          "name": "type",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "identifier"
+                },
+                "named": true,
+                "value": "type_identifier"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "qualified_type"
+              }
+            ]
+          }
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_bare_declarator"
+          },
+          "named": true,
+          "value": "variable_declarator"
         }
       ]
     },
@@ -13372,6 +13430,10 @@
     {
       "type": "SYMBOL",
       "name": "_command_lambda_open"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_closure_declaration_start"
     },
     {
       "type": "SYMBOL",
