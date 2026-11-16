@@ -2944,7 +2944,8 @@ module.exports = grammar({
           seq('def', optional(field('type', choice($._type, $.varargs_type)))),
           field('type', choice($._type, $.varargs_type)),
         )),
-        field('name', $.identifier),
+        // `as` is a name too (Groovy 3 and 4): `{ String as -> as }`
+        field('name', choice($.identifier, alias('as', $.identifier))),
       )),
       prec.dynamic(-1, seq(
         optional('final'),
