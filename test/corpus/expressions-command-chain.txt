@@ -1797,3 +1797,27 @@ def r = ("a" 1 "b")
           argument: (number_literal)
           (string_literal
             (string_fragment)))))))
+
+==================
+command call as a value: named arguments after a backslash line continuation (groovyfmt #218)
+==================
+
+def r = sh \
+    script: "x",
+    returnStatus: true
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (command_chain
+        receiver: (identifier)
+        argument: (named_argument
+          key: (identifier)
+          value: (string_literal
+            (string_fragment)))
+        argument: (named_argument
+          key: (identifier)
+          value: (boolean_literal))))))

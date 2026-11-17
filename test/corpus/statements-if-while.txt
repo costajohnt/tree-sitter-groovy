@@ -431,3 +431,86 @@ if (a) warn elsewhere
     consequence: (command_chain
       receiver: (identifier)
       argument: (identifier))))
+
+==================
+if: braceless body, a command call with a call argument, then else (groovyfmt #218)
+==================
+
+if (b)
+  p.accept f(t())
+else
+  g()
+
+---
+
+(source_file
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (field_access
+        object: (identifier)
+        field: (identifier))
+      argument: (method_invocation
+        function: (identifier)
+        arguments: (argument_list
+          (method_invocation
+            function: (identifier)
+            arguments: (argument_list)))))
+    alternative: (expression_statement
+      (method_invocation
+        function: (identifier)
+        arguments: (argument_list)))))
+
+==================
+if: one-line braceless body, a bare command call with a call argument, then else (groovyfmt #218)
+==================
+
+if (b) accept f([1]) else g()
+
+---
+
+(source_file
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (identifier)
+      argument: (method_invocation
+        function: (identifier)
+        arguments: (argument_list
+          (list_literal
+            (number_literal)))))
+    alternative: (expression_statement
+      (method_invocation
+        function: (identifier)
+        arguments: (argument_list)))))
+
+==================
+if: braceless command call body with a call argument, a comment, then else if (groovyfmt #218)
+==================
+
+if (b)
+  p.accept f(c)
+// x
+else if (d)
+  h()
+
+---
+
+(source_file
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (field_access
+        object: (identifier)
+        field: (identifier))
+      argument: (method_invocation
+        function: (identifier)
+        arguments: (argument_list
+          (identifier))))
+    (line_comment)
+    alternative: (if_statement
+      condition: (identifier)
+      consequence: (expression_statement
+        (method_invocation
+          function: (identifier)
+          arguments: (argument_list))))))
