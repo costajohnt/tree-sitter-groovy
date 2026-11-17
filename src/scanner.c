@@ -325,6 +325,25 @@ static bool skip_parens(TSLexer *lexer) {
     return false;
 }
 
+// Advances past the rest of a `(…)` that holds only what a lambda's parameter
+// list can: names, whitespace, `,`, `.`, `<>`, `[]`, `?` and `@`. False at any
+// other character.
+static bool skip_parameter_parens(TSLexer *lexer) {
+    while (!lexer->eof(lexer)) {
+        int32_t c = lexer->lookahead;
+        if (c == ')') {
+            advance(lexer);
+            return true;
+        }
+        if (!(is_ident_part(c) || is_whitespace(c) || c == ',' || c == '.' || c == '<'
+              || c == '>' || c == '[' || c == ']' || c == '?' || c == '@')) {
+            return false;
+        }
+        advance(lexer);
+    }
+    return false;
+}
+
 static bool skip_whitespace(TSLexer *lexer) {
     bool newline = false;
     while (is_whitespace(lexer->lookahead)) {
@@ -805,17 +824,21 @@ bool tree_sitter_groovy_external_scanner_scan(
     // line of the callee. At a newline we fall through, and the in-grammar
     // `(` starts a new statement instead.
     if (valid_symbols[CALL_OPEN] && !valid_symbols[ERROR_SENTINEL]) {
+        // `spaced` also counts the spaces skipped by the branches above.
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            spaced = true;
             lexer->advance(lexer, true);
         }
         if (lexer->lookahead == '(') {
             lexer->advance(lexer, false);
             lexer->result_symbol = CALL_OPEN;
-            // `foo (a) -> a` and `foo.bar(a) -> a` pass a lambda (Groovy 3+);
-            // `foo (a)` is a call.
+            // `foo (a) -> a` and `foo.bar(String s) -> s` pass a lambda (Groovy 3+);
+            // `foo (a)` is a call. Without the space only a `(…)` that could be a
+            // parameter list is looked through, so a call's arguments cost no scan
+            // past their first other character.
             if (valid_symbols[COMMAND_LAMBDA_OPEN]) {
                 lexer->mark_end(lexer);
-                if (skip_parens(lexer)) {
+                if (spaced ? skip_parens(lexer) : skip_parameter_parens(lexer)) {
                     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
                         advance(lexer);
                     }
