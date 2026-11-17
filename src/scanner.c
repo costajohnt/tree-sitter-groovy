@@ -45,6 +45,7 @@ enum TokenType {
     NEW_CLOSURE_START,
     SEALED_KEYWORD,
     COMMAND_KEYWORD_ARGUMENT,
+    DIMENSION_ANNOTATION_START,
     ERROR_SENTINEL,
 };
 
@@ -747,6 +748,43 @@ bool tree_sitter_groovy_external_scanner_scan(
         }
     }
 
+    // SPECIFICATION.md §4 — zero-width, before an array dimension's annotations:
+    // `String @A []`, `new int @A [1] @B []`. Only when the annotations, each a
+    // name with optional `(…)`, and then `[` follow on the line; `new int[0]`
+    // then `@Override` on the next line is a member's annotation.
+    if (valid_symbols[DIMENSION_ANNOTATION_START] && !valid_symbols[ERROR_SENTINEL]) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            lexer->advance(lexer, true);
+            spaced = true;
+        }
+        if (lexer->lookahead == '@') {
+            lexer->mark_end(lexer);
+            while (lexer->lookahead == '@') {
+                advance(lexer);
+                while (is_ident_part(lexer->lookahead) || lexer->lookahead == '.') {
+                    advance(lexer);
+                }
+                while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                    advance(lexer);
+                }
+                if (lexer->lookahead == '(') {
+                    advance(lexer);
+                    if (!skip_parens(lexer)) {
+                        return false;
+                    }
+                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                        advance(lexer);
+                    }
+                }
+            }
+            if (lexer->lookahead != '[') {
+                return false;
+            }
+            lexer->result_symbol = DIMENSION_ANNOTATION_START;
+            return true;
+        }
+    }
+
     // SPECIFICATION.md §5.10 — a `[` on the current line continues the
     // expression (subscript or array type). Only spaces and tabs are
     // skipped; at a newline we fall through, and the in-grammar `[` starts
@@ -767,16 +805,15 @@ bool tree_sitter_groovy_external_scanner_scan(
     // line of the callee. At a newline we fall through, and the in-grammar
     // `(` starts a new statement instead.
     if (valid_symbols[CALL_OPEN] && !valid_symbols[ERROR_SENTINEL]) {
-        // `spaced` also counts the spaces skipped by the branches above.
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-            spaced = true;
             lexer->advance(lexer, true);
         }
         if (lexer->lookahead == '(') {
             lexer->advance(lexer, false);
             lexer->result_symbol = CALL_OPEN;
-            // `foo (a) -> a` passes a lambda (Groovy 3+); `foo (a)` is a call.
-            if (spaced && valid_symbols[COMMAND_LAMBDA_OPEN]) {
+            // `foo (a) -> a` and `foo.bar(a) -> a` pass a lambda (Groovy 3+);
+            // `foo (a)` is a call.
+            if (valid_symbols[COMMAND_LAMBDA_OPEN]) {
                 lexer->mark_end(lexer);
                 if (skip_parens(lexer)) {
                     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
@@ -1525,9 +1562,13 @@ bool tree_sitter_groovy_external_scanner_scan(
     bool found_close = false;
     while (!lexer->eof(lexer)) {
         // `\/` is an escaped slash; any other backslash is one character.
+        // A backslash at the end of a line continues it: `/abc \` then ` x/`.
         if (lexer->lookahead == '\\') {
             advance(lexer);
-            if (lexer->lookahead == '/') {
+            if (lexer->lookahead == '\r') {
+                advance(lexer);
+            }
+            if (lexer->lookahead == '/' || lexer->lookahead == '\n') {
                 advance(lexer);
             }
             continue;

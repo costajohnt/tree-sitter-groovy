@@ -1003,3 +1003,38 @@ x = (4
         (binary_expression
           left: (number_literal)
           right: (number_literal))))))
+
+==================
+Line-start slashy string with a backslash at the end of a line
+==================
+
+/abc \
+ x/
+def y = 1
+/abc \
+ x/
+x = 4
+/ 2 \
++ 1
+
+---
+
+(source_file
+  (expression_statement
+    (string_literal
+      (string_fragment)))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (number_literal)))
+  (expression_statement
+    (string_literal
+      (string_fragment)))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (binary_expression
+        left: (binary_expression
+          left: (number_literal)
+          right: (number_literal))
+        right: (number_literal)))))

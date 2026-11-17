@@ -43,3 +43,32 @@ list*.foo.bar
         object: (identifier)
         property: (identifier))
       field: (identifier))))
+
+==================
+Type arguments after spread-dot and safe navigation
+==================
+
+l*.<String>m()
+l?.<String, Integer>m(1)
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (spread_dot_expression
+        object: (identifier)
+        type_arguments: (type_arguments
+          (type_identifier))
+        property: (identifier))
+      arguments: (argument_list)))
+  (expression_statement
+    (method_invocation
+      function: (safe_navigation_expression
+        object: (identifier)
+        type_arguments: (type_arguments
+          (type_identifier)
+          (type_identifier))
+        property: (identifier))
+      arguments: (argument_list
+        (number_literal)))))

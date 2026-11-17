@@ -405,3 +405,169 @@ Script method whose only modifier is an annotation
     (variable_declarator
       name: (identifier)
       value: (number_literal))))
+
+==================
+Type annotations on a wildcard, a throws type, a cast type and array dimensions
+==================
+
+List<@A ? extends Object> l
+void m() throws @A IOException, @B E {}
+def x = (@A String) e
+String @A [] s
+def a = new String @A [1] @B []
+
+---
+
+(source_file
+  (local_variable_declaration
+    type: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        (wildcard
+          (type_identifier))))
+    (variable_declarator
+      name: (identifier)))
+  (method_declaration
+    return_type: (type_identifier)
+    name: (identifier)
+    parameters: (formal_parameters)
+    (throws_clause
+      (annotation
+        name: (qualified_name
+          (identifier)))
+      (type_identifier)
+      (annotation
+        name: (qualified_name
+          (identifier)))
+      (type_identifier))
+    body: (block))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (parenthesized_type_cast
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        type: (type_identifier)
+        value: (identifier))))
+  (local_variable_declaration
+    type: (array_type
+      (type_identifier)
+      (annotation
+        name: (qualified_name
+          (identifier))))
+    (variable_declarator
+      name: (identifier)))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (array_creation_expression
+        type: (type_identifier)
+        (dimension_expression
+          (annotation
+            name: (qualified_name
+              (identifier)))
+          (number_literal))
+        (dimension
+          (annotation
+            name: (qualified_name
+              (identifier))))))))
+
+==================
+Type annotations on a wildcard bound and a catch parameter
+==================
+
+List<? extends @A Object> l
+try { } catch (@A Exception e) { }
+try { } catch (final @A Exception e) { }
+
+---
+
+(source_file
+  (local_variable_declaration
+    type: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (wildcard
+          (annotation
+            name: (qualified_name
+              (identifier)))
+          (type_identifier))))
+    (variable_declarator
+      name: (identifier)))
+  (try_statement
+    body: (block)
+    (catch_clause
+      parameter: (catch_formal_parameter
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        type: (type_identifier)
+        name: (identifier))
+      body: (block)))
+  (try_statement
+    body: (block)
+    (catch_clause
+      parameter: (catch_formal_parameter
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        type: (type_identifier)
+        name: (identifier))
+      body: (block))))
+
+==================
+An annotation on the line after an array creation or type is a member annotation
+==================
+
+class A {
+    double[] e = new double[0]
+    @Override
+    String getName() { }
+    String[] f = new String[1][]
+    @Deprecated String g
+}
+
+---
+
+(source_file
+  (class_declaration
+    name: (identifier)
+    body: (class_body
+      (field_declaration
+        type: (array_type
+          (type_identifier))
+        (variable_declarator
+          name: (identifier)
+          value: (array_creation_expression
+            type: (type_identifier)
+            (dimension_expression
+              (number_literal)))))
+      (method_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        return_type: (type_identifier)
+        name: (identifier)
+        parameters: (formal_parameters)
+        body: (block))
+      (field_declaration
+        type: (array_type
+          (type_identifier))
+        (variable_declarator
+          name: (identifier)
+          value: (array_creation_expression
+            type: (type_identifier)
+            (dimension_expression
+              (number_literal))
+            (dimension))))
+      (field_declaration
+        (annotation
+          name: (qualified_name
+            (identifier)))
+        type: (type_identifier)
+        (variable_declarator
+          name: (identifier))))))

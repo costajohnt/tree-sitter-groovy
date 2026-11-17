@@ -663,10 +663,10 @@ f(x < y, z > w)
         type: (generic_type
           base: (type_identifier)
           arguments: (type_arguments
+            (annotation
+              name: (qualified_name
+                (identifier)))
             (array_type
-              (annotation
-                name: (qualified_name
-                  (identifier)))
               (type_identifier)
               (annotation
                 name: (qualified_name

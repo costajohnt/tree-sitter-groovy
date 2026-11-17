@@ -1669,3 +1669,131 @@ def s = (a b c)
           receiver: (identifier)
           argument: (identifier)
           (identifier))))))
+
+==================
+Command call on a quoted name in an argument list or parentheses
+==================
+
+f("foo" 1)
+f('foo' 1, 2)
+def r = ("foo" 1).bar
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (command_chain
+          receiver: (string_literal
+            (string_fragment))
+          argument: (number_literal)))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (command_chain
+          receiver: (string_literal)
+          argument: (number_literal)
+          argument: (number_literal)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (field_access
+        object: (parenthesized_expression
+          (command_chain
+            receiver: (string_literal
+              (string_fragment))
+            argument: (number_literal)))
+        field: (identifier)))))
+
+==================
+Call whose parentheses hold a lambda parameter list, with no space
+==================
+
+foo.bar(String s) -> { s }
+def r = foo(x) -> x
+
+---
+
+(source_file
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (lambda_expression
+      parameters: (formal_parameters
+        (formal_parameter
+          type: (type_identifier)
+          name: (identifier)))
+      body: (block
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (command_chain
+        receiver: (identifier)
+        argument: (lambda_expression
+          parameters: (formal_parameters
+            (formal_parameter
+              name: (identifier)))
+          body: (identifier))))))
+
+==================
+Name or quoted name after the last argument of a command call in an argument list or parentheses
+==================
+
+f(a 1 b)
+f("a" 1 "b")
+list.add("x = "2024-11-18" or y")
+def r = ("a" 1 "b")
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (command_chain
+          receiver: (identifier)
+          argument: (number_literal)
+          (identifier)))))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (command_chain
+          receiver: (string_literal
+            (string_fragment))
+          argument: (number_literal)
+          (string_literal
+            (string_fragment))))))
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (identifier)
+        field: (identifier))
+      arguments: (argument_list
+        (command_chain
+          receiver: (string_literal
+            (string_fragment))
+          argument: (binary_expression
+            left: (binary_expression
+              left: (number_literal)
+              right: (number_literal))
+            right: (number_literal))
+          (string_literal
+            (string_fragment))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (parenthesized_expression
+        (command_chain
+          receiver: (string_literal
+            (string_fragment))
+          argument: (number_literal)
+          (string_literal
+            (string_fragment)))))))
