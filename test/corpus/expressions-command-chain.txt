@@ -1601,3 +1601,71 @@ x.url y
         object: (identifier)
         property: (identifier))
       arguments: (argument_list))))
+
+==================
+command call in parentheses on a call, and a name after the last argument
+==================
+
+(spelling(OWN) intersect NO_OWN).isEmpty()
+def r = (x.f(a) intersect g(b))
+if (f(a) intersect b) println r
+(a intersect b)
+def s = (a b c)
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (field_access
+        object: (parenthesized_expression
+          (command_chain
+            receiver: (method_invocation
+              function: (identifier)
+              arguments: (argument_list
+                (identifier)))
+            (identifier)
+            argument: (identifier)))
+        field: (identifier))
+      arguments: (argument_list)))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (parenthesized_expression
+        (command_chain
+          receiver: (method_invocation
+            function: (field_access
+              object: (identifier)
+              field: (identifier))
+            arguments: (argument_list
+              (identifier)))
+          (identifier)
+          argument: (method_invocation
+            function: (identifier)
+            arguments: (argument_list
+              (identifier)))))))
+  (if_statement
+    condition: (command_chain
+      receiver: (method_invocation
+        function: (identifier)
+        arguments: (argument_list
+          (identifier)))
+      (identifier)
+      argument: (identifier))
+    consequence: (command_chain
+      receiver: (identifier)
+      argument: (identifier)))
+  (expression_statement
+    (parenthesized_expression
+      (command_chain
+        receiver: (identifier)
+        argument: (identifier)
+        (identifier))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (parenthesized_expression
+        (command_chain
+          receiver: (identifier)
+          argument: (identifier)
+          (identifier))))))

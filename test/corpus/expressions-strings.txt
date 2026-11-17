@@ -947,3 +947,59 @@ return in a brace interpolation
       (gstring_brace_interpolation
         (return_statement
           (identifier))))))
+
+==================
+slashy string starting with whitespace at the start of a line
+==================
+
+def f() {
+  a | b
+  / x / | c
+  y = 1
+  / x /.size()
+  x = 4
+  / 2
+}
+x = (4
+  / 2)
+
+---
+
+(source_file
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters)
+    body: (block
+      (expression_statement
+        (binary_expression
+          left: (identifier)
+          right: (identifier)))
+      (expression_statement
+        (binary_expression
+          left: (string_literal
+            (string_fragment))
+          right: (identifier)))
+      (expression_statement
+        (assignment_expression
+          left: (identifier)
+          right: (number_literal)))
+      (expression_statement
+        (method_invocation
+          function: (field_access
+            object: (string_literal
+              (string_fragment))
+            field: (identifier))
+          arguments: (argument_list)))
+      (expression_statement
+        (assignment_expression
+          left: (identifier)
+          right: (binary_expression
+            left: (number_literal)
+            right: (number_literal))))))
+  (expression_statement
+    (assignment_expression
+      left: (identifier)
+      right: (parenthesized_expression
+        (binary_expression
+          left: (number_literal)
+          right: (number_literal))))))

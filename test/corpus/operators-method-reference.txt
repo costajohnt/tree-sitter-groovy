@@ -76,3 +76,28 @@ Method reference with a quoted name
         (method_reference_expression
           target: (identifier)
           name: (quoted_identifier))))))
+
+==================
+method reference to class
+==================
+
+foo(x, A::class)
+def r = A::class.name
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (identifier)
+        (method_reference_expression
+          target: (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (field_access
+        object: (method_reference_expression
+          target: (identifier))
+        field: (identifier)))))
