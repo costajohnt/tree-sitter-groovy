@@ -1465,3 +1465,78 @@ foo.bar as[0][1], 2
         index: (number_literal))
       index: (number_literal))
     argument: (number_literal)))
+
+==================
+Generic type as a command argument (Groovy 3 and 4)
+==================
+
+tag List<String>
+tag List<String>, 1
+tag 1, Map<String, List<Integer>>
+x.tag List<String>
+"input" List<String>
+tags { "input" List<LLMObs.Document> }
+tag List<String>.class
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier))))
+  (command_chain
+    receiver: (identifier)
+    argument: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier)))
+    argument: (number_literal))
+  (command_chain
+    receiver: (identifier)
+    argument: (number_literal)
+    argument: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier)
+        (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (type_identifier))))))
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier))))
+  (command_chain
+    receiver: (string_literal
+      (string_fragment))
+    argument: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier))))
+  (command_chain
+    receiver: (identifier)
+    argument: (closure
+      (command_chain
+        receiver: (string_literal
+          (string_fragment))
+        argument: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (qualified_type
+              (type_identifier)
+              (type_identifier)))))))
+  (command_chain
+    receiver: (identifier)
+    argument: (field_access
+      object: (generic_type
+        base: (type_identifier)
+        arguments: (type_arguments
+          (type_identifier)))
+      field: (identifier))))

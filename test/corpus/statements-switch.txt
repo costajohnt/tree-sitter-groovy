@@ -493,3 +493,26 @@ switch (x) {
             left: (identifier)
             right: (identifier))
           (break_statement))))))
+
+==================
+Comparisons before -> in an arrow case label stay comparisons
+==================
+
+switch (v) { case a < b, c > d -> y }
+
+---
+
+(source_file
+  (expression_statement
+    (switch_expression
+      value: (identifier)
+      body: (switch_block
+        (switch_arrow_case
+          value: (binary_expression
+            left: (identifier)
+            right: (identifier))
+          value: (binary_expression
+            left: (identifier)
+            right: (identifier))
+          body: (expression_statement
+            (identifier)))))))

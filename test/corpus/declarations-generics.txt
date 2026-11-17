@@ -813,3 +813,65 @@ List</*V*/ String> s
         (type_identifier)))
     (variable_declarator
       name: (identifier))))
+
+==================
+Spaced type arguments on a closure parameter or a for variable
+==================
+
+xs.each { Map <String, String> e -> e }
+{ Map <String> e -> e }
+for (Map <String, Integer> e : xs) { e }
+for (Map <String, Integer> e in xs) { e }
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (method_invocation
+        function: (field_access
+          object: (identifier)
+          field: (identifier))
+        closure: (closure
+          (closure_parameters
+            (closure_parameter
+              type: (generic_type
+                base: (type_identifier)
+                arguments: (type_arguments
+                  (type_identifier)
+                  (type_identifier)))
+              name: (identifier)))
+          (expression_statement
+            (identifier))))
+      closure: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (generic_type
+              base: (type_identifier)
+              arguments: (type_arguments
+                (type_identifier)))
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (for_in_statement
+    type: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier)
+        (type_identifier)))
+    variable: (identifier)
+    value: (identifier)
+    body: (block
+      (expression_statement
+        (identifier))))
+  (for_in_statement
+    type: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier)
+        (type_identifier)))
+    variable: (identifier)
+    value: (identifier)
+    body: (block
+      (expression_statement
+        (identifier)))))
