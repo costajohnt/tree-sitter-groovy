@@ -368,3 +368,66 @@ if (c) render result as JSON
     (cast_expression
       value: (identifier)
       type: (type_identifier))))
+
+==================
+Braceless if body: a command call with a name argument, then else on its line
+==================
+
+if (a) warn line else info line
+if (a) log.warn line else log.info line
+if (a) warn line else if (b) info line else debug line
+if (a) foo bar baz qux else z
+if (a) warn elsewhere
+
+---
+
+(source_file
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (identifier)
+      argument: (identifier))
+    alternative: (expression_statement
+      (identifier)))
+  (expression_statement
+    (identifier))
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (field_access
+        object: (identifier)
+        field: (identifier))
+      argument: (identifier))
+    alternative: (command_chain
+      receiver: (field_access
+        object: (identifier)
+        field: (identifier))
+      argument: (identifier)))
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (identifier)
+      argument: (identifier))
+    alternative: (if_statement
+      condition: (identifier)
+      consequence: (command_chain
+        receiver: (identifier)
+        argument: (identifier))
+      alternative: (expression_statement
+        (identifier))))
+  (expression_statement
+    (identifier))
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (identifier)
+      argument: (identifier)
+      (identifier)
+      argument: (identifier))
+    alternative: (expression_statement
+      (identifier)))
+  (if_statement
+    condition: (identifier)
+    consequence: (command_chain
+      receiver: (identifier)
+      argument: (identifier))))

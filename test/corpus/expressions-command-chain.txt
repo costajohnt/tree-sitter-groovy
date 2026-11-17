@@ -1540,3 +1540,64 @@ tag List<String>.class
         arguments: (type_arguments
           (type_identifier)))
       field: (identifier))))
+
+==================
+Command call argument continued by ? or ?: on the next line
+==================
+
+x.url isSnapshot
+    ? "a"
+    : "b"
+x.url isSnapshot
+    ?: 2
+x?.url isSnapshot
+    ? 1 : 2
+foo x
+    ? 1
+    : 2
+x.url y
+    ?.z()
+
+---
+
+(source_file
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (ternary_expression
+      condition: (identifier)
+      consequence: (string_literal
+        (string_fragment))
+      alternative: (string_literal
+        (string_fragment))))
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (elvis_expression
+      value: (identifier)
+      default: (number_literal)))
+  (command_chain
+    receiver: (safe_navigation_expression
+      object: (identifier)
+      property: (identifier))
+    argument: (ternary_expression
+      condition: (identifier)
+      consequence: (number_literal)
+      alternative: (number_literal)))
+  (command_chain
+    receiver: (identifier)
+    argument: (ternary_expression
+      condition: (identifier)
+      consequence: (number_literal)
+      alternative: (number_literal)))
+  (command_chain
+    receiver: (field_access
+      object: (identifier)
+      field: (identifier))
+    argument: (method_invocation
+      function: (safe_navigation_expression
+        object: (identifier)
+        property: (identifier))
+      arguments: (argument_list))))
