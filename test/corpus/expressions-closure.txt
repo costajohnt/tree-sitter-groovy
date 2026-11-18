@@ -1334,3 +1334,60 @@ def e = { in.text }
           (field_access
             object: (identifier)
             field: (identifier)))))))
+
+==================
+Typed closure parameter whose default is a call with empty parentheses (#226)
+==================
+
+def c = { File f = d() -> if (f) { 1 } }
+def e = { File f = a.d() ->
+    f
+}
+def g = { def f = d() -> 1 }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)
+            default: (method_invocation
+              function: (identifier)
+              arguments: (argument_list))))
+        (if_statement
+          condition: (identifier)
+          consequence: (block
+            (expression_statement
+              (number_literal)))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)
+            default: (method_invocation
+              function: (field_access
+                object: (identifier)
+                field: (identifier))
+              arguments: (argument_list))))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier)
+            default: (method_invocation
+              function: (identifier)
+              arguments: (argument_list))))
+        (expression_statement
+          (number_literal))))))

@@ -777,6 +777,10 @@
                 },
                 "named": true,
                 "value": "named_argument"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "spread_arguments"
               }
             ]
           }
@@ -881,6 +885,10 @@
         {
           "type": "SYMBOL",
           "name": "ternary_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "elvis_expression"
         },
         {
           "type": "ALIAS",
@@ -14033,12 +14041,83 @@
                 "type": "FIELD",
                 "name": "default",
                 "content": {
-                  "type": "SYMBOL",
-                  "name": "_expression"
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "_expression"
+                    },
+                    {
+                      "type": "ALIAS",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "_closure_default_call"
+                      },
+                      "named": true,
+                      "value": "method_invocation"
+                    }
+                  ]
                 }
               }
             ]
           }
+        }
+      ]
+    },
+    "_closure_default_call": {
+      "type": "PREC_DYNAMIC",
+      "value": 3,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "function",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "identifier"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "field_access"
+                }
+              ]
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "arguments",
+            "content": {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_closure_default_arguments"
+              },
+              "named": true,
+              "value": "argument_list"
+            }
+          }
+        ]
+      }
+    },
+    "_closure_default_arguments": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_command_lambda_open"
+          },
+          "named": false,
+          "value": "("
+        },
+        {
+          "type": "STRING",
+          "value": ")"
         }
       ]
     },
@@ -15739,6 +15818,10 @@
     [
       "_value",
       "closure_parameter"
+    ],
+    [
+      "_command_lambda_parameters",
+      "_closure_default_arguments"
     ],
     [
       "closure"

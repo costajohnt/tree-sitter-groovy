@@ -875,3 +875,44 @@ for (Map <String, Integer> e in xs) { e }
     body: (block
       (expression_statement
         (identifier)))))
+
+==================
+Declaration type arguments across lines; a comparison across lines in an argument list (#226)
+==================
+
+B<String,
+        Integer> b = null
+B<
+    String, Integer> c = [:]
+f(a<b,
+    c>d)
+
+---
+
+(source_file
+  (local_variable_declaration
+    type: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier)
+        (type_identifier)))
+    name: (identifier)
+    value: (null_literal))
+  (local_variable_declaration
+    type: (generic_type
+      base: (type_identifier)
+      arguments: (type_arguments
+        (type_identifier)
+        (type_identifier)))
+    name: (identifier)
+    value: (map_literal))
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (binary_expression
+          left: (identifier)
+          right: (identifier))
+        (binary_expression
+          left: (identifier)
+          right: (identifier))))))

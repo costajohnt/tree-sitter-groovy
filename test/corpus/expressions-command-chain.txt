@@ -1821,3 +1821,40 @@ def r = sh \
         argument: (named_argument
           key: (identifier)
           value: (boolean_literal))))))
+
+==================
+Command call: spread later argument, elvis first argument (#226)
+==================
+
+commandLine 'gradlew', *arguments
+f x, *a, y
+f x ?: y, z
+commandLine python ?: 'python3', *args
+
+---
+
+(source_file
+  (command_chain
+    receiver: (identifier)
+    argument: (string_literal)
+    argument: (spread_arguments
+      value: (identifier)))
+  (command_chain
+    receiver: (identifier)
+    argument: (identifier)
+    argument: (spread_arguments
+      value: (identifier))
+    argument: (identifier))
+  (command_chain
+    receiver: (identifier)
+    argument: (elvis_expression
+      value: (identifier)
+      default: (identifier))
+    argument: (identifier))
+  (command_chain
+    receiver: (identifier)
+    argument: (elvis_expression
+      value: (identifier)
+      default: (string_literal))
+    argument: (spread_arguments
+      value: (identifier))))
