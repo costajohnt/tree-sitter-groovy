@@ -1914,6 +1914,43 @@ enum E { A(B c), D(1) }
         (argument_list
           (number_literal))))))
 
+
+==================
+Command call on a dotted name as an argument list's first argument (groovyfmt #248)
+==================
+
+l.add(sc.process f, "x")
+l.add(a.b.c f)
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      (field_access
+        (identifier)
+        (identifier))
+      (argument_list
+        (command_chain
+          (field_access
+            (identifier)
+            (identifier))
+          (identifier))
+        (string_literal
+          (string_fragment)))))
+  (expression_statement
+    (method_invocation
+      (field_access
+        (identifier)
+        (identifier))
+      (argument_list
+        (command_chain
+          (field_access
+            (field_access
+              (identifier)
+              (identifier))
+            (identifier))
+          (identifier))))))
 ==================
 Braceless if command body with an operator argument before else (groovyfmt #230)
 ==================
