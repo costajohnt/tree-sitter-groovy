@@ -251,3 +251,86 @@ foo(a, b)
       arguments: (argument_list
         (identifier)
         (identifier)))))
+
+==================
+List element called with arguments on the next line
+==================
+
+properties([
+    buildDiscarder
+        (logRotator(days: '14')),
+    disableConcurrentBuilds()
+])
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      function: (identifier)
+      arguments: (argument_list
+        (list_literal
+          (method_invocation
+            function: (identifier)
+            arguments: (argument_list
+              (method_invocation
+                function: (identifier)
+                arguments: (argument_list
+                  (named_argument
+                    key: (identifier)
+                    value: (string_literal))))))
+          (method_invocation
+            function: (identifier)
+            arguments: (argument_list)))))))
+
+==================
+List element calls on later lines; statements and closure bodies still end at the line
+==================
+
+def l = [ a.b
+    (1), f // c
+    (2)
+    (3) ]
+f
+(1)
+def m = [ {
+    g
+    (1)
+} ]
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (list_literal
+        (method_invocation
+          function: (field_access
+            object: (identifier)
+            field: (identifier))
+          arguments: (argument_list
+            (number_literal)))
+        (method_invocation
+          function: (method_invocation
+            function: (identifier)
+            (line_comment)
+            arguments: (argument_list
+              (number_literal)))
+          arguments: (argument_list
+            (number_literal))))))
+  (expression_statement
+    (identifier))
+  (expression_statement
+    (parenthesized_expression
+      (number_literal)))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (list_literal
+        (closure
+          (expression_statement
+            (identifier))
+          (expression_statement
+            (parenthesized_expression
+              (number_literal))))))))

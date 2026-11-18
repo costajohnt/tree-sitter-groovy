@@ -197,3 +197,77 @@ def final LOG = 1
     (variable_declarator
       name: (identifier)
       value: (number_literal))))
+
+==================
+Modifiers with no type on a script variable
+==================
+
+private static final _JOB_DESCRIPTION = 'x'
+static final RETRIES = 3, DELAY = 10
+private count = 0
+final static long N = 1
+final static M = 2
+private f(x) { x }
+private Foo bar = 1
+
+---
+
+(source_file
+  (local_variable_declaration
+    name: (identifier)
+    value: (string_literal))
+  (local_variable_declaration
+    name: (identifier)
+    value: (number_literal)
+    name: (identifier)
+    value: (number_literal))
+  (local_variable_declaration
+    name: (identifier)
+    value: (number_literal))
+  (local_variable_declaration
+    type: (type_identifier)
+    name: (identifier)
+    value: (number_literal))
+  (local_variable_declaration
+    name: (identifier)
+    value: (number_literal))
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters
+      (formal_parameter
+        name: (identifier)))
+    body: (block
+      (expression_statement
+        (identifier))))
+  (local_variable_declaration
+    type: (type_identifier)
+    name: (identifier)
+    value: (number_literal)))
+
+==================
+Modifiers with no type on a local in a block
+==================
+
+def m() {
+    static final LIMIT = 5
+    if (a) {
+        protected final n = 1
+    }
+}
+
+---
+
+(source_file
+  (method_declaration
+    name: (identifier)
+    parameters: (formal_parameters)
+    body: (block
+      (local_variable_declaration
+        name: (identifier)
+        value: (number_literal))
+      (if_statement
+        condition: (identifier)
+        consequence: (block
+          (local_variable_declaration
+            name: (identifier)
+            value: (number_literal)))))))
