@@ -16279,6 +16279,10 @@
                 },
                 {
                   "type": "PATTERN",
+                  "value": "\\\\\\r\\n"
+                },
+                {
+                  "type": "PATTERN",
                   "value": "\\\\[\\s\\S]"
                 }
               ]
@@ -16395,6 +16399,10 @@
             {
               "type": "PATTERN",
               "value": "[^\"\\\\$\\n\\r]"
+            },
+            {
+              "type": "PATTERN",
+              "value": "\\\\\\r\\n"
             },
             {
               "type": "PATTERN",
