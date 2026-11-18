@@ -1858,3 +1858,164 @@ commandLine python ?: 'python3', *args
       default: (string_literal))
     argument: (spread_arguments
       value: (identifier))))
+
+==================
+Command call on a call as an argument list's first argument (groovyfmt #230)
+==================
+
+shadow(implementation project(":lib"))
+f(g h(1), 2)
+f(g h)
+enum E { A(B c), D(1) }
+
+---
+
+(source_file
+  (expression_statement
+    (method_invocation
+      (identifier)
+      (argument_list
+        (command_chain
+          (identifier)
+          (method_invocation
+            (identifier)
+            (argument_list
+              (string_literal
+                (string_fragment))))))))
+  (expression_statement
+    (method_invocation
+      (identifier)
+      (argument_list
+        (command_chain
+          (identifier)
+          (method_invocation
+            (identifier)
+            (argument_list
+              (number_literal)))
+          (number_literal)))))
+  (expression_statement
+    (method_invocation
+      (identifier)
+      (argument_list
+        (command_chain
+          (identifier)
+          (identifier)))))
+  (enum_declaration
+    (identifier)
+    (enum_body
+      (enum_constant
+        (identifier)
+        (argument_list
+          (command_chain
+            (identifier)
+            (identifier))))
+      (enum_constant
+        (identifier)
+        (argument_list
+          (number_literal))))))
+
+==================
+Braceless if command body with an operator argument before else (groovyfmt #230)
+==================
+
+if (c) o.f a - b
+else o.f 0
+if (c) f a * b + 1 // x
+else f 0
+if (c) o.f a + b * c
+else o.f 0
+if (c) o.f a - b
+f()
+
+---
+
+(source_file
+  (if_statement
+    (identifier)
+    (command_chain
+      (field_access
+        (identifier)
+        (identifier))
+      (binary_expression
+        (identifier)
+        (identifier)))
+    (command_chain
+      (field_access
+        (identifier)
+        (identifier))
+      (number_literal)))
+  (if_statement
+    (identifier)
+    (command_chain
+      (identifier)
+      (binary_expression
+        (binary_expression
+          (identifier)
+          (identifier))
+        (number_literal)))
+    (line_comment)
+    (command_chain
+      (identifier)
+      (number_literal)))
+  (if_statement
+    (identifier)
+    (command_chain
+      (field_access
+        (identifier)
+        (identifier))
+      (binary_expression
+        (identifier)
+        (binary_expression
+          (identifier)
+          (identifier))))
+    (command_chain
+      (field_access
+        (identifier)
+        (identifier))
+      (number_literal)))
+  (if_statement
+    (identifier)
+    (expression_statement
+      (field_access
+        (identifier)
+        (identifier))))
+  (expression_statement
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (expression_statement
+    (method_invocation
+      (identifier)
+      (argument_list))))
+
+==================
+Command call on a parenthesized first argument in parentheses (groovyfmt #230)
+==================
+
+c = (Integer.parseInt(sep), 16) as char
+x = (a(b))
+
+---
+
+(source_file
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (cast_expression
+        (parenthesized_expression
+          (command_chain
+            (field_access
+              (identifier)
+              (identifier))
+            (parenthesized_expression
+              (identifier))
+            (number_literal)))
+        (type_identifier))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (method_invocation
+          (identifier)
+          (argument_list
+            (identifier)))))))
