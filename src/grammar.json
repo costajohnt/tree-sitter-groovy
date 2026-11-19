@@ -15933,37 +15933,15 @@
                       }
                     },
                     {
-                      "type": "FIELD",
-                      "name": "argument",
+                      "type": "PREC_DYNAMIC",
+                      "value": -1,
                       "content": {
-                        "type": "SYMBOL",
-                        "name": "identifier"
-                      }
-                    },
-                    {
-                      "type": "FIELD",
-                      "name": "argument",
-                      "content": {
-                        "type": "ALIAS",
+                        "type": "FIELD",
+                        "name": "argument",
                         "content": {
                           "type": "SYMBOL",
-                          "name": "_name_call"
-                        },
-                        "named": true,
-                        "value": "method_invocation"
-                      }
-                    },
-                    {
-                      "type": "FIELD",
-                      "name": "argument",
-                      "content": {
-                        "type": "ALIAS",
-                        "content": {
-                          "type": "SYMBOL",
-                          "name": "_name_subscript"
-                        },
-                        "named": true,
-                        "value": "subscript_expression"
+                          "name": "_expression"
+                        }
                       }
                     }
                   ]
@@ -16068,60 +16046,6 @@
               "type": "BLANK"
             }
           ]
-        }
-      ]
-    },
-    "_name_subscript": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "FIELD",
-          "name": "object",
-          "content": {
-            "type": "SYMBOL",
-            "name": "identifier"
-          }
-        },
-        {
-          "type": "ALIAS",
-          "content": {
-            "type": "SYMBOL",
-            "name": "_subscript_open"
-          },
-          "named": false,
-          "value": "["
-        },
-        {
-          "type": "FIELD",
-          "name": "index",
-          "content": {
-            "type": "SYMBOL",
-            "name": "_subscript_index"
-          }
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": ","
-              },
-              {
-                "type": "FIELD",
-                "name": "index",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "_subscript_index"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "]"
         }
       ]
     },

@@ -1037,6 +1037,77 @@ while (a.b c) { }
     (block)))
 
 ================================================================================
+Command call condition with a longer argument (groovyfmt #256)
+================================================================================
+
+if (a.b c[0] - n) { }
+if (a.b c[0].x) { }
+if (a.b c - 1) { }
+while (a.b c[0] - n) { }
+x = (a - 1)
+x = (a -1)
+
+---
+
+(source_file
+  (if_statement
+    (command_chain
+      (field_access
+        (identifier)
+        (identifier))
+      (binary_expression
+        (subscript_expression
+          (identifier)
+          (number_literal))
+        (identifier)))
+    (block))
+  (if_statement
+    (command_chain
+      (field_access
+        (identifier)
+        (identifier))
+      (field_access
+        (subscript_expression
+          (identifier)
+          (number_literal))
+        (identifier)))
+    (block))
+  (if_statement
+    (command_chain
+      (field_access
+        (identifier)
+        (identifier))
+      (binary_expression
+        (identifier)
+        (number_literal)))
+    (block))
+  (while_statement
+    (command_chain
+      (field_access
+        (identifier)
+        (identifier))
+      (binary_expression
+        (subscript_expression
+          (identifier)
+          (number_literal))
+        (identifier)))
+    (block))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (binary_expression
+          (identifier)
+          (number_literal)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (binary_expression
+          (identifier)
+          (number_literal))))))
+
+================================================================================
 in as a declared local name (groovyfmt #256)
 ================================================================================
 
