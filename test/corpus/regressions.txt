@@ -1401,3 +1401,352 @@ x = (a as int)
         (cast_expression
           (identifier)
           (type_identifier))))))
+
+================================================================================
+More parenthesized command argument forms (groovyfmt #261)
+================================================================================
+
+x = (a b = c)
+x = (a b?c:d)
+x = (a b?:c)
+x = (a b /* c */ - d)
+x = (a b
+- c)
+x = (a b \
+- c)
+x = (a b
+* c)
+x = (a b // c
+- d)
+x = (a l?[0] - c)
+
+---
+
+(source_file
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (assignment_expression
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (ternary_expression
+            (identifier)
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (elvis_expression
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (binary_expression
+            (identifier)
+            (block_comment)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (binary_expression
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (binary_expression
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (binary_expression
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (binary_expression
+            (identifier)
+            (line_comment)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (binary_expression
+            (safe_subscript_expression
+              (identifier)
+              (number_literal))
+            (identifier)))))))
+
+================================================================================
+Parenthesized forms the #261 argument forms leave alone
+================================================================================
+
+f = (String s = 'x') -> s
+g = (String s = 'x', int n = 1) -> s * n
+h = (String s) -> s
+k = (a, b) -> a
+for (int i = 0; i < n; i++) { }
+for (String s = 'x'; s; s = null) { }
+y = (String) z
+y = (int) -z
+y = (a as int)
+y = (a ? b : c)
+y = (a?.b)
+y = (a b?.c)
+y = (a l?[0])
+y = (a b)
+y = (a b
+.c)
+y = (a b
+?.c)
+y = (a b
+? c : d)
+y = (f a : 1)
+y = (a b - c)
+y = (a b /* c */)
+y = (a b
+)
+y = (a b == c)
+y = (a b =~ c)
+
+---
+
+(source_file
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (lambda_expression
+        (formal_parameters
+          (formal_parameter
+            (type_identifier)
+            (identifier)
+            (string_literal)))
+        (identifier))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (lambda_expression
+        (formal_parameters
+          (formal_parameter
+            (type_identifier)
+            (identifier)
+            (string_literal))
+          (formal_parameter
+            (type_identifier)
+            (identifier)
+            (number_literal)))
+        (binary_expression
+          (identifier)
+          (identifier)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (lambda_expression
+        (formal_parameters
+          (formal_parameter
+            (type_identifier)
+            (identifier)))
+        (identifier))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (lambda_expression
+        (formal_parameters
+          (formal_parameter
+            (identifier))
+          (formal_parameter
+            (identifier)))
+        (identifier))))
+  (for_statement
+    (local_variable_declaration
+      (type_identifier)
+      (identifier)
+      (number_literal))
+    (binary_expression
+      (identifier)
+      (identifier))
+    (update_expression
+      (identifier))
+    (block))
+  (for_statement
+    (local_variable_declaration
+      (type_identifier)
+      (identifier)
+      (string_literal))
+    (identifier)
+    (assignment_expression
+      (identifier)
+      (null_literal))
+    (block))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_type_cast
+        (type_identifier)
+        (identifier))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_type_cast
+        (type_identifier)
+        (unary_expression
+          (identifier)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (cast_expression
+          (identifier)
+          (type_identifier)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (ternary_expression
+          (identifier)
+          (identifier)
+          (identifier)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (safe_navigation_expression
+          (identifier)
+          (identifier)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (safe_navigation_expression
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (safe_subscript_expression
+            (identifier)
+            (number_literal))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (identifier)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (field_access
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (safe_navigation_expression
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (ternary_expression
+            (identifier)
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (named_argument
+            (identifier)
+            (number_literal))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (binary_expression
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (identifier))
+        (block_comment))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (identifier)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (binary_expression
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (regex_find_expression
+            (identifier)
+            (identifier)))))))
