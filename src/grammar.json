@@ -2009,6 +2009,30 @@
         },
         {
           "type": "SYMBOL",
+          "name": "spread_dot_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "direct_field_access_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "method_pointer_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "method_reference_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "safe_chain_dot_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "safe_subscript_expression"
+        },
+        {
+          "type": "SYMBOL",
           "name": "binary_expression"
         },
         {
@@ -2509,8 +2533,22 @@
           "type": "FIELD",
           "name": "condition",
           "content": {
-            "type": "SYMBOL",
-            "name": "_expression"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_expression"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_parenthesized_command"
+                },
+                "named": true,
+                "value": "command_chain"
+              }
+            ]
           }
         },
         {
@@ -4421,8 +4459,22 @@
           "type": "FIELD",
           "name": "name",
           "content": {
-            "type": "SYMBOL",
-            "name": "identifier"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "identifier"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "string_literal"
+                },
+                "named": true,
+                "value": "quoted_identifier"
+              }
+            ]
           }
         },
         {
@@ -6976,13 +7028,8 @@
                         "value": ","
                       },
                       {
-                        "type": "ALIAS",
-                        "content": {
-                          "type": "SYMBOL",
-                          "name": "_bare_declarator"
-                        },
-                        "named": true,
-                        "value": "variable_declarator"
+                        "type": "SYMBOL",
+                        "name": "variable_declarator"
                       }
                     ]
                   }
@@ -7640,8 +7687,22 @@
           "type": "FIELD",
           "name": "name",
           "content": {
-            "type": "SYMBOL",
-            "name": "identifier"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "identifier"
+              },
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "STRING",
+                  "value": "in"
+                },
+                "named": true,
+                "value": "identifier"
+              }
+            ]
           }
         }
       ]
@@ -11796,6 +11857,14 @@
               {
                 "type": "SYMBOL",
                 "name": "string_literal"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "null_literal"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "number_literal"
               }
             ]
           }
@@ -15883,6 +15952,19 @@
                         "named": true,
                         "value": "method_invocation"
                       }
+                    },
+                    {
+                      "type": "FIELD",
+                      "name": "argument",
+                      "content": {
+                        "type": "ALIAS",
+                        "content": {
+                          "type": "SYMBOL",
+                          "name": "_name_subscript"
+                        },
+                        "named": true,
+                        "value": "subscript_expression"
+                      }
                     }
                   ]
                 },
@@ -15986,6 +16068,60 @@
               "type": "BLANK"
             }
           ]
+        }
+      ]
+    },
+    "_name_subscript": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "object",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_subscript_open"
+          },
+          "named": false,
+          "value": "["
+        },
+        {
+          "type": "FIELD",
+          "name": "index",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_subscript_index"
+          }
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": ","
+              },
+              {
+                "type": "FIELD",
+                "name": "index",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_subscript_index"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "]"
         }
       ]
     },
@@ -16722,11 +16858,16 @@
           }
         },
         {
-          "type": "IMMEDIATE_TOKEN",
+          "type": "ALIAS",
           "content": {
-            "type": "STRING",
-            "value": "/$"
-          }
+            "type": "IMMEDIATE_TOKEN",
+            "content": {
+              "type": "PATTERN",
+              "value": "\\/+\\$"
+            }
+          },
+          "named": false,
+          "value": "/$"
         }
       ]
     },
@@ -16743,7 +16884,7 @@
             },
             {
               "type": "PATTERN",
-              "value": "\\/[^$]"
+              "value": "\\/+[^/$]"
             },
             {
               "type": "PATTERN",

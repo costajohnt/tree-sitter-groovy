@@ -725,3 +725,404 @@ Lone carriage returns end line comments
     (assignment_expression
       (identifier)
       (number_literal))))
+
+================================================================================
+Command call with a spread, attribute, pointer or reference first argument (groovyfmt #256)
+================================================================================
+
+foo a*.b, [1]
+foo q.@b, 1
+foo a?.@b, 1
+foo a.&b, 1
+foo a::b, 1
+foo a?['b'], 1
+foo a??.b, 1
+
+---
+
+(source_file
+  (command_chain
+    (identifier)
+    (spread_dot_expression
+      (identifier)
+      (identifier))
+    (list_literal
+      (number_literal)))
+  (command_chain
+    (identifier)
+    (direct_field_access_expression
+      (identifier)
+      (identifier))
+    (number_literal))
+  (command_chain
+    (identifier)
+    (direct_field_access_expression
+      (identifier)
+      (identifier))
+    (number_literal))
+  (command_chain
+    (identifier)
+    (method_pointer_expression
+      (identifier)
+      (identifier))
+    (number_literal))
+  (command_chain
+    (identifier)
+    (method_reference_expression
+      (identifier)
+      (identifier))
+    (number_literal))
+  (command_chain
+    (identifier)
+    (safe_subscript_expression
+      (identifier)
+      (string_literal))
+    (number_literal))
+  (command_chain
+    (identifier)
+    (safe_chain_dot_expression
+      (identifier)
+      (identifier))
+    (number_literal)))
+
+================================================================================
+Dollar-slashy string ending in a slash (groovyfmt #256)
+================================================================================
+
+def s = $/a//$
+def t = $/a///$
+def u = $/a//b/$
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (string_literal
+        (string_fragment))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (string_literal
+        (string_fragment))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (string_literal
+        (string_fragment)))))
+
+================================================================================
+Groovy 2.4 and 3 ternary whose first branch is a list with a call chain (groovyfmt #256)
+================================================================================
+
+def f = a?[b].d():c
+def g = a?[b].size:7
+def h = c ? a?[b].d() : e
+def i = a?[b].d()
+def m = [k: a?[0].b]
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (ternary_expression
+        (identifier)
+        (method_invocation
+          (field_access
+            (list_literal
+              (identifier))
+            (identifier))
+          (argument_list))
+        (identifier))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (ternary_expression
+        (identifier)
+        (field_access
+          (list_literal
+            (identifier))
+          (identifier))
+        (number_literal))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (ternary_expression
+        (identifier)
+        (method_invocation
+          (field_access
+            (safe_subscript_expression
+              (identifier)
+              (identifier))
+            (identifier))
+          (argument_list))
+        (identifier))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (method_invocation
+        (field_access
+          (safe_subscript_expression
+            (identifier)
+            (identifier))
+          (identifier))
+        (argument_list))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (map_literal
+        (map_entry
+          (identifier)
+          (field_access
+            (safe_subscript_expression
+              (identifier)
+              (number_literal))
+            (identifier)))))))
+
+================================================================================
+Generic multi-declarator with a later initializer (groovyfmt #256)
+================================================================================
+
+List<String> a, b = null
+Map<String,Integer> m, n = [:]
+
+---
+
+(source_file
+  (local_variable_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (variable_declarator
+      (identifier))
+    (variable_declarator
+      (identifier)
+      (null_literal)))
+  (local_variable_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)
+        (type_identifier)))
+    (variable_declarator
+      (identifier))
+    (variable_declarator
+      (identifier)
+      (map_literal))))
+
+================================================================================
+Command call as an if or while condition (groovyfmt #256)
+================================================================================
+
+if (a.b c[0]) { }
+while (a.b c) { }
+
+---
+
+(source_file
+  (if_statement
+    (command_chain
+      (field_access
+        (identifier)
+        (identifier))
+      (subscript_expression
+        (identifier)
+        (number_literal)))
+    (block))
+  (while_statement
+    (command_chain
+      (field_access
+        (identifier)
+        (identifier))
+      (identifier))
+    (block)))
+
+================================================================================
+in as a declared local name (groovyfmt #256)
+================================================================================
+
+def g() {
+  final InputStream in
+  in = null
+  List<String> in
+}
+
+---
+
+(source_file
+  (method_declaration
+    (identifier)
+    (formal_parameters)
+    (block
+      (local_variable_declaration
+        (type_identifier)
+        (variable_declarator
+          (identifier)))
+      (expression_statement
+        (assignment_expression
+          (identifier)
+          (null_literal)))
+      (local_variable_declaration
+        (generic_type
+          (type_identifier)
+          (type_arguments
+            (type_identifier)))
+        (variable_declarator
+          (identifier))))))
+
+================================================================================
+Empty index on null or a number (groovyfmt #256)
+================================================================================
+
+def x = null[]
+def y = 1[]
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (subscript_expression
+        (null_literal))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (subscript_expression
+        (number_literal)))))
+
+================================================================================
+Quoted annotation member with a default (groovyfmt #256)
+================================================================================
+
+@interface R {
+  String[] 'default'() default []
+}
+
+---
+
+(source_file
+  (annotation_type_declaration
+    (identifier)
+    (class_body
+      (method_declaration
+        (array_type
+          (type_identifier))
+        (quoted_identifier)
+        (formal_parameters)
+        (list_literal)))))
+
+================================================================================
+Line break before an index or call inside parentheses or brackets (groovyfmt #256)
+================================================================================
+
+def s = f(a.x
+[0])
+def r = f(1,
+Math.max
+    (2, 3))
+def l = [
+    []
+    [1],
+]
+foo
+[1, 2].each { }
+println 'x'
+(1..2).each { }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (method_invocation
+        (identifier)
+        (argument_list
+          (subscript_expression
+            (field_access
+              (identifier)
+              (identifier))
+            (number_literal))))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (method_invocation
+        (identifier)
+        (argument_list
+          (number_literal)
+          (method_invocation
+            (field_access
+              (identifier)
+              (identifier))
+            (argument_list
+              (number_literal)
+              (number_literal)))))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (list_literal
+        (subscript_expression
+          (list_literal)
+          (number_literal)))))
+  (expression_statement
+    (identifier))
+  (expression_statement
+    (method_invocation
+      (field_access
+        (list_literal
+          (number_literal)
+          (number_literal))
+        (identifier))
+      (closure)))
+  (command_chain
+    (identifier)
+    (string_literal))
+  (expression_statement
+    (method_invocation
+      (field_access
+        (parenthesized_expression
+          (range_expression
+            (number_literal)
+            (number_literal)))
+        (identifier))
+      (closure))))
+
+================================================================================
+Multi-line slashy string at the start of a statement (groovyfmt #256)
+================================================================================
+
+def x = 1
+/ *
+ * text
+/
+x = 4
+/ 2
+y = a / b
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (number_literal)))
+  (expression_statement
+    (string_literal
+      (string_fragment)))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (binary_expression
+        (number_literal)
+        (number_literal))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (binary_expression
+        (identifier)
+        (identifier)))))
