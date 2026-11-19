@@ -1046,6 +1046,8 @@ if (a.b c - 1) { }
 while (a.b c[0] - n) { }
 x = (a - 1)
 x = (a -1)
+x = (CharSequence) ('a' + s)
+if (f a : 1) { }
 
 ---
 
@@ -1105,7 +1107,23 @@ x = (a -1)
       (parenthesized_expression
         (binary_expression
           (identifier)
-          (number_literal))))))
+          (number_literal)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_type_cast
+        (type_identifier)
+        (parenthesized_expression
+          (binary_expression
+            (string_literal)
+            (identifier))))))
+  (if_statement
+    (command_chain
+      (identifier)
+      (named_argument
+        (identifier)
+        (number_literal)))
+    (block)))
 
 ================================================================================
 in as a declared local name (groovyfmt #256)
