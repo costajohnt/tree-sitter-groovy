@@ -711,7 +711,9 @@ menuIcon ext == "pdf" ? A : B, m
 Lone carriage returns end line comments
 ================================================================================
 
-// cx = 1 // dy = 2
+// c
+x = 1 // d
+y = 2
 ---
 
 (source_file
@@ -821,6 +823,16 @@ def g = a?[b].size:7
 def h = c ? a?[b].d() : e
 def i = a?[b].d()
 def m = [k: a?[0].b]
+def fqs = params.fq?[params.fq].flatten().findAll{ it != null }:null
+config.stashContent = config.testRepository
+    ?[GitUtils.handleTestRepository(this, config)]
+    :utils.unstashAll(config.stashContent)
+def n = [a?[0].b: 1]
+x = a?[0].each { it }
+switch (x) {
+case a?[0].b:
+  break
+}
 
 ---
 
@@ -880,7 +892,90 @@ def m = [k: a?[0].b]
             (safe_subscript_expression
               (identifier)
               (number_literal))
-            (identifier)))))))
+            (identifier))))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (ternary_expression
+        (field_access
+          (identifier)
+          (identifier))
+        (method_invocation
+          (field_access
+            (method_invocation
+              (field_access
+                (list_literal
+                  (field_access
+                    (identifier)
+                    (identifier)))
+                (identifier))
+              (argument_list))
+            (identifier))
+          (closure
+            (expression_statement
+              (binary_expression
+                (identifier)
+                (null_literal)))))
+        (null_literal))))
+  (expression_statement
+    (assignment_expression
+      (field_access
+        (identifier)
+        (identifier))
+      (ternary_expression
+        (field_access
+          (identifier)
+          (identifier))
+        (list_literal
+          (method_invocation
+            (field_access
+              (identifier)
+              (identifier))
+            (argument_list
+              (identifier)
+              (identifier))))
+        (method_invocation
+          (field_access
+            (identifier)
+            (identifier))
+          (argument_list
+            (field_access
+              (identifier)
+              (identifier)))))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (map_literal
+        (map_entry
+          (field_access
+            (safe_subscript_expression
+              (identifier)
+              (number_literal))
+            (identifier))
+          (number_literal)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (method_invocation
+        (field_access
+          (safe_subscript_expression
+            (identifier)
+            (number_literal))
+          (identifier))
+        (closure
+          (expression_statement
+            (identifier))))))
+  (expression_statement
+    (switch_expression
+      (identifier)
+      (switch_block
+        (switch_case
+          (field_access
+            (safe_subscript_expression
+              (identifier)
+              (number_literal))
+            (identifier))
+          (break_statement))))))
 
 ================================================================================
 Generic multi-declarator with a later initializer (groovyfmt #256)
