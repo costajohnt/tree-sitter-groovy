@@ -1128,6 +1128,12 @@ foo
 [1, 2].each { }
 println 'x'
 (1..2).each { }
+def g() {
+  where:
+  a | b
+  [] | X.Y
+  [] | 1
+}
 
 ---
 
@@ -1185,7 +1191,27 @@ println 'x'
             (number_literal)
             (number_literal)))
         (identifier))
-      (closure))))
+      (closure)))
+  (method_declaration
+    (identifier)
+    (formal_parameters)
+    (block
+      (labeled_statement
+        (identifier)
+        (expression_statement
+          (binary_expression
+            (identifier)
+            (identifier))))
+      (expression_statement
+        (binary_expression
+          (list_literal)
+          (field_access
+            (identifier)
+            (identifier))))
+      (expression_statement
+        (binary_expression
+          (list_literal)
+          (number_literal))))))
 
 ================================================================================
 Multi-line slashy string at the start of a statement (groovyfmt #256)
