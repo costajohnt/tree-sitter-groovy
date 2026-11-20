@@ -15472,6 +15472,18 @@
           "value": "("
         },
         {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_argument_list_body"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
           "type": "STRING",
           "value": ")"
         }
@@ -17293,6 +17305,10 @@
     [
       "_command_lambda_parameters",
       "_closure_default_arguments"
+    ],
+    [
+      "_type",
+      "_argument_command"
     ],
     [
       "closure"

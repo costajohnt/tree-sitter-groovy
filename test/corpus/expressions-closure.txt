@@ -1392,6 +1392,63 @@ def g = { def f = d() -> 1 }
         (expression_statement
           (number_literal))))))
 
+==================
+Closure parameter whose default is a call with arguments (#287)
+==================
+
+def c = { y = f(1, 2) -> y }
+def d = { x, y = helper(1, 2) -> x }
+def e = { y = a.f(b) -> y }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier)
+            default: (method_invocation
+              function: (identifier)
+              arguments: (argument_list
+                (number_literal)
+                (number_literal)))))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier))
+          (closure_parameter
+            name: (identifier)
+            default: (method_invocation
+              function: (identifier)
+              arguments: (argument_list
+                (number_literal)
+                (number_literal)))))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier)
+            default: (method_invocation
+              function: (field_access
+                object: (identifier)
+                field: (identifier))
+              arguments: (argument_list
+                (identifier)))))
+        (expression_statement
+          (identifier))))))
+
 ================================================================================
 Closure parameters after a generic, array or defaulted first parameter (#283)
 ================================================================================
