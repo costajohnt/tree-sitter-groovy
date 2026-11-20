@@ -1541,6 +1541,16 @@ y = (a b
 )
 y = (a b == c)
 y = (a b =~ c)
+List<String> m(Map p = [:]) {
+    p
+}
+List<String> n( Map p = [:] )
+{
+    p
+}
+List<String> t(Map p = [:]) throws IOException {
+    p
+}
 
 ---
 
@@ -1749,4 +1759,48 @@ y = (a b =~ c)
           (identifier)
           (regex_find_expression
             (identifier)
-            (identifier)))))))
+            (identifier))))))
+  (method_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (type_identifier)
+        (identifier)
+        (map_literal)))
+    (block
+      (expression_statement
+        (identifier))))
+  (method_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (type_identifier)
+        (identifier)
+        (map_literal)))
+    (block
+      (expression_statement
+        (identifier))))
+  (method_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (type_identifier)
+        (identifier)
+        (map_literal)))
+    (throws_clause
+      (type_identifier))
+    (block
+      (expression_statement
+        (identifier)))))

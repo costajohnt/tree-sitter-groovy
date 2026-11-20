@@ -410,10 +410,10 @@ static bool skip_parens(TSLexer *lexer) {
 // expression argument. When `spaced`, the gap before the operator is skipped
 // first: inside parentheses a line break, a `\` continuation or a comment is
 // a gap like a space (Groovy 3 and 4), `(a b /* c */ - d)` and `(a b` then
-// `- c`. `?.` and `->` don't continue; neither does `=` before a lambda's
-// `->`, `(String s = 'x') -> s`. Neither do `.`, `?` and `<` right after the
-// name, which the callers' other branches read. The gap is scanned under the
-// step budget (see skip_step); a longer one is the default reading, false.
+// `- c`. `?.` and `->` don't continue; neither does `=` in a parameter list
+// (see below). Neither do `.`, `?` and `<` right after the name, which the
+// callers' other branches read. The gap is scanned under the step budget (see
+// skip_step); a longer one is the default reading, false.
 static bool paren_argument_continues(TSLexer *lexer, bool spaced) {
     unsigned budget = SKIP_BUDGET;
     while (spaced) {
@@ -475,18 +475,25 @@ static bool paren_argument_continues(TSLexer *lexer, bool spaced) {
                 if (n == '=' || n == '~') {
                     return true;
                 }
-                // `(a b = c)` is `a(b = c)`, unless a lambda's `->` follows.
+                // `(a b = c)` is `a(b = c)`, unless the parentheses hold
+                // parameters with a default: a lambda's, `(String s = 'x') -> s`,
+                // or, in a script, the method's of `List<T> m(Map p = [:]) {`.
                 if (!skip_parens(lexer)) {
                     return false;
                 }
                 while (is_whitespace(lexer->lookahead)) {
                     lexer->advance(lexer, false);
                 }
-                if (lexer->lookahead != '-') {
-                    return true;
+                if (lexer->lookahead == '{') {
+                    return false;
                 }
-                lexer->advance(lexer, false);
-                return lexer->lookahead != '>';
+                if (lexer->lookahead == '-') {
+                    lexer->advance(lexer, false);
+                    return lexer->lookahead != '>';
+                }
+                char word[8];
+                unsigned len = read_word(lexer, word, sizeof(word));
+                return !(len == 6 && memcmp(word, "throws", 6) == 0);
             case '!': return n == '=' || n == 'i';
             case '/': return n != '/' && n != '*';
             default: return n != '.';
