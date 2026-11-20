@@ -1391,3 +1391,332 @@ def g = { def f = d() -> 1 }
               arguments: (argument_list))))
         (expression_statement
           (number_literal))))))
+
+================================================================================
+Closure parameters after a generic, array or defaulted first parameter (#283)
+================================================================================
+
+def a = { Map<String, List<Integer>> m, int n -> (String) m }
+def b = { List<?> m, Map<String, ? extends Number> o, int n -> m }
+def c = { String[] m, int n -> m }
+def d = { Map<K, V> m = [:], int n -> m }
+def e = { String m = 'x', int n -> m }
+def f = { @A Map<K, V> m, final int n -> m }
+def g = { final Map<K, V> m, a, def n -> m }
+def h = { java.util.Map<K, V> m, int... n -> m }
+def i = {
+  Map<K, V> m,
+  int n ->
+  m
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (generic_type
+              base: (type_identifier)
+              arguments: (type_arguments
+                (type_identifier)
+                (generic_type
+                  base: (type_identifier)
+                  arguments: (type_arguments
+                    (type_identifier)))))
+            name: (identifier))
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        (expression_statement
+          (parenthesized_type_cast
+            type: (type_identifier)
+            value: (identifier))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (generic_type
+              base: (type_identifier)
+              arguments: (type_arguments
+                (wildcard)))
+            name: (identifier))
+          (closure_parameter
+            type: (generic_type
+              base: (type_identifier)
+              arguments: (type_arguments
+                (type_identifier)
+                (wildcard
+                  (type_identifier))))
+            name: (identifier))
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (array_type
+              (type_identifier))
+            name: (identifier))
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (generic_type
+              base: (type_identifier)
+              arguments: (type_arguments
+                (type_identifier)
+                (type_identifier)))
+            name: (identifier)
+            default: (map_literal))
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)
+            default: (string_literal))
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            (annotation
+              name: (qualified_name
+                (identifier)))
+            type: (generic_type
+              base: (type_identifier)
+              arguments: (type_arguments
+                (type_identifier)
+                (type_identifier)))
+            name: (identifier))
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (generic_type
+              base: (type_identifier)
+              arguments: (type_arguments
+                (type_identifier)
+                (type_identifier)))
+            name: (identifier))
+          (closure_parameter
+            name: (identifier))
+          (closure_parameter
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (generic_type
+              base: (qualified_type
+                (type_identifier)
+                (type_identifier)
+                (type_identifier))
+              arguments: (type_arguments
+                (type_identifier)
+                (type_identifier)))
+            name: (identifier))
+          (closure_parameter
+            type: (varargs_type
+              (type_identifier))
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            type: (generic_type
+              base: (type_identifier)
+              arguments: (type_arguments
+                (type_identifier)
+                (type_identifier)))
+            name: (identifier))
+          (closure_parameter
+            type: (type_identifier)
+            name: (identifier)))
+        (expression_statement
+          (identifier))))))
+
+================================================================================
+Declarations, lambdas and comparisons near closure parameters (#283)
+================================================================================
+
+def a = { (Map<K, V> m, int n) -> m }
+def b = { Map<String, Integer> m, n
+  m }
+def d = { a, b -> a }
+def e = { foo.<String>bar(a, b) }
+def f = { f(a < b, c > d) }
+void m() {
+  Map<String, Integer> m, n
+  n -> m
+}
+def "t"() {
+  expect:
+  a < b
+  where:
+  a | b
+  1 | 2
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (expression_statement
+          (lambda_expression
+            parameters: (formal_parameters
+              (formal_parameter
+                type: (generic_type
+                  base: (type_identifier)
+                  arguments: (type_arguments
+                    (type_identifier)
+                    (type_identifier)))
+                name: (identifier))
+              (formal_parameter
+                type: (type_identifier)
+                name: (identifier)))
+            body: (identifier))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (local_variable_declaration
+          type: (generic_type
+            base: (type_identifier)
+            arguments: (type_arguments
+              (type_identifier)
+              (type_identifier)))
+          (variable_declarator
+            name: (identifier))
+          (variable_declarator
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (closure_parameters
+          (closure_parameter
+            name: (identifier))
+          (closure_parameter
+            name: (identifier)))
+        (expression_statement
+          (identifier)))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (expression_statement
+          (method_invocation
+            function: (field_access
+              object: (identifier)
+              type_arguments: (type_arguments
+                (type_identifier))
+              field: (identifier))
+            arguments: (argument_list
+              (identifier)
+              (identifier)))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (closure
+        (expression_statement
+          (method_invocation
+            function: (identifier)
+            arguments: (argument_list
+              (binary_expression
+                left: (identifier)
+                right: (identifier))
+              (binary_expression
+                left: (identifier)
+                right: (identifier))))))))
+  (method_declaration
+    return_type: (type_identifier)
+    name: (identifier)
+    parameters: (formal_parameters)
+    body: (block
+      (local_variable_declaration
+        type: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (type_identifier)
+            (type_identifier)))
+        (variable_declarator
+          name: (identifier))
+        (variable_declarator
+          name: (identifier)))
+      (expression_statement
+        (lambda_expression
+          parameters: (formal_parameter)
+          body: (identifier)))))
+  (method_declaration
+    name: (quoted_identifier
+      (string_fragment))
+    parameters: (formal_parameters)
+    body: (block
+      (labeled_statement
+        label: (identifier)
+        statement: (expression_statement
+          (binary_expression
+            left: (identifier)
+            right: (identifier))))
+      (labeled_statement
+        label: (identifier)
+        statement: (expression_statement
+          (binary_expression
+            left: (identifier)
+            right: (identifier))))
+      (expression_statement
+        (binary_expression
+          left: (number_literal)
+          right: (number_literal))))))
