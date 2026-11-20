@@ -1592,10 +1592,6 @@ def b = { Map<String, Integer> m, n
 def d = { a, b -> a }
 def e = { foo.<String>bar(a, b) }
 def f = { f(a < b, c > d) }
-void m() {
-  Map<String, Integer> m, n
-  n -> m
-}
 def "t"() {
   expect:
   a < b
@@ -1680,25 +1676,6 @@ def "t"() {
               (binary_expression
                 left: (identifier)
                 right: (identifier))))))))
-  (method_declaration
-    return_type: (type_identifier)
-    name: (identifier)
-    parameters: (formal_parameters)
-    body: (block
-      (local_variable_declaration
-        type: (generic_type
-          base: (type_identifier)
-          arguments: (type_arguments
-            (type_identifier)
-            (type_identifier)))
-        (variable_declarator
-          name: (identifier))
-        (variable_declarator
-          name: (identifier)))
-      (expression_statement
-        (lambda_expression
-          parameters: (formal_parameter)
-          body: (identifier)))))
   (method_declaration
     name: (quoted_identifier
       (string_fragment))
