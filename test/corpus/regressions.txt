@@ -1551,6 +1551,45 @@ List<String> n( Map p = [:] )
 List<String> t(Map p = [:]) throws IOException {
     p
 }
+List<String> m1(Map p = [:]) // c
+{
+    p
+}
+List<String> m2(Map p = [:]) /* c */ {
+    p
+}
+List<String> m3(Map p = [:])
+// c
+{
+    p
+}
+List<String> m4(Map p = [:]) /* c */ throws IOException {
+    p
+}
+List<String> m5(Map p = [:]) \
+{
+    p
+}
+String[] m6(String s = 'x') /* c */ {
+    s
+}
+Map<String, Integer> m7(Map p = [:]) // c
+{
+    p
+}
+List<String> m8(Map p = [:]) // c
+    throws IOException {
+    p
+}
+def f1 = (String s = 'x') /* c */ -> s
+def f2 = (String s = 'x') // c
+    -> s
+f3 = (String s = 'x', int n = 2) /* two */ -> s * n
+x = (a b = c)
+x = (a b = 1, c)
+if ((a b = c)) {
+}
+x = (a b = c) /* c */ + 1
 
 ---
 
@@ -1803,4 +1842,204 @@ List<String> t(Map p = [:]) throws IOException {
       (type_identifier))
     (block
       (expression_statement
-        (identifier)))))
+        (identifier))))
+  (method_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (type_identifier)
+        (identifier)
+        (map_literal)))
+    (line_comment)
+    (block
+      (expression_statement
+        (identifier))))
+  (method_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (type_identifier)
+        (identifier)
+        (map_literal)))
+    (block_comment)
+    (block
+      (expression_statement
+        (identifier))))
+  (method_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (type_identifier)
+        (identifier)
+        (map_literal)))
+    (line_comment)
+    (block
+      (expression_statement
+        (identifier))))
+  (method_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (type_identifier)
+        (identifier)
+        (map_literal)))
+    (block_comment)
+    (throws_clause
+      (type_identifier))
+    (block
+      (expression_statement
+        (identifier))))
+  (method_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (type_identifier)
+        (identifier)
+        (map_literal)))
+    (block
+      (expression_statement
+        (identifier))))
+  (method_declaration
+    (array_type
+      (type_identifier))
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (type_identifier)
+        (identifier)
+        (string_literal)))
+    (block_comment)
+    (block
+      (expression_statement
+        (identifier))))
+  (method_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)
+        (type_identifier)))
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (type_identifier)
+        (identifier)
+        (map_literal)))
+    (line_comment)
+    (block
+      (expression_statement
+        (identifier))))
+  (method_declaration
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (identifier)
+    (formal_parameters
+      (formal_parameter
+        (type_identifier)
+        (identifier)
+        (map_literal)))
+    (line_comment)
+    (throws_clause
+      (type_identifier))
+    (block
+      (expression_statement
+        (identifier))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (lambda_expression
+        (formal_parameters
+          (formal_parameter
+            (type_identifier)
+            (identifier)
+            (string_literal)))
+        (block_comment)
+        (identifier))))
+  (local_variable_declaration
+    (variable_declarator
+      (identifier)
+      (lambda_expression
+        (formal_parameters
+          (formal_parameter
+            (type_identifier)
+            (identifier)
+            (string_literal)))
+        (line_comment)
+        (identifier))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (lambda_expression
+        (formal_parameters
+          (formal_parameter
+            (type_identifier)
+            (identifier)
+            (string_literal))
+          (formal_parameter
+            (type_identifier)
+            (identifier)
+            (number_literal)))
+        (block_comment)
+        (binary_expression
+          (identifier)
+          (identifier)))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (assignment_expression
+            (identifier)
+            (identifier))))))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (parenthesized_expression
+        (command_chain
+          (identifier)
+          (assignment_expression
+            (identifier)
+            (number_literal))
+          (identifier)))))
+  (if_statement
+    (parenthesized_expression
+      (command_chain
+        (identifier)
+        (assignment_expression
+          (identifier)
+          (identifier))))
+    (block))
+  (expression_statement
+    (assignment_expression
+      (identifier)
+      (binary_expression
+        (parenthesized_expression
+          (command_chain
+            (identifier)
+            (assignment_expression
+              (identifier)
+              (identifier))))
+        (block_comment)
+        (number_literal)))))
