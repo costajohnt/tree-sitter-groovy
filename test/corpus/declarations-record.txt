@@ -280,3 +280,82 @@ record R(int x) {
           name: (identifier)))
       (instance_initializer
         body: (block)))))
+
+==================
+Generic record
+==================
+
+record MapTransform<T>(Class<T> type, Closure<?> transformer) {}
+record Pair<A, B extends Comparable<B>>(A left, B right) implements Serializable {
+    Pair {
+        assert left != null
+    }
+}
+record Plain(int x) {
+    Plain {
+        assert x
+    }
+}
+
+---
+
+(source_file
+  (record_declaration
+    name: (identifier)
+    type_parameters: (type_parameters
+      (type_parameter
+        name: (type_identifier)))
+    components: (record_components
+      (record_component
+        type: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (type_identifier)))
+        name: (identifier))
+      (record_component
+        type: (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (wildcard)))
+        name: (identifier)))
+    body: (class_body))
+  (record_declaration
+    name: (identifier)
+    type_parameters: (type_parameters
+      (type_parameter
+        name: (type_identifier))
+      (type_parameter
+        name: (type_identifier)
+        (generic_type
+          base: (type_identifier)
+          arguments: (type_arguments
+            (type_identifier)))))
+    components: (record_components
+      (record_component
+        type: (type_identifier)
+        name: (identifier))
+      (record_component
+        type: (type_identifier)
+        name: (identifier)))
+    (super_interfaces
+      (type_identifier))
+    body: (class_body
+      (constructor_declaration
+        name: (identifier)
+        body: (block
+          (assert_statement
+            (binary_expression
+              left: (identifier)
+              right: (null_literal)))))))
+  (record_declaration
+    name: (identifier)
+    components: (record_components
+      (record_component
+        type: (type_identifier)
+        name: (identifier)))
+    body: (class_body
+      (constructor_declaration
+        name: (identifier)
+        body: (block
+          (assert_statement
+            (identifier)))))))

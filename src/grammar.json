@@ -6425,6 +6425,22 @@
               }
             },
             {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "FIELD",
+                  "name": "type_parameters",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "type_parameters"
+                  }
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            },
+            {
               "type": "FIELD",
               "name": "components",
               "content": {
@@ -11384,36 +11400,135 @@
           "type": "PREC_LEFT",
           "value": 17,
           "content": {
-            "type": "PREC_DYNAMIC",
-            "value": -1000,
-            "content": {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "FIELD",
-                  "name": "function",
-                  "content": {
-                    "type": "SYMBOL",
-                    "name": "object_creation_expression"
-                  }
-                },
-                {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "function",
+                "content": {
                   "type": "SYMBOL",
-                  "name": "_command_closure_start"
-                },
-                {
-                  "type": "FIELD",
-                  "name": "closure",
+                  "name": "object_creation_expression"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "closure",
+                "content": {
+                  "type": "ALIAS",
                   "content": {
                     "type": "SYMBOL",
-                    "name": "closure"
-                  }
+                    "name": "_new_closure_on_line"
+                  },
+                  "named": true,
+                  "value": "closure"
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]
+    },
+    "_new_closure_on_line": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_new_closure_open"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "_line_break"
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "closure_parameters"
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "_statement"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": ";"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_line_break"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_closure_command"
+              },
+              "named": true,
+              "value": "command_chain"
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_closure_declaration"
+              },
+              "named": true,
+              "value": "local_variable_declaration"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
+    "_new_closure_open": {
+      "type": "PREC_DYNAMIC",
+      "value": -1000,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "_command_closure_start"
+          },
+          {
+            "type": "STRING",
+            "value": "{"
+          }
+        ]
+      }
     },
     "argument_list": {
       "type": "SEQ",
@@ -17181,6 +17296,9 @@
     [
       "block",
       "closure"
+    ],
+    [
+      "_new_closure_on_line"
     ],
     [
       "enum_body"

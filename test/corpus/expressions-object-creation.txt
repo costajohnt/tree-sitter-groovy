@@ -508,3 +508,191 @@ def b = new Object() { }
         type: (type_identifier)
         arguments: (argument_list)
         body: (class_body)))))
+
+==================
+Anonymous class body with fields, a cast and a method
+==================
+
+def o = new Object() {
+    int r = 1
+    String c = (String) 's'
+    def f() { c }
+}
+def p = new Object() {
+    int r = 1
+    String c = (String) 's'
+    int z = (int) 2L
+    private long n = 0
+    def f() { c }
+}
+def q = new Object() { }
+def a = new Object()
+{ -> 3 }
+def b = new Object() { -> 3 }
+
+---
+
+(source_file
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (object_creation_expression
+        type: (type_identifier)
+        arguments: (argument_list)
+        body: (class_body
+          (field_declaration
+            type: (type_identifier)
+            (variable_declarator
+              name: (identifier)
+              value: (number_literal)))
+          (field_declaration
+            type: (type_identifier)
+            (variable_declarator
+              name: (identifier)
+              value: (parenthesized_type_cast
+                type: (type_identifier)
+                value: (string_literal))))
+          (method_declaration
+            name: (identifier)
+            parameters: (formal_parameters)
+            body: (block
+              (expression_statement
+                (identifier))))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (object_creation_expression
+        type: (type_identifier)
+        arguments: (argument_list)
+        body: (class_body
+          (field_declaration
+            type: (type_identifier)
+            (variable_declarator
+              name: (identifier)
+              value: (number_literal)))
+          (field_declaration
+            type: (type_identifier)
+            (variable_declarator
+              name: (identifier)
+              value: (parenthesized_type_cast
+                type: (type_identifier)
+                value: (string_literal))))
+          (field_declaration
+            type: (type_identifier)
+            (variable_declarator
+              name: (identifier)
+              value: (parenthesized_type_cast
+                type: (type_identifier)
+                value: (number_literal))))
+          (field_declaration
+            type: (type_identifier)
+            (variable_declarator
+              name: (identifier)
+              value: (number_literal)))
+          (method_declaration
+            name: (identifier)
+            parameters: (formal_parameters)
+            body: (block
+              (expression_statement
+                (identifier))))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (object_creation_expression
+        type: (type_identifier)
+        arguments: (argument_list)
+        body: (class_body))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list))
+        closure: (closure
+          (closure_parameters)
+          (expression_statement
+            (number_literal))))))
+  (local_variable_declaration
+    (variable_declarator
+      name: (identifier)
+      value: (method_invocation
+        function: (object_creation_expression
+          type: (type_identifier)
+          arguments: (argument_list))
+        closure: (closure
+          (closure_parameters)
+          (expression_statement
+            (number_literal)))))))
+
+==================
+Spock where rows with new X() and a closure
+==================
+
+def "rows"() {
+    expect:
+    a != null
+    where:
+    a            | b
+    new Object() | { -> 3 }
+    new Object() | 1
+}
+def "row then closure"() {
+    where:
+    b = new Object()
+    { -> 3 }
+}
+
+---
+
+(source_file
+  (method_declaration
+    name: (quoted_identifier
+      (string_fragment))
+    parameters: (formal_parameters)
+    body: (block
+      (labeled_statement
+        label: (identifier)
+        statement: (expression_statement
+          (binary_expression
+            left: (identifier)
+            right: (null_literal))))
+      (labeled_statement
+        label: (identifier)
+        statement: (expression_statement
+          (binary_expression
+            left: (identifier)
+            right: (identifier))))
+      (expression_statement
+        (binary_expression
+          left: (object_creation_expression
+            type: (type_identifier)
+            arguments: (argument_list))
+          right: (closure
+            (closure_parameters)
+            (expression_statement
+              (number_literal)))))
+      (expression_statement
+        (binary_expression
+          left: (object_creation_expression
+            type: (type_identifier)
+            arguments: (argument_list))
+          right: (number_literal)))))
+  (method_declaration
+    name: (quoted_identifier
+      (string_fragment))
+    parameters: (formal_parameters)
+    body: (block
+      (labeled_statement
+        label: (identifier)
+        statement: (expression_statement
+          (assignment_expression
+            left: (identifier)
+            right: (method_invocation
+              function: (object_creation_expression
+                type: (type_identifier)
+                arguments: (argument_list))
+              closure: (closure
+                (closure_parameters)
+                (expression_statement
+                  (number_literal))))))))))

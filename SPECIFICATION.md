@@ -387,7 +387,7 @@ fix relative to *both* parent grammars.
 | `class` / `interface` / `@interface` declaration | port from murtaza64 | |
 | `trait` declaration | **new** | identical body to `class`; distinct node kind `trait_declaration`. Closes the `trait` row in #247. |
 | `enum` declaration | **new** | constants list followed by optional `;` then class body; arrow switch is the typical use site (#36). |
-| `record` declaration | **new** | `record Name(Type a, Type b) { … }`. Groovy 4+. |
+| `record` declaration | **new** | `record Name(Type a, Type b) { … }`, with optional type parameters, `record Pair<A, B>(A a, B b)`. Groovy 4+. |
 | `sealed` / `non-sealed` / `permits` modifiers | **new** | parsed as modifier tokens that take a `permits` clause on class/interface. Groovy 4+. |
 | Method declaration | port from murtaza64 | `def` or type, optional throws clause |
 | Method definition (with body) | port from murtaza64 | |
